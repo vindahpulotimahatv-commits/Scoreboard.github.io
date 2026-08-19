@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIPT CUP - Live Scoreboard & vMix Integration</title>
+    <title>VIPT CUP - Live Scoreboard & Match Center Sync</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase SDK (Compat Version untuk Realtime Database) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
@@ -37,7 +37,6 @@
         }
         body.mode-output { background: transparent !important; overflow: hidden; }
         
-        /* Layout Dasar Scoreboard untuk Output / vMix (1280x720 / 1920x1080 Scalable) */
         .scoreboard-root {
             width: 1280px; height: 720px; position: absolute; top: 0; left: 0;
             pointer-events: none; display: flex; justify-content: center;
@@ -87,19 +86,16 @@
         .sb-center { display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 200px; background: rgba(15, 23, 42, 0.95); position: relative; }
         .sb-timer { font-size: 34px; font-weight: 900; color: #fbbf24; letter-spacing: 2px; font-variant-numeric: tabular-nums; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); line-height: 1; margin-top: 4px; }
         .sb-period { font-size: 13px; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: 2px; margin-top: 3px; }
-        .sb-live { position: absolute; top: -14px; background: #dc2626; color: white; font-size: 11px; font-weight: 900; padding: 2px 10px; border-radius: 10px; letter-spacing: 2px; animation: pulse-live 2s infinite; }
+        .sb-live { position: absolute; top: -14px; background: #dc2626; color: white; font-size: 11px; font-weight: 900; padding: 2px 10px; border-radius: 10px; letter-spacing: 2px; }
         
-        @keyframes pulse-live { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
         @keyframes score-pop { 0% { transform: scale(1); color: white; } 50% { transform: scale(1.35); color: #fbbf24; } 100% { transform: scale(1); color: white; } }
         .anim-pop { animation: score-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         
-        /* Tombol kembali dari uji coba output */
         #btn-back-operator { position: fixed; top: 15px; left: 15px; z-index: 9999; background: #dc2626; color: white; padding: 8px 16px; border-radius: 5px; font-weight: bold; cursor: pointer; display: none; border: 2px solid white; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <!-- Tombol Kembali khusus mode test output -->
     <button id="btn-back-operator" onclick="exitTestOutput()">⬅ KEMBALI KE PANEL</button>
 
     <!-- ==================== PANEL OPERATOR ==================== -->
@@ -130,7 +126,16 @@
                     </div>
                 </div>
 
-                <!-- 2. PENGATURAN CABANG & BABAK -->
+                <!-- 2. STATUS PERTANDINGAN (LIVE / SELESAI) -->
+                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md">
+                    <label class="block text-[11px] font-bold text-gray-400 mb-1">STATUS MATCH CENTER</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setMatchStatus('LIVE')" id="btn-status-live" class="bg-red-600 hover:bg-red-500 py-2 rounded font-black text-xs transition">● STATUS: LIVE</button>
+                        <button onclick="setMatchStatus('SELESAI')" id="btn-status-done" class="bg-gray-700 hover:bg-gray-600 py-2 rounded font-black text-xs transition">✔ STATUS: SELESAI</button>
+                    </div>
+                </div>
+
+                <!-- 3. KONTROL CABANG & BABAK -->
                 <div class="grid grid-cols-2 gap-3 bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 mb-1">CABANG OLAHRAGA</label>
@@ -148,7 +153,7 @@
                     </div>
                 </div>
 
-                <!-- 3. KONTROL TIM A & B -->
+                <!-- 4. KONTROL TIM A & B -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <!-- Tim A -->
                     <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 relative">
@@ -193,7 +198,7 @@
                     </div>
                 </div>
 
-                <!-- 4. TIMER KONTROL -->
+                <!-- 5. TIMER KONTROL -->
                 <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 text-center shadow-md">
                     <label class="block text-[10px] font-bold text-gray-400 mb-1">TIMER PERTANDINGAN</label>
                     <div class="text-4xl font-black text-amber-400 mb-3 font-mono" id="op-timer-display">10:00</div>
@@ -247,12 +252,10 @@
         </div>
     </div>
 
-    <!-- Tampilan khusus vMix Output -->
     <div id="output-view" class="hidden h-screen w-screen overflow-hidden relative"></div>
 
     <!-- ==================== LOGIC JAVASCRIPT ==================== -->
     <script>
-        // Data Jadwal Resmi VIPT CUP IV 2026
         const VIPT_MATCHES = [
           {id:"VP-8B1", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
           {id:"VP-8B2", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 02 / RW 021", b:"RT 04 / RW 021"},
@@ -275,6 +278,7 @@
             period: 'BABAK 8 BESAR',
             timer: 600,
             timerRunning: false,
+            status: 'LIVE', // LIVE atau SELESAI (untuk Match Center)
             teamA: { name: 'RT 09 / RW 014', score: 0, logo: '', color: '#dc2626' },
             teamB: { name: 'RT 08 / RW 014', score: 0, logo: '', color: '#2563eb' }
         };
@@ -329,8 +333,17 @@
                 state.teamB.name = match.b;
                 state.teamA.score = 0;
                 state.teamB.score = 0;
+                state.status = 'LIVE';
                 syncAndSave();
             }
+        }
+
+        window.setMatchStatus = function(statusStr) {
+            state.status = statusStr;
+            if (statusStr === 'SELESAI') {
+                pauseTimer();
+            }
+            syncAndSave();
         }
 
         async function initFirebase() {
@@ -433,7 +446,11 @@
             setImg('ui-team-b-logo', state.teamB.logo);
 
             const badge = root.querySelector('#ui-live-badge');
-            if(badge) badge.style.display = state.timerRunning ? 'block' : 'none';
+            if(badge) {
+                badge.textContent = state.status === 'SELESAI' ? 'SELESAI' : 'LIVE';
+                badge.style.background = state.status === 'SELESAI' ? '#4b5563' : '#dc2626';
+                badge.style.display = (state.timerRunning || state.status === 'SELESAI') ? 'block' : 'none';
+            }
         }
 
         function updateOperatorUI() {
@@ -454,6 +471,17 @@
             
             document.getElementById('btn-start').style.display = state.timerRunning ? 'none' : 'block';
             document.getElementById('btn-pause').style.display = state.timerRunning ? 'block' : 'none';
+
+            // Status tombol active state
+            const btnLive = document.getElementById('btn-status-live');
+            const btnDone = document.getElementById('btn-status-done');
+            if(state.status === 'SELESAI') {
+                btnDone.className = "bg-green-600 text-white py-2 rounded font-black text-xs shadow ring-2 ring-white";
+                btnLive.className = "bg-gray-700 text-gray-300 py-2 rounded font-black text-xs";
+            } else {
+                btnLive.className = "bg-red-600 text-white py-2 rounded font-black text-xs shadow ring-2 ring-white";
+                btnDone.className = "bg-gray-700 text-gray-300 py-2 rounded font-black text-xs";
+            }
         }
 
         function resizePreview() {
@@ -499,6 +527,7 @@
         window.startTimer = function() {
             if (!state.timerRunning && state.timer > 0) {
                 state.timerRunning = true;
+                state.status = 'LIVE';
                 clearInterval(timerInterval);
                 timerInterval = setInterval(() => {
                     if (state.timer > 0) {
@@ -525,7 +554,7 @@
 
         window.resetTimer = function() {
             pauseTimer();
-            state.timer = 600; // Default 10 Menit
+            state.timer = 600;
             syncAndSave();
         }
 
