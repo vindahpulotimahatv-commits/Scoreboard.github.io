@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIPT CUP - Live Scoreboard & Match Center Sync</title>
+    <title>VIPT CUP - Live Scoreboard (Set, Poin & Babak 1-2-3)</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -59,7 +59,7 @@
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
         
-        .sb-team { display: flex; align-items: center; padding: 0 25px; min-width: 300px; position: relative; overflow: hidden; }
+        .sb-team { display: flex; align-items: center; padding: 0 25px; min-width: 270px; position: relative; overflow: hidden; }
         .sb-team::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.4) 100%); z-index: 0;
@@ -69,23 +69,32 @@
         .sb-team-a::before { background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(255,255,255,0.1) 100%); }
         
         .sb-team-name {
-            font-size: 28px; font-weight: 800; color: #ffffff; z-index: 1;
+            font-size: 26px; font-weight: 800; color: #ffffff; z-index: 1;
             text-transform: uppercase; letter-spacing: 1px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); white-space: nowrap;
         }
-        .sb-team-logo { height: 50px; width: 50px; object-fit: contain; z-index: 1; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5)); }
-        .sb-team-a .sb-team-logo { margin-left: 15px; }
-        .sb-team-b .sb-team-logo { margin-right: 15px; }
+        .sb-team-logo { height: 45px; width: 45px; object-fit: contain; z-index: 1; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5)); }
+        .sb-team-a .sb-team-logo { margin-left: 12px; }
+        .sb-team-b .sb-team-logo { margin-right: 12px; }
         
+        /* Kotak Skor Set (Besar) */
+        .sb-set-box {
+            background: #1e293b; display: flex; align-items: center; justify-content: center;
+            min-width: 55px; font-size: 28px; font-weight: 900; color: #fbbf24;
+            border-left: 1px solid #333; border-right: 1px solid #333;
+            text-shadow: 0px 0px 5px rgba(251,191,36,0.4);
+        }
+
+        /* Kotak Skor Poin (Kecil) */
         .sb-score-box {
             background: #000000; display: flex; align-items: center; justify-content: center;
-            min-width: 85px; font-size: 48px; font-weight: 900; color: #ffffff;
-            border-left: 1px solid #333; border-right: 1px solid #333;
+            min-width: 75px; font-size: 42px; font-weight: 900; color: #ffffff;
+            border-right: 1px solid #333;
             text-shadow: 0px 0px 10px rgba(255,255,255,0.3); font-variant-numeric: tabular-nums;
         }
         
-        .sb-center { display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 200px; background: rgba(15, 23, 42, 0.95); position: relative; }
-        .sb-timer { font-size: 34px; font-weight: 900; color: #fbbf24; letter-spacing: 2px; font-variant-numeric: tabular-nums; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); line-height: 1; margin-top: 4px; }
-        .sb-period { font-size: 13px; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: 2px; margin-top: 3px; }
+        .sb-center { display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 170px; background: rgba(15, 23, 42, 0.95); position: relative; }
+        .sb-timer { font-size: 28px; font-weight: 900; color: #fbbf24; letter-spacing: 2px; font-variant-numeric: tabular-nums; text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); line-height: 1; margin-top: 4px; }
+        .sb-period { font-size: 11px; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: 2px; margin-top: 3px; }
         .sb-live { position: absolute; top: -14px; background: #dc2626; color: white; font-size: 11px; font-weight: 900; padding: 2px 10px; border-radius: 10px; letter-spacing: 2px; }
         
         @keyframes score-pop { 0% { transform: scale(1); color: white; } 50% { transform: scale(1.35); color: #fbbf24; } 100% { transform: scale(1); color: white; } }
@@ -113,7 +122,7 @@
 
         <div class="flex flex-col lg:flex-row flex-1 p-4 gap-4 overflow-y-auto">
             <!-- Sidebar Kontrol Operator -->
-            <div class="w-full lg:w-[450px] space-y-4 shrink-0">
+            <div class="w-full lg:w-[480px] space-y-4 shrink-0">
                 
                 <!-- 1. PILIH PERTANDINGAN DARI JADWAL -->
                 <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md">
@@ -126,7 +135,7 @@
                     </div>
                 </div>
 
-                <!-- 2. STATUS PERTANDINGAN (LIVE / SELESAI) -->
+                <!-- 2. STATUS PERTANDINGAN -->
                 <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md">
                     <label class="block text-[11px] font-bold text-gray-400 mb-1">STATUS MATCH CENTER</label>
                     <div class="grid grid-cols-2 gap-2">
@@ -135,25 +144,35 @@
                     </div>
                 </div>
 
-                <!-- 3. KONTROL CABANG & BABAK -->
-                <div class="grid grid-cols-2 gap-3 bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1">CABANG OLAHRAGA</label>
-                        <select id="inp-sport" onchange="updateSport()" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-xs font-bold outline-none">
-                            <option value="VOLLY PUTRA">VOLLY PUTRA</option>
-                            <option value="VOLLY PUTRI">VOLLY PUTRI</option>
-                            <option value="FUTSAL">FUTSAL</option>
-                            <option value="TENIS MEJA">TENIS MEJA</option>
-                            <option value="BADMINTON">BADMINTON</option>
-                        </select>
+                <!-- 3. KONTROL CABANG & BABAK (1, 2, 3) -->
+                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 mb-1">CABANG OLAHRAGA</label>
+                            <select id="inp-sport" onchange="updateSport()" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-xs font-bold outline-none">
+                                <option value="VOLLY PUTRA">VOLLY PUTRA</option>
+                                <option value="VOLLY PUTRI">VOLLY PUTRI</option>
+                                <option value="BADMINTON">BADMINTON</option>
+                                <option value="FUTSAL">FUTSAL</option>
+                                <option value="TENIS MEJA">TENIS MEJA</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-400 mb-1">CUSTOM BABAK</label>
+                            <input type="text" id="inp-period" oninput="updatePeriod()" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-xs font-bold uppercase" value="BABAK 1">
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1">BABAK / PERIODE</label>
-                        <input type="text" id="inp-period" oninput="updatePeriod()" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-xs font-bold uppercase" value="BABAK 8 BESAR">
+                        <label class="block text-[10px] font-bold text-amber-400 mb-1">PILIHAN CEPAT BABAK / SET</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setPeriodQuick('BABAK 1')" id="btn-p1" class="bg-gray-700 hover:bg-blue-600 py-1.5 rounded font-black text-xs transition">BABAK 1</button>
+                            <button onclick="setPeriodQuick('BABAK 2')" id="btn-p2" class="bg-gray-700 hover:bg-blue-600 py-1.5 rounded font-black text-xs transition">BABAK 2</button>
+                            <button onclick="setPeriodQuick('BABAK 3')" id="btn-p3" class="bg-gray-700 hover:bg-blue-600 py-1.5 rounded font-black text-xs transition">BABAK 3</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 4. KONTROL TIM A & B -->
+                <!-- 4. KONTROL TIM A & B (SET & POIN) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <!-- Tim A -->
                     <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 relative">
@@ -164,15 +183,29 @@
                         <div class="flex items-center gap-2 mb-3">
                             <input type="color" id="inp-color-a" onchange="updateTeamData()" class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent">
                             <label class="flex-1 cursor-pointer bg-gray-700 hover:bg-gray-600 rounded py-1.5 px-2 text-center text-[10px] font-bold transition">
-                                UPLOAD LOGO
+                                LOGO
                                 <input type="file" class="hidden" accept="image/*" onchange="handleImageUpload(event, 'teamA')">
                             </label>
                         </div>
 
-                        <div class="flex justify-between items-center bg-black/50 p-2 rounded-lg">
-                            <button onclick="changeScore('A', -1)" class="w-10 h-10 bg-gray-700 hover:bg-red-800 rounded font-black text-lg">-</button>
-                            <span id="op-score-a" class="text-3xl font-black">0</span>
-                            <button onclick="changeScore('A', 1)" class="w-10 h-10 bg-gray-700 hover:bg-green-800 rounded font-black text-lg">+</button>
+                        <!-- Kontrol Skor Set (Besar) -->
+                        <div class="mb-2 bg-black/40 p-2 rounded-lg">
+                            <span class="text-[10px] text-amber-400 font-bold block mb-1">SKOR SET (BESAR)</span>
+                            <div class="flex justify-between items-center">
+                                <button onclick="changeSet('A', -1)" class="w-8 h-8 bg-gray-700 hover:bg-red-800 rounded font-black">-</button>
+                                <span id="op-set-a" class="text-xl font-black text-amber-400">0</span>
+                                <button onclick="changeSet('A', 1)" class="w-8 h-8 bg-gray-700 hover:bg-green-800 rounded font-black">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Kontrol Skor Poin (Kecil) -->
+                        <div class="bg-black/50 p-2 rounded-lg">
+                            <span class="text-[10px] text-gray-400 font-bold block mb-1">SKOR POIN (KECIL)</span>
+                            <div class="flex justify-between items-center">
+                                <button onclick="changeScore('A', -1)" class="w-10 h-10 bg-gray-700 hover:bg-red-800 rounded font-black text-lg">-</button>
+                                <span id="op-score-a" class="text-3xl font-black">0</span>
+                                <button onclick="changeScore('A', 1)" class="w-10 h-10 bg-gray-700 hover:bg-green-800 rounded font-black text-lg">+</button>
+                            </div>
                         </div>
                     </div>
 
@@ -185,15 +218,29 @@
                         <div class="flex items-center gap-2 mb-3">
                             <input type="color" id="inp-color-b" onchange="updateTeamData()" class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent">
                             <label class="flex-1 cursor-pointer bg-gray-700 hover:bg-gray-600 rounded py-1.5 px-2 text-center text-[10px] font-bold transition">
-                                UPLOAD LOGO
+                                LOGO
                                 <input type="file" class="hidden" accept="image/*" onchange="handleImageUpload(event, 'teamB')">
                             </label>
                         </div>
 
-                        <div class="flex justify-between items-center bg-black/50 p-2 rounded-lg">
-                            <button onclick="changeScore('B', -1)" class="w-10 h-10 bg-gray-700 hover:bg-red-800 rounded font-black text-lg">-</button>
-                            <span id="op-score-b" class="text-3xl font-black">0</span>
-                            <button onclick="changeScore('B', 1)" class="w-10 h-10 bg-gray-700 hover:bg-green-800 rounded font-black text-lg">+</button>
+                        <!-- Kontrol Skor Set (Besar) -->
+                        <div class="mb-2 bg-black/40 p-2 rounded-lg">
+                            <span class="text-[10px] text-amber-400 font-bold block mb-1">SKOR SET (BESAR)</span>
+                            <div class="flex justify-between items-center">
+                                <button onclick="changeSet('B', -1)" class="w-8 h-8 bg-gray-700 hover:bg-red-800 rounded font-black">-</button>
+                                <span id="op-set-b" class="text-xl font-black text-amber-400">0</span>
+                                <button onclick="changeSet('B', 1)" class="w-8 h-8 bg-gray-700 hover:bg-green-800 rounded font-black">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Kontrol Skor Poin (Kecil) -->
+                        <div class="bg-black/50 p-2 rounded-lg">
+                            <span class="text-[10px] text-gray-400 font-bold block mb-1">SKOR POIN (KECIL)</span>
+                            <div class="flex justify-between items-center">
+                                <button onclick="changeScore('B', -1)" class="w-10 h-10 bg-gray-700 hover:bg-red-800 rounded font-black text-lg">-</button>
+                                <span id="op-score-b" class="text-3xl font-black">0</span>
+                                <button onclick="changeScore('B', 1)" class="w-10 h-10 bg-gray-700 hover:bg-green-800 rounded font-black text-lg">+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -237,13 +284,22 @@
                     <div class="sb-team-name" id="ui-team-a-name">TEAM A</div>
                     <img id="ui-team-a-logo" class="sb-team-logo" src="" style="display:none;">
                 </div>
+                <!-- Set Besar Tim A -->
+                <div class="sb-set-box" id="ui-set-a">0</div>
+                <!-- Poin Kecil Tim A -->
                 <div class="sb-score-box" id="ui-score-a">0</div>
+                
                 <div class="sb-center">
                     <div class="sb-live" id="ui-live-badge">LIVE</div>
                     <div class="sb-timer" id="ui-timer">10:00</div>
-                    <div class="sb-period" id="ui-period">BABAK 8 BESAR</div>
+                    <div class="sb-period" id="ui-period">BABAK 1</div>
                 </div>
+
+                <!-- Poin Kecil Tim B -->
                 <div class="sb-score-box" id="ui-score-b">0</div>
+                <!-- Set Besar Tim B -->
+                <div class="sb-set-box" id="ui-set-b">0</div>
+
                 <div class="sb-team sb-team-b" id="ui-team-b-bg">
                     <img id="ui-team-b-logo" class="sb-team-logo" src="" style="display:none;">
                     <div class="sb-team-name" id="ui-team-b-name">TEAM B</div>
@@ -257,30 +313,22 @@
     <!-- ==================== LOGIC JAVASCRIPT ==================== -->
     <script>
         const VIPT_MATCHES = [
-          {id:"VP-8B1", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
-          {id:"VP-8B2", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 02 / RW 021", b:"RT 04 / RW 021"},
-          {id:"VP-8B3", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 10 / RW 021", b:"RT 08 / RW 021"},
-          {id:"VP-8B4", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 06 / RW 021", b:"RT 07 / RW 021"},
-          {id:"VW-SF1", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
-          {id:"VW-SF2", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 06 / RW 021", b:"RT 08 / RW 021"},
-          {id:"FS-SF1", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 13 / RW 021", b:"RT 04 / RW 021"},
-          {id:"FS-SF2", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 02 / RW 021"},
-          {id:"TM-1", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 08 / RW 014", b:"RT 10 / RW 014"},
-          {id:"TM-2", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 08 / RW 021"},
-          {id:"BD-1", sport:"BADMINTON", round:"BABAK SEMIFINAL (PUTRI)", a:"RT 10 / RW 021", b:"RT 13 / RW 021"},
-          {id:"BD-2", sport:"BADMINTON", round:"BABAK SEMIFINAL (PUTRA)", a:"RT 06 / RW 021", b:"RT 08 / RW 021"},
-          {id:"BD-3", sport:"BADMINTON", round:"BABAK SEMIFINAL (PUTRA)", a:"RT 11 / RW 021", b:"RT 08 / RW 014"}
+          {id:"VP-8B1", sport:"VOLLY PUTRA", round:"BABAK 1", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
+          {id:"VP-8B2", sport:"VOLLY PUTRA", round:"BABAK 1", a:"RT 02 / RW 021", b:"RT 04 / RW 021"},
+          {id:"VW-SF1", sport:"VOLLY PUTRI", round:"BABAK 1", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
+          {id:"FS-SF1", sport:"FUTSAL", round:"BABAK 1", a:"RT 13 / RW 021", b:"RT 04 / RW 021"},
+          {id:"BD-1", sport:"BADMINTON", round:"BABAK 1", a:"RT 10 / RW 021", b:"RT 13 / RW 021"}
         ];
 
         let state = {
             matchId: "VP-8B1",
             sport: 'VOLLY PUTRA',
-            period: 'BABAK 8 BESAR',
+            period: 'BABAK 1',
             timer: 600,
             timerRunning: false,
-            status: 'LIVE', // LIVE atau SELESAI (untuk Match Center)
-            teamA: { name: 'RT 09 / RW 014', score: 0, logo: '', color: '#dc2626' },
-            teamB: { name: 'RT 08 / RW 014', score: 0, logo: '', color: '#2563eb' }
+            status: 'LIVE',
+            teamA: { name: 'RT 09 / RW 014', set: 0, score: 0, logo: '', color: '#dc2626' },
+            teamB: { name: 'RT 08 / RW 014', set: 0, score: 0, logo: '', color: '#2563eb' }
         };
 
         const FIREBASE_CONFIG = {
@@ -331,7 +379,9 @@
                 state.period = match.round;
                 state.teamA.name = match.a;
                 state.teamB.name = match.b;
+                state.teamA.set = 0;
                 state.teamA.score = 0;
+                state.teamB.set = 0;
                 state.teamB.score = 0;
                 state.status = 'LIVE';
                 syncAndSave();
@@ -343,6 +393,11 @@
             if (statusStr === 'SELESAI') {
                 pauseTimer();
             }
+            syncAndSave();
+        }
+
+        window.setPeriodQuick = function(periodName) {
+            state.period = periodName;
             syncAndSave();
         }
 
@@ -426,6 +481,8 @@
 
             setVal('ui-team-a-name', state.teamA.name);
             setVal('ui-team-b-name', state.teamB.name);
+            setVal('ui-set-a', state.teamA.set || 0);
+            setVal('ui-set-b', state.teamB.set || 0);
             setVal('ui-period', state.period);
             setVal('ui-timer', formatTime(state.timer));
 
@@ -457,14 +514,28 @@
             document.getElementById('inp-sport').value = state.sport;
             document.getElementById('inp-period').value = state.period;
             
+            // Highlight active period button
+            ['BABAK 1', 'BABAK 2', 'BABAK 3'].forEach((p, idx) => {
+                const btn = document.getElementById(`btn-p${idx+1}`);
+                if (btn) {
+                    if (state.period === p) {
+                        btn.className = "bg-blue-600 text-white py-1.5 rounded font-black text-xs shadow ring-2 ring-white transition";
+                    } else {
+                        btn.className = "bg-gray-700 hover:bg-blue-600 text-gray-300 py-1.5 rounded font-black text-xs transition";
+                    }
+                }
+            });
+
             const na = document.getElementById('inp-name-a'); if(document.activeElement !== na) na.value = state.teamA.name;
             document.getElementById('inp-color-a').value = state.teamA.color;
             document.getElementById('bar-color-a').style.backgroundColor = state.teamA.color;
+            document.getElementById('op-set-a').textContent = state.teamA.set || 0;
             document.getElementById('op-score-a').textContent = state.teamA.score;
 
             const nb = document.getElementById('inp-name-b'); if(document.activeElement !== nb) nb.value = state.teamB.name;
             document.getElementById('inp-color-b').value = state.teamB.color;
             document.getElementById('bar-color-b').style.backgroundColor = state.teamB.color;
+            document.getElementById('op-set-b').textContent = state.teamB.set || 0;
             document.getElementById('op-score-b').textContent = state.teamB.score;
 
             document.getElementById('op-timer-display').textContent = formatTime(state.timer);
@@ -472,7 +543,6 @@
             document.getElementById('btn-start').style.display = state.timerRunning ? 'none' : 'block';
             document.getElementById('btn-pause').style.display = state.timerRunning ? 'block' : 'none';
 
-            // Status tombol active state
             const btnLive = document.getElementById('btn-status-live');
             const btnDone = document.getElementById('btn-status-done');
             if(state.status === 'SELESAI') {
@@ -492,6 +562,12 @@
             const scale = Math.min(container.clientWidth / 1280, container.clientHeight / 720) * 0.95;
             root.style.transform = `scale(${scale})`;
             root.style.transformOrigin = 'center center';
+        }
+
+        window.changeSet = function(team, val) {
+            if (team === 'A') state.teamA.set = Math.max(0, (state.teamA.set || 0) + val);
+            if (team === 'B') state.teamB.set = Math.max(0, (state.teamB.set || 0) + val);
+            syncAndSave();
         }
 
         window.changeScore = function(team, val) {
