@@ -130,7 +130,7 @@
             </div>
         </header>
 
-        <!-- KOTAK LIVE PREVIEW UTAMA (DIATAS AGAR MUDAH DILIHAT) -->
+        <!-- KOTAK LIVE PREVIEW UTAMA -->
         <div class="bg-gray-800 border border-gray-700 p-2 rounded-xl mb-3 shadow-lg">
             <div class="flex justify-between items-center mb-1.5 px-1">
                 <span class="text-[10px] sm:text-xs text-amber-400 font-black tracking-wider">● LIVE PREVIEW vMIX (REAL-TIME)</span>
@@ -144,7 +144,7 @@
         <!-- PANEL KONTROL KONTEN -->
         <div class="space-y-3">
             
-            <!-- 1. PILIH PERTANDINGAN -->
+            <!-- 1. PILIH PERTANDINGAN DARI JADWAL LENGKAP -->
             <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 shadow-md">
                 <label class="block text-[10px] font-bold text-gray-400 mb-1">PILIH PERTANDINGAN DARI JADWAL LENGKAP</label>
                 <div class="flex gap-2">
@@ -164,7 +164,7 @@
                 </div>
             </div>
 
-            <!-- 3. KONTROL CABANG & BABAK (1, 2, 3) -->
+            <!-- 3. KONTROL CABANG & BABAK -->
             <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 shadow-md space-y-2">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -208,8 +208,8 @@
                         </label>
                     </div>
 
-                    <!-- Skor Set -->
-                    <div class="mb-2 bg-black/40 p-2 rounded-lg">
+                    <!-- Skor Set (Dihide otomatis jika Futsal) -->
+                    <div id="box-set-control-a" class="mb-2 bg-black/40 p-2 rounded-lg">
                         <span class="text-[9px] text-amber-400 font-bold block mb-1">SKOR SET (BESAR)</span>
                         <div class="flex justify-between items-center">
                             <button onclick="changeSet('A', -1)" class="w-9 h-9 bg-gray-700 hover:bg-red-800 rounded font-black text-base">-</button>
@@ -218,9 +218,9 @@
                         </div>
                     </div>
 
-                    <!-- Skor Poin -->
+                    <!-- Skor Poin / Gol -->
                     <div class="bg-black/50 p-2 rounded-lg">
-                        <span class="text-[9px] text-gray-400 font-bold block mb-1">SKOR POIN (KECIL)</span>
+                        <span id="label-score-a" class="text-[9px] text-gray-400 font-bold block mb-1">SKOR POIN (KECIL)</span>
                         <div class="flex justify-between items-center">
                             <button onclick="changeScore('A', -1)" class="w-10 h-10 bg-gray-700 hover:bg-red-800 rounded font-black text-lg">-</button>
                             <span id="op-score-a" class="text-3xl font-black">0</span>
@@ -243,8 +243,8 @@
                         </label>
                     </div>
 
-                    <!-- Skor Set -->
-                    <div class="mb-2 bg-black/40 p-2 rounded-lg">
+                    <!-- Skor Set (Dihide otomatis jika Futsal) -->
+                    <div id="box-set-control-b" class="mb-2 bg-black/40 p-2 rounded-lg">
                         <span class="text-[9px] text-amber-400 font-bold block mb-1">SKOR SET (BESAR)</span>
                         <div class="flex justify-between items-center">
                             <button onclick="changeSet('B', -1)" class="w-9 h-9 bg-gray-700 hover:bg-red-800 rounded font-black text-base">-</button>
@@ -253,9 +253,9 @@
                         </div>
                     </div>
 
-                    <!-- Skor Poin -->
+                    <!-- Skor Poin / Gol -->
                     <div class="bg-black/50 p-2 rounded-lg">
-                        <span class="text-[9px] text-gray-400 font-bold block mb-1">SKOR POIN (KECIL)</span>
+                        <span id="label-score-b" class="text-[9px] text-gray-400 font-bold block mb-1">SKOR POIN (KECIL)</span>
                         <div class="flex justify-between items-center">
                             <button onclick="changeScore('B', -1)" class="w-10 h-10 bg-gray-700 hover:bg-red-800 rounded font-black text-lg">-</button>
                             <span id="op-score-b" class="text-3xl font-black">0</span>
@@ -287,7 +287,7 @@
         </div>
     </div>
 
-    <!-- ==================== TEMPLATE SCOREBOARD LAYOUT ==================== -->
+    <!-- ==================== TEMPLATE SCOREBOARD LAYOUT (vMIX) ==================== -->
     <div id="scoreboard-template" style="display: none;">
         <div class="scoreboard-root" id="sb-root">
             <div class="sb-main-bar">
@@ -295,7 +295,12 @@
                     <div class="sb-team-name" id="ui-team-a-name">TEAM A</div>
                     <img id="ui-team-a-logo" class="sb-team-logo" src="" style="display:none;">
                 </div>
-                <div class="sb-set-box" id="ui-set-a">0</div>
+                
+                <!-- Kotak Set A (Hidden jika Futsal) -->
+                <div class="sb-set-box" id="ui-set-box-wrap-a">
+                    <span id="ui-set-a">0</span>
+                </div>
+                
                 <div class="sb-score-box" id="ui-score-a">0</div>
                 
                 <div class="sb-center">
@@ -305,7 +310,11 @@
                 </div>
 
                 <div class="sb-score-box" id="ui-score-b">0</div>
-                <div class="sb-set-box" id="ui-set-b">0</div>
+                
+                <!-- Kotak Set B (Hidden jika Futsal) -->
+                <div class="sb-set-box" id="ui-set-box-wrap-b">
+                    <span id="ui-set-b">0</span>
+                </div>
 
                 <div class="sb-team sb-team-b" id="ui-team-b-bg">
                     <img id="ui-team-b-logo" class="sb-team-logo" src="" style="display:none;">
@@ -483,6 +492,8 @@
             const root = document.getElementById(rootId);
             if (!root) return;
 
+            const isFutsal = (state.sport === 'FUTSAL');
+
             const setVal = (id, val) => { const el = root.querySelector('#' + id); if(el) el.textContent = val; };
             const setCSS = (id, prop, val) => { const el = root.querySelector('#' + id); if(el) el.style[prop] = val; };
             const setImg = (id, src) => { 
@@ -499,6 +510,12 @@
             setVal('ui-set-b', state.teamB.set || 0);
             setVal('ui-period', state.period);
             setVal('ui-timer', formatTime(state.timer));
+
+            // Sembunyikan kotak set jika Futsal
+            const wrapSetA = root.querySelector('#ui-set-box-wrap-a');
+            const wrapSetB = root.querySelector('#ui-set-box-wrap-b');
+            if (wrapSetA) wrapSetA.style.display = isFutsal ? 'none' : 'flex';
+            if (wrapSetB) wrapSetB.style.display = isFutsal ? 'none' : 'flex';
 
             const sa = root.querySelector('#ui-score-a');
             const sb = root.querySelector('#ui-score-b');
@@ -528,6 +545,14 @@
             document.getElementById('inp-sport').value = state.sport;
             document.getElementById('inp-period').value = state.period;
             
+            const isFutsal = (state.sport === 'FUTSAL');
+
+            // Sembunyikan kotak set control operator jika Futsal
+            document.getElementById('box-set-control-a').style.display = isFutsal ? 'none' : 'block';
+            document.getElementById('box-set-control-b').style.display = isFutsal ? 'none' : 'block';
+            document.getElementById('label-score-a').textContent = isFutsal ? 'SKOR GOL (UTAMA)' : 'SKOR POIN (KECIL)';
+            document.getElementById('label-score-b').textContent = isFutsal ? 'SKOR GOL (UTAMA)' : 'SKOR POIN (KECIL)';
+
             ['BABAK 1', 'BABAK 2', 'BABAK 3'].forEach((p, idx) => {
                 const btn = document.getElementById(`btn-p${idx+1}`);
                 if (btn) {
