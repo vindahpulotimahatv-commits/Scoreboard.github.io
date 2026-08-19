@@ -34,15 +34,18 @@
             margin: 0; padding: 0; width: 100%; height: 100%;
             font-family: 'Roboto', sans-serif; background-color: #0f172a;
             -webkit-tap-highlight-color: transparent; color: #ffffff;
+            overflow: hidden;
         }
-        body.mode-output { background: transparent !important; overflow: hidden; }
+        body.mode-output { background: transparent !important; }
         
+        /* Container dasar scoreboard resolusi vMix 1280x720 */
         .scoreboard-root {
             width: 1280px; height: 720px; position: absolute; top: 0; left: 0;
             pointer-events: none; display: flex; justify-content: center;
         }
         
-        #preview-container {
+        /* Area Preview Skala 16:9 yang akurat */
+        #preview-wrapper {
             position: relative; width: 100%; aspect-ratio: 16/9;
             background-image: linear-gradient(45deg, #1e293b 25%, transparent 25%), 
                               linear-gradient(-45deg, #1e293b 25%, transparent 25%), 
@@ -50,13 +53,20 @@
                               linear-gradient(-45deg, transparent 75%, #1e293b 75%);
             background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
             overflow: hidden; border-radius: 0.5rem; border: 1px solid #334155;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        #preview-container {
+            position: absolute; width: 1280px; height: 720px;
+            transform-origin: center center; left: 50%; top: 50%;
+            margin-left: -640px; margin-top: -360px; pointer-events: none;
         }
 
         .sb-main-bar {
             margin-top: 40px; display: flex; align-items: stretch; height: 75px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.7); border-radius: 8px; overflow: visible;
             border: 2px solid rgba(255,255,255,0.15); background: var(--bg-glass);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); width: fit-content; margin-left: auto; margin-right: auto;
         }
         
         .sb-team { display: flex; align-items: center; padding: 0 25px; min-width: 270px; position: relative; overflow: hidden; }
@@ -103,53 +113,53 @@
         #btn-back-operator { position: fixed; top: 15px; left: 15px; z-index: 9999; background: #dc2626; color: white; padding: 8px 16px; border-radius: 5px; font-weight: bold; cursor: pointer; display: none; border: 2px solid white; font-size: 12px; }
     </style>
 </head>
-<body>
+<body class="h-screen overflow-hidden">
 
     <button id="btn-back-operator" onclick="exitTestOutput()">⬅ KEMBALI KE PANEL</button>
 
     <!-- ==================== PANEL OPERATOR ==================== -->
-    <div id="operator-view" class="min-h-screen flex flex-col bg-brand-navy">
-        <header class="bg-brand-dark border-b border-gray-700 p-4 flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0">
+    <div id="operator-view" class="h-screen flex flex-col bg-brand-navy overflow-hidden">
+        <header class="bg-brand-dark border-b border-gray-700 p-3 flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0">
             <div>
-                <h1 class="text-xl font-black tracking-wider text-white">VIPT <span class="text-brand-red">SCOREBOARD</span></h1>
+                <h1 class="text-lg font-black tracking-wider text-white">VIPT <span class="text-brand-red">SCOREBOARD</span></h1>
                 <p id="sync-status" class="text-[10px] text-yellow-400 tracking-widest uppercase font-bold">● MENYAMBUNG KE SERVER...</p>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="testFullOutput()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded font-bold text-xs shadow">TEST OUTPUT</button>
-                <button onclick="openOutputTab()" class="bg-brand-red hover:bg-red-700 px-4 py-2 rounded font-bold text-xs shadow">BUKA TAB vMIX OUTPUT</button>
+                <button onclick="testFullOutput()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded font-bold text-xs shadow">TEST OUTPUT</button>
+                <button onclick="openOutputTab()" class="bg-brand-red hover:bg-red-700 px-3 py-1.5 rounded font-bold text-xs shadow">BUKA TAB vMIX OUTPUT</button>
             </div>
         </header>
 
-        <div class="flex flex-col lg:flex-row flex-1 p-4 gap-4 overflow-y-auto">
-            <!-- Sidebar Kontrol Operator -->
-            <div class="w-full lg:w-[480px] space-y-4 shrink-0">
+        <div class="flex flex-col lg:flex-row flex-1 p-3 gap-3 overflow-hidden">
+            <!-- Sidebar Kontrol Operator (Bisa di-scroll) -->
+            <div class="w-full lg:w-[440px] space-y-3 overflow-y-auto pr-1 shrink-0 h-full pb-10">
                 
                 <!-- 1. PILIH PERTANDINGAN DARI JADWAL -->
-                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md">
-                    <label class="block text-[11px] font-bold text-gray-400 mb-1">PILIH PERTANDINGAN DARI JADWAL</label>
+                <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 shadow-md">
+                    <label class="block text-[10px] font-bold text-gray-400 mb-1">PILIH PERTANDINGAN</label>
                     <div class="flex gap-2">
-                        <select id="select-match-list" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-xs font-bold text-white outline-none">
+                        <select id="select-match-list" class="w-full bg-gray-900 border border-gray-600 rounded p-1.5 text-xs font-bold text-white outline-none">
                             <option value="">-- Pilih Pertandingan --</option>
                         </select>
-                        <button onclick="applySelectedMatch()" class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-xs font-black shadow transition whitespace-nowrap">LOAD</button>
+                        <button onclick="applySelectedMatch()" class="bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded text-xs font-black shadow transition whitespace-nowrap">LOAD</button>
                     </div>
                 </div>
 
                 <!-- 2. STATUS PERTANDINGAN -->
-                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md">
-                    <label class="block text-[11px] font-bold text-gray-400 mb-1">STATUS MATCH CENTER</label>
+                <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 shadow-md">
+                    <label class="block text-[10px] font-bold text-gray-400 mb-1">STATUS MATCH CENTER</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="setMatchStatus('LIVE')" id="btn-status-live" class="bg-red-600 hover:bg-red-500 py-2 rounded font-black text-xs transition">● STATUS: LIVE</button>
-                        <button onclick="setMatchStatus('SELESAI')" id="btn-status-done" class="bg-gray-700 hover:bg-gray-600 py-2 rounded font-black text-xs transition">✔ STATUS: SELESAI</button>
+                        <button onclick="setMatchStatus('LIVE')" id="btn-status-live" class="bg-red-600 hover:bg-red-500 py-1.5 rounded font-black text-xs transition">● STATUS: LIVE</button>
+                        <button onclick="setMatchStatus('SELESAI')" id="btn-status-done" class="bg-gray-700 hover:bg-gray-600 py-1.5 rounded font-black text-xs transition">✔ STATUS: SELESAI</button>
                     </div>
                 </div>
 
                 <!-- 3. KONTROL CABANG & BABAK (1, 2, 3) -->
-                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 shadow-md space-y-3">
-                    <div class="grid grid-cols-2 gap-3">
+                <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 shadow-md space-y-2">
+                    <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 mb-1">CABANG OLAHRAGA</label>
-                            <select id="inp-sport" onchange="updateSport()" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-xs font-bold outline-none">
+                            <label class="block text-[9px] font-bold text-gray-400 mb-1">CABANG OLAHRAGA</label>
+                            <select id="inp-sport" onchange="updateSport()" class="w-full bg-gray-900 border border-gray-600 rounded p-1.5 text-xs font-bold outline-none">
                                 <option value="VOLLY PUTRA">VOLLY PUTRA</option>
                                 <option value="VOLLY PUTRI">VOLLY PUTRI</option>
                                 <option value="BADMINTON">BADMINTON</option>
@@ -158,12 +168,12 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-gray-400 mb-1">CUSTOM BABAK</label>
-                            <input type="text" id="inp-period" oninput="updatePeriod()" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-xs font-bold uppercase" value="BABAK 1">
+                            <label class="block text-[9px] font-bold text-gray-400 mb-1">CUSTOM BABAK</label>
+                            <input type="text" id="inp-period" oninput="updatePeriod()" class="w-full bg-gray-900 border border-gray-600 rounded p-1.5 text-xs font-bold uppercase" value="BABAK 1">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-amber-400 mb-1">PILIHAN CEPAT BABAK / SET</label>
+                        <label class="block text-[9px] font-bold text-amber-400 mb-1">PILIHAN CEPAT BABAK / SET</label>
                         <div class="grid grid-cols-3 gap-2">
                             <button onclick="setPeriodQuick('BABAK 1')" id="btn-p1" class="bg-gray-700 hover:bg-blue-600 py-1.5 rounded font-black text-xs transition">BABAK 1</button>
                             <button onclick="setPeriodQuick('BABAK 2')" id="btn-p2" class="bg-gray-700 hover:bg-blue-600 py-1.5 rounded font-black text-xs transition">BABAK 2</button>
@@ -173,16 +183,16 @@
                 </div>
 
                 <!-- 4. KONTROL TIM A & B (SET & POIN) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <!-- Tim A -->
-                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 relative">
+                    <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 relative">
                         <div class="absolute top-0 left-0 w-full h-1" style="background-color: var(--team-a-color)" id="bar-color-a"></div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1">TIM A (KIRI)</label>
-                        <input type="text" id="inp-name-a" oninput="updateTeamData()" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white font-black text-sm mb-2 uppercase text-center" value="RT 09 / RW 014">
+                        <label class="block text-[9px] font-bold text-gray-400 mb-1">TIM A (KIRI)</label>
+                        <input type="text" id="inp-name-a" oninput="updateTeamData()" class="w-full bg-gray-900 border border-gray-600 rounded p-1.5 text-white font-black text-xs mb-2 uppercase text-center" value="RT 09 / RW 014">
                         
-                        <div class="flex items-center gap-2 mb-3">
-                            <input type="color" id="inp-color-a" onchange="updateTeamData()" class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent">
-                            <label class="flex-1 cursor-pointer bg-gray-700 hover:bg-gray-600 rounded py-1.5 px-2 text-center text-[10px] font-bold transition">
+                        <div class="flex items-center gap-2 mb-2">
+                            <input type="color" id="inp-color-a" onchange="updateTeamData()" class="w-7 h-7 rounded cursor-pointer border-0 bg-transparent">
+                            <label class="flex-1 cursor-pointer bg-gray-700 hover:bg-gray-600 rounded py-1 px-2 text-center text-[9px] font-bold transition">
                                 LOGO
                                 <input type="file" class="hidden" accept="image/*" onchange="handleImageUpload(event, 'teamA')">
                             </label>
@@ -190,34 +200,34 @@
 
                         <!-- Kontrol Skor Set (Besar) -->
                         <div class="mb-2 bg-black/40 p-2 rounded-lg">
-                            <span class="text-[10px] text-amber-400 font-bold block mb-1">SKOR SET (BESAR)</span>
+                            <span class="text-[9px] text-amber-400 font-bold block mb-1">SKOR SET (BESAR)</span>
                             <div class="flex justify-between items-center">
-                                <button onclick="changeSet('A', -1)" class="w-8 h-8 bg-gray-700 hover:bg-red-800 rounded font-black">-</button>
-                                <span id="op-set-a" class="text-xl font-black text-amber-400">0</span>
-                                <button onclick="changeSet('A', 1)" class="w-8 h-8 bg-gray-700 hover:bg-green-800 rounded font-black">+</button>
+                                <button onclick="changeSet('A', -1)" class="w-7 h-7 bg-gray-700 hover:bg-red-800 rounded font-black">-</button>
+                                <span id="op-set-a" class="text-lg font-black text-amber-400">0</span>
+                                <button onclick="changeSet('A', 1)" class="w-7 h-7 bg-gray-700 hover:bg-green-800 rounded font-black">+</button>
                             </div>
                         </div>
 
                         <!-- Kontrol Skor Poin (Kecil) -->
                         <div class="bg-black/50 p-2 rounded-lg">
-                            <span class="text-[10px] text-gray-400 font-bold block mb-1">SKOR POIN (KECIL)</span>
+                            <span class="text-[9px] text-gray-400 font-bold block mb-1">SKOR POIN (KECIL)</span>
                             <div class="flex justify-between items-center">
-                                <button onclick="changeScore('A', -1)" class="w-10 h-10 bg-gray-700 hover:bg-red-800 rounded font-black text-lg">-</button>
-                                <span id="op-score-a" class="text-3xl font-black">0</span>
-                                <button onclick="changeScore('A', 1)" class="w-10 h-10 bg-gray-700 hover:bg-green-800 rounded font-black text-lg">+</button>
+                                <button onclick="changeScore('A', -1)" class="w-8 h-8 bg-gray-700 hover:bg-red-800 rounded font-black text-base">-</button>
+                                <span id="op-score-a" class="text-2xl font-black">0</span>
+                                <button onclick="changeScore('A', 1)" class="w-8 h-8 bg-gray-700 hover:bg-green-800 rounded font-black text-base">+</button>
                             </div>
                         </div>
                     </div>
 
                     <!-- Tim B -->
-                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 relative">
+                    <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 relative">
                         <div class="absolute top-0 left-0 w-full h-1" style="background-color: var(--team-b-color)" id="bar-color-b"></div>
-                        <label class="block text-[10px] font-bold text-gray-400 mb-1">TIM B (KANAN)</label>
-                        <input type="text" id="inp-name-b" oninput="updateTeamData()" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white font-black text-sm mb-2 uppercase text-center" value="RT 08 / RW 014">
+                        <label class="block text-[9px] font-bold text-gray-400 mb-1">TIM B (KANAN)</label>
+                        <input type="text" id="inp-name-b" oninput="updateTeamData()" class="w-full bg-gray-900 border border-gray-600 rounded p-1.5 text-white font-black text-xs mb-2 uppercase text-center" value="RT 08 / RW 014">
                         
-                        <div class="flex items-center gap-2 mb-3">
-                            <input type="color" id="inp-color-b" onchange="updateTeamData()" class="w-8 h-8 rounded cursor-pointer border-0 bg-transparent">
-                            <label class="flex-1 cursor-pointer bg-gray-700 hover:bg-gray-600 rounded py-1.5 px-2 text-center text-[10px] font-bold transition">
+                        <div class="flex items-center gap-2 mb-2">
+                            <input type="color" id="inp-color-b" onchange="updateTeamData()" class="w-7 h-7 rounded cursor-pointer border-0 bg-transparent">
+                            <label class="flex-1 cursor-pointer bg-gray-700 hover:bg-gray-600 rounded py-1 px-2 text-center text-[9px] font-bold transition">
                                 LOGO
                                 <input type="file" class="hidden" accept="image/*" onchange="handleImageUpload(event, 'teamB')">
                             </label>
@@ -225,51 +235,54 @@
 
                         <!-- Kontrol Skor Set (Besar) -->
                         <div class="mb-2 bg-black/40 p-2 rounded-lg">
-                            <span class="text-[10px] text-amber-400 font-bold block mb-1">SKOR SET (BESAR)</span>
+                            <span class="text-[9px] text-amber-400 font-bold block mb-1">SKOR SET (BESAR)</span>
                             <div class="flex justify-between items-center">
-                                <button onclick="changeSet('B', -1)" class="w-8 h-8 bg-gray-700 hover:bg-red-800 rounded font-black">-</button>
-                                <span id="op-set-b" class="text-xl font-black text-amber-400">0</span>
-                                <button onclick="changeSet('B', 1)" class="w-8 h-8 bg-gray-700 hover:bg-green-800 rounded font-black">+</button>
+                                <button onclick="changeSet('B', -1)" class="w-7 h-7 bg-gray-700 hover:bg-red-800 rounded font-black">-</button>
+                                <span id="op-set-b" class="text-lg font-black text-amber-400">0</span>
+                                <button onclick="changeSet('B', 1)" class="w-7 h-7 bg-gray-700 hover:bg-green-800 rounded font-black">+</button>
                             </div>
                         </div>
 
                         <!-- Kontrol Skor Poin (Kecil) -->
                         <div class="bg-black/50 p-2 rounded-lg">
-                            <span class="text-[10px] text-gray-400 font-bold block mb-1">SKOR POIN (KECIL)</span>
+                            <span class="text-[9px] text-gray-400 font-bold block mb-1">SKOR POIN (KECIL)</span>
                             <div class="flex justify-between items-center">
-                                <button onclick="changeScore('B', -1)" class="w-10 h-10 bg-gray-700 hover:bg-red-800 rounded font-black text-lg">-</button>
-                                <span id="op-score-b" class="text-3xl font-black">0</span>
-                                <button onclick="changeScore('B', 1)" class="w-10 h-10 bg-gray-700 hover:bg-green-800 rounded font-black text-lg">+</button>
+                                <button onclick="changeScore('B', -1)" class="w-8 h-8 bg-gray-700 hover:bg-red-800 rounded font-black text-base">-</button>
+                                <span id="op-score-b" class="text-2xl font-black">0</span>
+                                <button onclick="changeScore('B', 1)" class="w-8 h-8 bg-gray-700 hover:bg-green-800 rounded font-black text-base">+</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- 5. TIMER KONTROL -->
-                <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 text-center shadow-md">
-                    <label class="block text-[10px] font-bold text-gray-400 mb-1">TIMER PERTANDINGAN</label>
-                    <div class="text-4xl font-black text-amber-400 mb-3 font-mono" id="op-timer-display">10:00</div>
+                <div class="bg-gray-800 p-3 rounded-xl border border-gray-700 text-center shadow-md">
+                    <label class="block text-[9px] font-bold text-gray-400 mb-1">TIMER PERTANDINGAN</label>
+                    <div class="text-3xl font-black text-amber-400 mb-2 font-mono" id="op-timer-display">10:00</div>
                     
-                    <div class="grid grid-cols-5 gap-1 mb-3">
-                        <button onclick="modifyTimer(-60)" class="bg-gray-700 hover:bg-gray-600 rounded py-1 text-xs font-bold">-1M</button>
-                        <button onclick="modifyTimer(-10)" class="bg-gray-700 hover:bg-gray-600 rounded py-1 text-xs font-bold">-10S</button>
-                        <button onclick="resetTimer()" class="bg-gray-700 hover:bg-red-900 rounded py-1 text-xs font-bold text-red-400">RST</button>
-                        <button onclick="modifyTimer(10)" class="bg-gray-700 hover:bg-gray-600 rounded py-1 text-xs font-bold">+10S</button>
-                        <button onclick="modifyTimer(60)" class="bg-gray-700 hover:bg-gray-600 rounded py-1 text-xs font-bold">+1M</button>
+                    <div class="grid grid-cols-5 gap-1 mb-2">
+                        <button onclick="modifyTimer(-60)" class="bg-gray-700 hover:bg-gray-600 rounded py-1 text-[10px] font-bold">-1M</button>
+                        <button onclick="modifyTimer(-10)" class="bg-gray-700 hover:bg-gray-600 rounded py-1 text-[10px] font-bold">-10S</button>
+                        <button onclick="resetTimer()" class="bg-gray-700 hover:bg-red-900 rounded py-1 text-[10px] font-bold text-red-400">RST</button>
+                        <button onclick="modifyTimer(10)" class="bg-gray-700 hover:bg-gray-600 rounded py-1 text-[10px] font-bold">+10S</button>
+                        <button onclick="modifyTimer(60)" class="bg-gray-700 hover:bg-gray-600 rounded py-1 text-[10px] font-bold">+1M</button>
                     </div>
 
                     <div class="flex gap-2">
-                        <button onclick="startTimer()" id="btn-start" class="flex-1 bg-green-600 hover:bg-green-500 py-2.5 rounded font-black text-sm shadow">START</button>
-                        <button onclick="pauseTimer()" id="btn-pause" class="flex-1 bg-amber-600 hover:bg-amber-500 py-2.5 rounded font-black text-sm shadow hidden">PAUSE</button>
+                        <button onclick="startTimer()" id="btn-start" class="flex-1 bg-green-600 hover:bg-green-500 py-2 rounded font-black text-xs shadow">START</button>
+                        <button onclick="pauseTimer()" id="btn-pause" class="flex-1 bg-amber-600 hover:bg-amber-500 py-2 rounded font-black text-xs shadow hidden">PAUSE</button>
                     </div>
                 </div>
 
             </div>
 
-            <!-- Preview Live Area -->
-            <div class="flex-1 bg-black/60 p-4 rounded-xl border border-gray-800 flex flex-col justify-center items-center">
-                <div class="w-full max-w-3xl">
-                    <span class="text-xs text-gray-400 font-bold block mb-2">● LIVE PREVIEW 16:9</span>
+            <!-- Preview Live Area (Diperbesar agar terlihat langsung dengan jelas) -->
+            <div class="flex-1 bg-black/85 p-3 rounded-xl border border-gray-800 flex flex-col justify-center items-center h-full overflow-hidden">
+                <div class="w-full flex justify-between items-center mb-1 px-1">
+                    <span class="text-xs text-amber-400 font-black tracking-wider">● LIVE PREVIEW vMIX MONITOR</span>
+                    <span class="text-[10px] text-gray-400 font-bold">16:9 RATIO OPTIMIZED</span>
+                </div>
+                <div id="preview-wrapper" class="w-full flex-1 rounded-lg">
                     <div id="preview-container"></div>
                 </div>
             </div>
@@ -514,7 +527,6 @@
             document.getElementById('inp-sport').value = state.sport;
             document.getElementById('inp-period').value = state.period;
             
-            // Highlight active period button
             ['BABAK 1', 'BABAK 2', 'BABAK 3'].forEach((p, idx) => {
                 const btn = document.getElementById(`btn-p${idx+1}`);
                 if (btn) {
@@ -546,22 +558,22 @@
             const btnLive = document.getElementById('btn-status-live');
             const btnDone = document.getElementById('btn-status-done');
             if(state.status === 'SELESAI') {
-                btnDone.className = "bg-green-600 text-white py-2 rounded font-black text-xs shadow ring-2 ring-white";
-                btnLive.className = "bg-gray-700 text-gray-300 py-2 rounded font-black text-xs";
+                btnDone.className = "bg-green-600 text-white py-1.5 rounded font-black text-xs shadow ring-2 ring-white";
+                btnLive.className = "bg-gray-700 text-gray-300 py-1.5 rounded font-black text-xs";
             } else {
-                btnLive.className = "bg-red-600 text-white py-2 rounded font-black text-xs shadow ring-2 ring-white";
-                btnDone.className = "bg-gray-700 text-gray-300 py-2 rounded font-black text-xs";
+                btnLive.className = "bg-red-600 text-white py-1.5 rounded font-black text-xs shadow ring-2 ring-white";
+                btnDone.className = "bg-gray-700 text-gray-300 py-1.5 rounded font-black text-xs";
             }
         }
 
         function resizePreview() {
             if (isOutputMode) return;
+            const wrapper = document.getElementById('preview-wrapper');
             const container = document.getElementById('preview-container');
-            const root = container?.querySelector('.scoreboard-root');
-            if (!container || !root) return;
-            const scale = Math.min(container.clientWidth / 1280, container.clientHeight / 720) * 0.95;
-            root.style.transform = `scale(${scale})`;
-            root.style.transformOrigin = 'center center';
+            if (!wrapper || !container) return;
+            
+            const scale = Math.min(wrapper.clientWidth / 1280, wrapper.clientHeight / 720);
+            container.style.transform = `scale(${scale})`;
         }
 
         window.changeSet = function(team, val) {
