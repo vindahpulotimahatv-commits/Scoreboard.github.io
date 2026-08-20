@@ -148,17 +148,15 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[10px] text-gray-400 font-bold mb-1">LOGO TIM A</label>
-                        <input type="file" id="logo-a-file" accept="image/*" onchange="loadLogo('A', this)"
-                               class="w-full text-[10px] bg-gray-800 border border-gray-700 p-2 rounded-xl">
-                        <img id="preview-logo-a" class="hidden mt-2 w-16 h-16 object-contain bg-white rounded-xl p-1 mx-auto">
+                    <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+                        <label class="block text-[10px] text-gray-400 font-bold mb-2">LOGO TIM A — OTOMATIS</label>
+                        <img id="preview-logo-a" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
+                        <div id="preview-logo-a-empty" class="text-[10px] text-gray-500">Logo mengikuti nama Team A</div>
                     </div>
-                    <div>
-                        <label class="block text-[10px] text-gray-400 font-bold mb-1">LOGO TIM B</label>
-                        <input type="file" id="logo-b-file" accept="image/*" onchange="loadLogo('B', this)"
-                               class="w-full text-[10px] bg-gray-800 border border-gray-700 p-2 rounded-xl">
-                        <img id="preview-logo-b" class="hidden mt-2 w-16 h-16 object-contain bg-white rounded-xl p-1 mx-auto">
+                    <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+                        <label class="block text-[10px] text-gray-400 font-bold mb-2">LOGO TIM B — OTOMATIS</label>
+                        <img id="preview-logo-b" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
+                        <div id="preview-logo-b-empty" class="text-[10px] text-gray-500">Logo mengikuti nama Team B</div>
                     </div>
                 </div>
 
@@ -284,6 +282,35 @@
             {id:"BD-1", sport:"BADMINTON", round:"BABAK SEMIFINAL", a:"RT 10 / RW 021", b:"RT 13 / RW 021"}
         ];
 
+        // LOGO TIM OTOMATIS — tertanam di index.html agar web, APK dan vMix
+        // tidak membutuhkan folder/file logo tambahan. Nama tim menjadi kunci pencarian logo.
+        const TEAM_LOGOS = {
+            "RT 09/RW 014": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAwADADASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAABAUBAgMGAP/EAC4QAAIBAgUDAwIGAwAAAAAAAAECAwQRAAUSITFBcYETIqEyYRQ1UVJ0siOR8P/EABYBAQEBAAAAAAAAAAAAAAAAAAIDAf/EABwRAAICAwEBAAAAAAAAAAAAAAABAhESIUExUf/aAAwDAQACEQMRAD8A5rN1LZ3XKoJJqZAAOvuOCqXLUjj9Wcaz+g3Hgde/HfG9RAq5vXzycGeU9lDG/k8ecMsgV2rj66i5Um3IA9pA+cTlL4FvdC8TTr7YYNC9AFvj3rTttNAHXqNOOlbUkdQcwWnFPYhCi+69zYC3Xj73xnltQ7QTLIsD+jCCulODY3B/XjE7Bjv05arytJIjLTjQf2nYeR078dsCZQpTPKFWBDCpjBB6e4Yb1VZNVVAsFMygXCoFXSASRzve/wAYpFTK+b0FRFwJ4jvyVLC3kceBikXxijLgRXIHzmojb6WlYHuSxHzjPKKoUcmqMAuoIYNfYkgf72xNbKpzWpJGpWmkQgHqGPza/m2KFVMImS/uYKxta53383+MBhehhTVuiKWAem8chLOrX9pJuSLcdD3GIiqvwiOE9L/Mmk3uL87gfe97YFjICA8WBucSJGaCNmjvqUbqwIHBv8YwOTAqpEEu6FteylTvfYf93wyokVM4gjU3RZFUdwVJ+b4GVF9AzSX9jkLtexsu/i3zjaklUZnTkDSqzRoAT1LC472tf73wkJCqtqBHnWYRObI1TIQf2nUd8FpMERtSgq9taNcgnx8HCrOfzqv/AJMn9jjOlrZKewPvTi3UdjhyjY2rHfpAorxLId76XYtt1sePjED0yhdy251BUe2xO1zx5tgaGvSRESKR0YbBCbXF9wDxiHq4YY2jkYngemp+mxuAem2BQaDGmUxrZQBHfQi3Av1O/P3OAqOpEmdZfFGbxrUxkm31HUN+2AaqukqNvoT9Bye5xfJvzqg/kx/2GHGNCSo//9k=",
+            "RT 08/RW 014": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAwADADASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAAAwUBBAYAAv/EACsQAAIBAwIGAgEEAwAAAAAAAAECAwAEEQUhEhMiMUFhUXFSFDNikaGx4f/EABoBAAICAwAAAAAAAAAAAAAAAAMEAAECBQb/xAAhEQABBAICAgMAAAAAAAAAAAABAAIDESExBBITUUFhgf/aAAwDAQACEQMRAD8AxgGTgU2stFkmTmzEIngE+fg/FeNHgi5qzXAJQHYAZpncXDTHAyI12VfVDc43QS8koGAoS106FmXl80bYbHrf73qWs9NnOCDFnbJHqqrOWPChwPJqOIxsPwO31Q6PtORcGZ8fkOPQQL/RpLZTJEeZH323pXWnt7gxHhbqjbuD49ilGrW8aTGWDPLY+aIxx0UoyTPU7Vy3XggjX+Ir1ICVODgeam1VpbUSKCVVRk0CV5SSgGPqsVIGufKC0AVu/n7REwV6e1W7+WOdl4G4gAQejh+KoxQTEBeID6GTR0sn4sM7Aj8iFqtLfP50AIs5ChFKIFJzihXi8VrID4GaP2270O/R4bNmdcB16fdWNrnDJ3kLiLJrKBod6sTtBIcBwQCfFMJYGjk4cjG24OQM+M1mRt2pvp+ttAnKuF5kZ9Vbmm7CLJF2TMYiUK1wMA5xGMn+6HzIxuUMjfLtUfqdNlGUkKHbIP3v/j/Vc93psPUJCxB2U7/890P8S/R2keCN7gdSrHAu7EDFJtbvRcz8uP8AbTauvdXeZTHBlIs7b74+KWURjKNlMxx1kr//2Q==",
+            "RT 04/RW 021": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAwADADASIAAhEBAxEB/8QAGQABAAMBAQAAAAAAAAAAAAAABgIDBQQA/8QAMRAAAgEDAgQFAAoDAAAAAAAAAQIDAAQREiEFEzFBIlFhcYEUIzJSkaGxwdHhJELw/8QAFgEBAQEAAAAAAAAAAAAAAAAAAgED/8QAHhEAAwACAQUAAAAAAAAAAAAAAAECESEiAxIxMkH/2gAMAwEAAhEDEQA/ABldVnYSXZLDwRjq5H6edV2dubm5SLOAd2PkO9LbW3XGgeCKMAHSfwUfvUbwOZztmdDwm2TblmVgO5J39hV8vC7Ur4rbQPPSy1roNaiONeXGDvpOKiJEiYtbs0igYID6h+dFPInSXwLXfByqcy1YuPuHr8Hv7VlHbrTyeFZYzJAAGHVQNj549aN8ds1UrdR9GwHx3PY0kyNJrukhwIKHmkYgYAGT6n+qR2/igiUf7+I+5P8AFGODOObLERnWmQPMqc4/DNIrGYGJPNDjHpQscrho7S0co5etVhXZstgt6e3616WIRSB4SoJ6pnbf9s/1Vdzao785UaQsMELj3zvUntjcTBpFlXYbggDbemYEiDBcjGwbtWTxRVMF3Dj7CsQfYgitW5lXngHbTu2TjasTiM/+HcyMoBc6B55J6fABqGnT9aYehleCVZIzh1OQaT2FzDcR82EKhByykfZPkfTyNFanDNJBIJIXKOOhBqtZDNORwb0iI6F0uNgGHh+DUY76QEmZo1THVBqOaOwcedB9bCCfvRsUJ+OlWPx5CpC27tkdHl2/ICphi4M3ppg69gg8Z1Hr6sewotxa/wDpkoSMnkodidtR7n/u1U3fEJ7saXYLGDkRoMKP5+a5aqRKrOl4P//Z",
+            "RT 13/RW 021": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAwADADASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAABQYBAgQD/8QAMhAAAgEDAQUGBQMFAAAAAAAAAQIDAAQRIQUSEzFBFCMyYYGRIkJRcaEkNHJDUrHB0f/EABcBAQEBAQAAAAAAAAAAAAAAAAMCAQD/xAAcEQACAgMBAQAAAAAAAAAAAAAAAQIREiFBMRP/2gAMAwEAAhEDEQA/AEwAkgAZJ5AUUt7CKE/qvjk6xhsKv8j9fIVGzoeHFx+Uj5EZ/tA5t/r3pg2LsiOaIXl6uIR4FAJ3vOilK9I3fDHAzjHZoQB14MI/yefvV5nfGLqAMv0mhBHuNRR6e8kFuyW9u0C5wGK4wv8A2tIuFdUR4DLERgtu5oc42X82JFxsyC5/Z9zMRkRFsq/8T0PkfegzKVYqwIIOCD0p22xsiO2XtdsuYG8a48PmKA7Uh7TbG7x38RCy55up8LHz6H0p4y4w9+Mvwd+eC35ACOP31NN63RSfs8fwxqN0Y8hSpxkilimOueFKp+uNDTFKrRbQSXGYZWBD9KGTdCQSti+shPGeaSQxRkDdDakmuhmISF4JJRFISu4zagipntpLTaE0bBdxhgq40bXSrW1tLebRghULuJ8qDRdda7tBYjJPNcG6FtcJGLaUbqvvZLacsUoxoRPPbnVWSSL2GR+QKOlJbm5cySTrFEd5iR8IAJyoYemtBFlUvJc5172U+WmB+TVNmvbRn2c4u7QQ/wBe3yUHVkPMDzFE7G/XhrBcPuhVKxSHUY57p+x60qxyPFIskbFXU5BHSjEN/bXZzORbXB5uFyj/AHHSqnCzU62g+zJNbLFcxFiPDJv6/nmK6QmGGHhQo0YOryB8MfUdKDR29wFzasGU9YJtPaolguGBNw24PrNNoKHF+WXl2jXf36tD2eGQtGVCyS4wCB8q+tB9oOttbGADEsxDOufAo5D151aa/gth3DdonHJyMIn2HU0JkdpHZ3YszHJJ6mmhCiG7ds//2Q==",
+            "RT 11/RW 021": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAwADADASIAAhEBAxEB/8QAGQABAAMBAQAAAAAAAAAAAAAAAAIDBAUG/8QAJhAAAgIBBAECBwAAAAAAAAAAAQIAAxEEEiExcQVRIzRygaGxwf/EABgBAAMBAQAAAAAAAAAAAAAAAAABAgME/8QAHREAAgICAwEAAAAAAAAAAAAAAAECESExAzJBUf/aAAwDAQACEQMRAD8A8ZERADTTobbtNZepXYneWEX6G2jTV3uV22dYYSemVwNgLEN2ucA+ZbbWlnwrbHq29ZO5B/RIa5FnwulRzolmopbT3PU5BKnGR0ZXLTvJAgdxA7gB16a12kNlSRw2OosUWUZbh1GPqEtqZbUARySV24A6kmLcqXYsQRtx2fH3mjnL4dyhg5XqHzj+B+hM00+ojGtsHtgfgTNMYdUcT2IiJQiyu5qzxyPYyb6u1gQG2KewvGZREVIdvQiIjEf/2Q==",
+            "RT 02/RW 021": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAwADADASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAAAwUAAQQGAv/EAC0QAAIBAwMCAwgDAQAAAAAAAAECAwAEERIhMQVREyJBFBUjQmGBsdEyUpHi/8QAGAEAAwEBAAAAAAAAAAAAAAAAAQIDAAT/xAAfEQADAAEEAwEAAAAAAAAAAAAAARECAxIhQRMUYTH/2gAMAwEAAhEDEQA/AOveeKNtLyKp7E1aSpISEdWK84PFJepHN4+QRwN6BBK0Uqum5B471B6scE3OnSUKW4jidFdsFztWdrgzRgn4UfDE/ivCQwsXd/iK4wHzx+qGWreMSjXXYwqUCNmiASU6l+V/3RqtjlQGS4u7ZG+R5OBjG33oNnbQscs6O+5IUfWmGhP6r/lJuu+WKXCk7Jsp0nnvSbHlnin24UTUcGV7be0WxiU6dwdjirs7c21ssROcZ9c0tFskXTZ4lLgSXGlzrOcagDv6ULJPR72Q62DhCw1HLNpXVjt2rqWgm6n8JUeaMfx2+npUAK7Db6elIekySN1TwHZj4cerJYnO3/YoOGMLMskokAeQsHPBUFh92IpvWSylNToPbIPFMXieccjB74/NZbqXp8qpJNL5ZRlcZ82K1vawSMWeFGJ5JWra2hdQrRIQM4BUbVNbKmHkxg2E8D2gl1K5JIDHOeTvQ4fdywyrHK5jlYOQSxA39OwzTBbeFDlYkXbGyiqNpbltRhjJ76RTb1+cghiT3fY3R85jlxp82d9l/QoUVt0uaYCGVi76vKrncHc00eCJyS8aMTySuai28KtqWJA3cKM0fJ9dND//2Q==",
+            "RT 08/RW 021": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAwADADASIAAhEBAxEB/8QAGgAAAwEBAQEAAAAAAAAAAAAAAgMEBQABBv/EADEQAAIBAgMFBQgDAQAAAAAAAAECAwARBBIhEyIxQVEFFGFxoSMyQ2KBkcHRM1Kx8P/EABcBAQEBAQAAAAAAAAAAAAAAAAECAAP/xAAkEQACAgIBAgcBAAAAAAAAAAABAgARITESE/AiQVFhcYHR4f/aAAwDAQACEQMRAD8A+MAJIAFya1MN2YF1nUu4NigNlQ9GPXwFJwS7GI4kfyE2ivy6t+BVpk2gCRps0Avkve3mf3W4s2piwXcYuWKV1TZhABkeKMAHQ9deNudFaOYe1dSbHSSIEX0tqNRz9KXnKKrwESbwDSrvCM+XXpyrhIZFLzsqC5CytuiT6dfSngl1f3I5vV1J8T2YrG0AySHghN1fplPInofvWUQVJBBBHEGtrS6pNdo75st9D41N2gizR94QkspyuTxYcmPjyNBVlNGWGDDEO1hEtt1VUfk1VhMEcVg8TMJTmg3jFlvcdf8AajZz7JrnK6KeOlxoaq7NxXdMSc7AI6lHvwtVm+njy7MjHPMpTDZRhC0js0u/lLEBRmsPvRYbBidMS5mkiWFNocovca8r0CYqNsaGzHIAEjsNAALD912ExkcUWJ9oql47KJBx48qGYhMDPx7/AJBV8W8fyTYmDYwxTRSl4pNRdcpB8qQBcSrbddGH1Gor2bEy4grtHuBoqgAAfQUtXNpWucqIx46XOlUQVSm79IggtYi8Ie8QHDfFU5ovm6r+qpbD2VGaQFcurqCR5eY4Vkg2NxxrSw/aQOk5KsfecC4fnvD8j1rlbLqdKB3DXYEZXchxa3EX9a5tgWymRix4nUkH701RHLIpyRumS1opQLtfjY2tRNsYlsY1TxklHhyF+YNPVzcOEmMG6zI91t7xFv8Aul6Tij3eAYf4rENL8vRfyaObHrHcYa5a5Ia1lS/9Ry8z6Vnkkm51NFltzUBqf//Z",
+            "RT 10/RW 021": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAwADADASIAAhEBAxEB/8QAGwAAAgIDAQAAAAAAAAAAAAAAAAcFBgECAwT/xAAvEAACAQMCAwYEBwAAAAAAAAABAgMABBEFIQYSMRMiQVFhcRSBkaEjMlJTsdHx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAQD/xAAZEQEAAwEBAAAAAAAAAAAAAAAAARExQSH/2gAMAwEAAhEDEQA/AKZRRVk4c4XbUkF1eFo7bPdUbNJ/QqSt0U0Da6Xp0Rjt7eES42Cx87fPx+tcWsdH1SMRTwxLORvhezfPp5/ei/aPC1oqa4h4fl0eQOpMtq5wr43B8jULSHo062+Mv7e3/dkCn2zvTWmZLO2VY1CqOVFA6AdKWGhTLBrVnI5wolGT77Uzr+Fp7R0T8w3HyonDGoaCa5WPFupVRDzcwi5suB096xqzTl5IniDxgACTssZJXrnzzRDN2ZZJS6RZ5iyqCUJznIPhnet7qZZMLCD2RbmDlQOcjoAPEA7+tF9Nce+aNNX0qeGRRhgyD3HQ/wAUq2BVip6g4NNmzT4OwLS93ALtk9B/lKeVueV2/USaYwTrUHByKYfD2vrqdqlvLMI72MYIIH4o8x60vKyCVIKkgjoRSDXeKVuYhdz17g3rAhlUAY3U908gOPrVAtuKNWtk5Fui6jp2ihvud653nEWqXqFJbpgh6qgCg/SpJ/inX+SCTT7ecSu+0rgABB4rt1PnVMooqT//2Q==",
+            "RT 06/RW 021": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAwADADASIAAhEBAxEB/8QAGgAAAwADAQAAAAAAAAAAAAAAAAYHAQQFA//EAC4QAAEDAwIDBgcBAQAAAAAAAAECAwQABRESIQYxURMyQWFxgRQ1QnORobHBIv/EABcBAQEBAQAAAAAAAAAAAAAAAAEAAgT/xAAcEQEAAgIDAQAAAAAAAAAAAAAAARESMSFBYfD/2gAMAwEAAhEDEQA/AEyigDJwKebHw2xAh/H3NvtXgnWGiMhHt4mpFCPbZspOqPFecT1Sg4/NEi2zYqdUiK82nqpBx+ad3eJXAVJjxhpQN9irA/VDfErmsIkxhhXhgp/uazlAuE+op4vnDTE+IJ9sb7J1SdZaAwFjny8DSORg4NaLs8Jw0zL4yHBlDQLhHpy/eKodz+WyftK/lIvA7iUXwpPNxpSR67H/ACnu4IW5b5KG06lqbUAOpxROkUm2mm5U4PI1BvGn/tSdz4bHlRoYefipbaKHFrOSHFKBABPjWupLzzrjq1oK9ysgkDI22BGfCsBL7TrTra0axukkkgZ25AZrjqc8rmvumPDrbPlsX7Sf5U84rhph3x4NjCHMOAevP95qi29K27fGQ4nStLSQodDikPjh1Ll80p5ttJSfXc/7XZGm3EhSnIUxqS132lBQ8/KqlAuLVzgCREUkkjuq+lXQ1Jq27dcpVsf7WI6UE8xzCvUUo+SnDMaCnGU9onktLaxjrv61iItyOD8MwguK7y1trJO4xv7iuZG47GjEqGdXVtex9jRJ47GkiLDOrq4vl7CiouxyZ7hcWrZBMiWoAgd0fUroKlk2U5NluyXe+6oqPl5V6XG5Srm/2st0rI5DkEjyFalJf//Z",
+            "RT 10/RW 014": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAwADADASIAAhEBAxEB/8QAGgAAAgMBAQAAAAAAAAAAAAAABQYCAwQBB//EADMQAAIBAgQDBQYGAwAAAAAAAAECAwQRAAUSIQYxURMiQWHBFDJxgZGxFSNCUnLhM0Oh/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AE1VLMFUEkmwA8cOOTcHLoWbNCbncQqbW/kfQYhwTlSvqzKYA6SUiB8D4n0w4O+kWFtR6mwHmcBnjoaKjQLDRxqOiR3OKZ48sqPy6qmjXVsO1i0/Q4tNVT6tDzmWSxNkvbYXsLYxvmMGtUCaIm94MdVxb9v1wAfOeDl0NNlZNxuYWN7/AMT6HCcylWKsCCDYg8xh9OfQ0chipu/GRtG59w+VrnT5G1sAM9jWvpVzaNVVmfRKoFufum3yIPwwDXkzw0WQUasQLxhiAOpuTgZm+eUkhYLdip3I72xFrG23nzxhqnM3DWWVkfeNO3ZSKTtsdvt/3E5pTUtUfh9I00M0axkMNAW3jfl0+eApmqK60qiMQmGISWkbvWvYWA9TipoUkd0q6lkheASQyN3VLG3gOfO1saJIKyR0eoq0gMcYjJjF2sbXucaqXIoQoKQPO12Uht9JHh064DPDWRdlTz0cLmREKzKm2o7fq+Iv0xKGlmOT5grwhYXjZxp3VSDqG/1+uDUUUcaVGiGM9mTHGw31OdgPl44nxDItDw3Ol/8AWIV8+Q+2AVOF80hpZmo63T7LMwN2FwreBPl/WHaeBozrjVpI76rIe+h6r1HljyrB/JuKarLUWGYe0U42Ck2ZR5H0wDOhgpv8UMNQ4GkCSXs2A6FWG2Iy1NdWHsjLDSRHmlK3bTHyBAsvxxyPizJ6lR2zNGf2yR3t9L47LxblFOhELvJb9McdvvbAEqSl7NYy6CJIltFEDcIOpPi39/HCXxdnS5jUrTUzaqeE+8OTt1+AxXnPFNVmSNDCPZ6c81BuzDzPpgDgP//Z",
+        };
+
+        function normalizeTeamName(name) {
+            return String(name || "")
+                .toUpperCase()
+                .replace(/[.]/g, "")
+                .replace(/\s*\/\s*/g, "/")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+        function getAutoLogoForTeam(name) {
+            const key = normalizeTeamName(name);
+            return TEAM_LOGOS[key] || "";
+        }
+
         let state = {
             matchId: "",
             sport: "SEPAK BOLA",
@@ -367,10 +394,6 @@
 
             document.getElementById('select-sport').value = sport;
             document.getElementById('period-label').textContent = state.period;
-            document.getElementById('btn-minus-a').textContent = "- " + unit;
-            document.getElementById('btn-plus-a').textContent = "+ " + unit;
-            document.getElementById('btn-minus-b').textContent = "- " + unit;
-            document.getElementById('btn-plus-b').textContent = "+ " + unit;
             document.getElementById('ui-sport').textContent = sport;
         }
 
@@ -405,117 +428,51 @@
             syncToFirebase();
         }
 
-        function loadLogo(team, input) {
-            const file = input.files && input.files[0];
-            if (!file) return;
-
-            if (!file.type.startsWith("image/")) {
-                alert("File harus berupa gambar.");
-                input.value = "";
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    // Perkecil logo agar ringan dan aman disimpan/sinkron ke Firebase.
-                    const maxSize = 300;
-                    const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-                    const canvas = document.createElement("canvas");
-                    canvas.width = Math.max(1, Math.round(img.width * scale));
-                    canvas.height = Math.max(1, Math.round(img.height * scale));
-
-                    const ctx = canvas.getContext("2d");
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                    const dataUrl = canvas.toDataURL("image/png");
-
-                    state.logos = state.logos || {a:"", b:""};
-                    if (team === "A") {
-                        state.logos.a = dataUrl;
-                        localStorage.setItem("VIPT_LOGO_A", dataUrl);
-                        const preview = document.getElementById('preview-logo-a');
-                        if (preview) {
-                            preview.src = dataUrl;
-                            preview.classList.remove('hidden');
-                        }
-                    } else {
-                        state.logos.b = dataUrl;
-                        localStorage.setItem("VIPT_LOGO_B", dataUrl);
-                        const preview = document.getElementById('preview-logo-b');
-                        if (preview) {
-                            preview.src = dataUrl;
-                            preview.classList.remove('hidden');
-                        }
-                    }
-
-                    // Kirim ke Firebase untuk output vMix.
-                    syncToFirebase();
-                    updateLogoOutput();
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function getSavedLogo(team) {
-            state.logos = state.logos || {a:"", b:""};
-            if (team === "A") {
-                return state.logos.a || localStorage.getItem("VIPT_LOGO_A") || "";
-            }
-            return state.logos.b || localStorage.getItem("VIPT_LOGO_B") || "";
-        }
-
         function updateLogoOutput() {
-            state.logos = state.logos || {a:"", b:""};
-
             const logoA = document.getElementById('ui-logo-a');
             const logoB = document.getElementById('ui-logo-b');
-
-            const logoAData = getSavedLogo("A");
-            const logoBData = getSavedLogo("B");
-
-            if (logoA && logoAData) {
-                logoA.src = logoAData;
-                logoA.style.display = "block";
-            } else if (logoA) {
-                logoA.removeAttribute("src");
-                logoA.style.display = "none";
-            }
-
-            if (logoB && logoBData) {
-                logoB.src = logoBData;
-                logoB.style.display = "block";
-            } else if (logoB) {
-                logoB.removeAttribute("src");
-                logoB.style.display = "none";
-            }
-
             const previewA = document.getElementById('preview-logo-a');
             const previewB = document.getElementById('preview-logo-b');
+            const emptyA = document.getElementById('preview-logo-a-empty');
+            const emptyB = document.getElementById('preview-logo-b-empty');
+
+            // Logo selalu dicari berdasarkan NAMA TIM yang sedang aktif.
+            // Karena data logo tertanam di index.html, perubahan pertandingan langsung ikut berubah.
+            const logoAData = getAutoLogoForTeam(state.teamA?.name);
+            const logoBData = getAutoLogoForTeam(state.teamB?.name);
+
+            if (logoA) {
+                if (logoAData) {
+                    logoA.src = logoAData;
+                    logoA.style.display = "block";
+                } else {
+                    logoA.removeAttribute("src");
+                    logoA.style.display = "none";
+                }
+            }
+            if (logoB) {
+                if (logoBData) {
+                    logoB.src = logoBData;
+                    logoB.style.display = "block";
+                } else {
+                    logoB.removeAttribute("src");
+                    logoB.style.display = "none";
+                }
+            }
 
             if (previewA) {
-                if (logoAData) {
-                    previewA.src = logoAData;
-                    previewA.classList.remove('hidden');
-                } else {
-                    previewA.classList.add('hidden');
-                }
+                previewA.src = logoAData;
+                previewA.classList.toggle('hidden', !logoAData);
             }
-
             if (previewB) {
-                if (logoBData) {
-                    previewB.src = logoBData;
-                    previewB.classList.remove('hidden');
-                } else {
-                    previewB.classList.add('hidden');
-                }
+                previewB.src = logoBData;
+                previewB.classList.toggle('hidden', !logoBData);
             }
+            if (emptyA) emptyA.style.display = logoAData ? 'none' : 'block';
+            if (emptyB) emptyB.style.display = logoBData ? 'none' : 'block';
         }
 
-                function getSportDisplayName(sport) {
+        function getSportDisplayName(sport) {
             const s = String(sport || "").toUpperCase();
             if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
             if (s.includes("BADMINTON")) return "BADMINTON";
@@ -542,6 +499,9 @@
             if (scoreBEl) scoreBEl.textContent = Number(state.teamB?.score || 0);
             if (teamAEl) teamAEl.textContent = state.teamA?.name || "TIM A";
             if (teamBEl) teamBEl.textContent = state.teamB?.name || "TIM B";
+
+            // Logo mengikuti nama Team A / Team B yang sama dengan Live Score.
+            updateLogoOutput();
 
             // Timer hanya ditonjolkan untuk sepak bola/futsal.
             if (timerEl) {
@@ -580,7 +540,10 @@
             state.period = document.getElementById('inp-period').value;
             state.status = document.getElementById('select-status').value;
             state.sport = normalizeSport(state.sport);
-            state.logos = state.logos || {a:"", b:""};
+            // Logo TIDAK disimpan ke Firebase sebagai base64 besar.
+            // Semua client mencari logo dari nama tim menggunakan TEAM_LOGOS.
+            state.logos = {a:"", b:""};
+            updateLogoOutput();
 
             dbRef.set(state);
         }
@@ -670,9 +633,7 @@
                 document.getElementById('ui-score-a').textContent = state.teamA.score;
                 document.getElementById('ui-score-b').textContent = state.teamB.score;
                 state.sport = normalizeSport(state.sport);
-                state.logos = state.logos || {a:"", b:""};
-                if (state.logos.a) localStorage.setItem("VIPT_LOGO_A", state.logos.a);
-                if (state.logos.b) localStorage.setItem("VIPT_LOGO_B", state.logos.b);
+                state.logos = {a:"", b:""};
                 updateVmixOutputFromState();
                 updateSportUI();
                 updateLogoOutput();
