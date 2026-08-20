@@ -16,6 +16,8 @@
         .sb-score-box { background: #000; display: flex; align-items: center; justify-content: center; min-width: 90px; font-size: 45px; font-weight: 900; color: #fff; }
         .sb-center { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 180px; background: #000; border-left: 2px solid #333; border-right: 2px solid #333; }
         .sb-timer { font-size: 28px; font-weight: 900; color: #fbbf24; }
+        .sb-logo { width: 48px; height: 48px; object-fit: contain; background: white; border-radius: 8px; padding: 3px; margin: 0 12px; }
+        .sport-badge { font-size: 9px; font-weight: 900; color: #fbbf24; text-transform: uppercase; letter-spacing: .5px; }
     </style>
 </head>
 <body class="p-2 sm:p-6">
@@ -48,6 +50,43 @@
                         <option value="JADWAL">BELUM MULAI</option>
                         <option value="SELESAI">SELESAI</option>
                     </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- CABOR & LOGO PESERTA -->
+        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
+            <div class="grid grid-cols-1 gap-3">
+                <div>
+                    <label class="block text-[10px] text-gray-400 font-bold mb-1">CABANG OLAHRAGA / MEKANISME SKOR</label>
+                    <select id="select-sport" onchange="changeSport()" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-xl text-xs font-bold">
+                        <option value="SEPAK BOLA">SEPAK BOLA — GOAL / 2 BABAK</option>
+                        <option value="FUTSAL">FUTSAL — GOAL / 2 BABAK</option>
+                        <option value="VOLLY">VOLLY — POIN / SET</option>
+                        <option value="BADMINTON">BADMINTON — POIN / GAME</option>
+                        <option value="TENIS MEJA">TENIS MEJA / PINGPONG — POIN / GAME</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] text-gray-400 font-bold mb-1">LOGO TIM A</label>
+                        <input type="file" id="logo-a-file" accept="image/*" onchange="loadLogo('A', this)"
+                               class="w-full text-[10px] bg-gray-800 border border-gray-700 p-2 rounded-xl">
+                        <img id="preview-logo-a" class="hidden mt-2 w-16 h-16 object-contain bg-white rounded-xl p-1 mx-auto">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-400 font-bold mb-1">LOGO TIM B</label>
+                        <input type="file" id="logo-b-file" accept="image/*" onchange="loadLogo('B', this)"
+                               class="w-full text-[10px] bg-gray-800 border border-gray-700 p-2 rounded-xl">
+                        <img id="preview-logo-b" class="hidden mt-2 w-16 h-16 object-contain bg-white rounded-xl p-1 mx-auto">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="changePeriod(-1)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs">PERIODE -</button>
+                    <div id="period-label" class="bg-black/40 border border-gray-800 rounded-xl flex items-center justify-center text-[10px] font-black text-amber-400">BABAK 1</div>
+                    <button onclick="changePeriod(1)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs">PERIODE +</button>
                 </div>
             </div>
         </div>
@@ -109,14 +148,15 @@
     <div id="output-view" class="hidden">
         <div class="scoreboard-root">
             <div class="sb-main-bar">
-                <div id="ui-team-a" class="sb-team" style="background:#dc2626">TIM A</div>
+                <div class="sb-team" style="background:#dc2626"><img id="ui-logo-a" class="sb-logo" src="" style="display:none"><span id="ui-team-a">TIM A</span></div>
                 <div id="ui-score-a" class="sb-score-box">0</div>
                 <div class="sb-center">
+                    <div id="ui-sport" class="sport-badge">SEPAK BOLA</div>
                     <div id="ui-timer" class="sb-timer">10:00</div>
                     <div id="ui-period" style="font-size:10px; font-weight:bold; color:#94a3b8;">BABAK 1</div>
                 </div>
                 <div id="ui-score-b" class="sb-score-box">0</div>
-                <div id="ui-team-b" class="sb-team" style="background:#2563eb">TIM B</div>
+                <div class="sb-team" style="background:#2563eb"><span id="ui-team-b">TIM B</span><img id="ui-logo-b" class="sb-logo" src="" style="display:none"></div>
             </div>
         </div>
     </div>
@@ -156,8 +196,10 @@
 
         let state = {
             matchId: "",
-            sport: "UMUM",
+            sport: "SEPAK BOLA",
             period: "BABAK 1",
+            periodNumber: 1,
+            logos: { a: "", b: "" },
             status: "LIVE",
             timer: 600,
             timerRunning: false,
@@ -180,22 +222,159 @@
             const id = document.getElementById('select-match-list').value;
             if (!id) {
                 state.matchId = "";
-                state.sport = "UMUM";
-                state.period = "-";
+                state.sport = "SEPAK BOLA";
+                state.period = "BABAK 1";
+                state.periodNumber = 1;
+                state.logos = { a: "", b: "" };
                 state.status = "JADWAL";
                 state.teamA = { name: "BELUM ADA JADWAL", score: 0 };
                 state.teamB = { name: "BELUM ADA JADWAL", score: 0 };
             } else {
                 const m = VIPT_MATCHES.find(x => x.id === id);
                 state.matchId = m.id;
-                state.sport = m.sport;
-                state.period = m.round;
+                state.sport = normalizeSport(m.sport);
+                state.periodNumber = 1;
+                state.period = getDefaultPeriod(state.sport);
+                state.logos = { a: "", b: "" };
                 state.status = "LIVE";
                 state.teamA = { name: m.a, score: 0 };
                 state.teamB = { name: m.b, score: 0 };
             }
             updateOperatorInputs();
             syncToFirebase();
+        }
+
+        function normalizeSport(sport) {
+            const s = String(sport || "").toUpperCase();
+            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
+            if (s.includes("BADMINTON")) return "BADMINTON";
+            if (s.includes("TENIS MEJA") || s.includes("PINGPONG") || s.includes("PINGPONG")) return "TENIS MEJA";
+            if (s.includes("FUTSAL")) return "FUTSAL";
+            return "SEPAK BOLA";
+        }
+
+        function getDefaultPeriod(sport) {
+            sport = normalizeSport(sport);
+            if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "BABAK 1";
+            if (sport === "VOLLY") return "SET 1";
+            return "GAME 1";
+        }
+
+        function getScoreUnit() {
+            const sport = normalizeSport(state.sport);
+            if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "GOAL";
+            return "POIN";
+        }
+
+        function updateSportUI() {
+            const sport = normalizeSport(state.sport);
+            const unit = getScoreUnit();
+
+            document.getElementById('select-sport').value = sport;
+            document.getElementById('period-label').textContent = state.period;
+            document.getElementById('btn-minus-a').textContent = "- " + unit;
+            document.getElementById('btn-plus-a').textContent = "+ " + unit;
+            document.getElementById('btn-minus-b').textContent = "- " + unit;
+            document.getElementById('btn-plus-b').textContent = "+ " + unit;
+            document.getElementById('ui-sport').textContent = sport;
+        }
+
+        function changeSport() {
+            state.sport = normalizeSport(document.getElementById('select-sport').value);
+            state.periodNumber = 1;
+            state.period = getDefaultPeriod(state.sport);
+            state.teamA.score = 0;
+            state.teamB.score = 0;
+            updateOperatorInputs();
+            updateSportUI();
+            syncToFirebase();
+        }
+
+        function changePeriod(delta) {
+            const sport = normalizeSport(state.sport);
+            const max = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? 2 : 3;
+            state.periodNumber = Math.max(1, Math.min(max, (Number(state.periodNumber) || 1) + delta));
+
+            if (sport === "SEPAK BOLA" || sport === "FUTSAL") {
+                state.period = "BABAK " + state.periodNumber;
+            } else if (sport === "VOLLY") {
+                state.period = "SET " + state.periodNumber;
+            } else {
+                state.period = "GAME " + state.periodNumber;
+            }
+
+            updateOperatorInputs();
+            updateSportUI();
+            syncToFirebase();
+        }
+
+        function loadLogo(team, input) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith("image/")) {
+                alert("File harus berupa gambar.");
+                input.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                if (team === "A") {
+                    state.logos = state.logos || {};
+                    state.logos.a = dataUrl;
+                    const preview = document.getElementById('preview-logo-a');
+                    preview.src = dataUrl;
+                    preview.classList.remove('hidden');
+                } else {
+                    state.logos = state.logos || {};
+                    state.logos.b = dataUrl;
+                    const preview = document.getElementById('preview-logo-b');
+                    preview.src = dataUrl;
+                    preview.classList.remove('hidden');
+                }
+                syncToFirebase();
+                updateLogoOutput();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateLogoOutput() {
+            state.logos = state.logos || {a:"", b:""};
+            const logoA = document.getElementById('ui-logo-a');
+            const logoB = document.getElementById('ui-logo-b');
+
+            if (state.logos.a) {
+                logoA.src = state.logos.a;
+                logoA.style.display = "block";
+            } else {
+                logoA.style.display = "none";
+            }
+
+            if (state.logos.b) {
+                logoB.src = state.logos.b;
+                logoB.style.display = "block";
+            } else {
+                logoB.style.display = "none";
+            }
+
+            const previewA = document.getElementById('preview-logo-a');
+            const previewB = document.getElementById('preview-logo-b');
+
+            if (previewA) {
+                if (state.logos.a) {
+                    previewA.src = state.logos.a;
+                    previewA.classList.remove('hidden');
+                } else previewA.classList.add('hidden');
+            }
+
+            if (previewB) {
+                if (state.logos.b) {
+                    previewB.src = state.logos.b;
+                    previewB.classList.remove('hidden');
+                } else previewB.classList.add('hidden');
+            }
         }
 
         function updateOperatorInputs() {
@@ -205,6 +384,10 @@
             document.getElementById('select-status').value = state.status;
             document.getElementById('op-score-a').textContent = state.teamA.score;
             document.getElementById('op-score-b').textContent = state.teamB.score;
+            state.sport = normalizeSport(state.sport);
+            state.logos = state.logos || {a:"", b:""};
+            updateSportUI();
+            updateLogoOutput();
         }
 
         function changeScore(team, val) {
@@ -223,6 +406,8 @@
             state.teamB.name = document.getElementById('inp-name-b').value;
             state.period = document.getElementById('inp-period').value;
             state.status = document.getElementById('select-status').value;
+            state.sport = normalizeSport(state.sport);
+            state.logos = state.logos || {a:"", b:""};
 
             dbRef.set(state);
         }
@@ -312,6 +497,10 @@
                 document.getElementById('ui-score-a').textContent = state.teamA.score;
                 document.getElementById('ui-score-b').textContent = state.teamB.score;
                 document.getElementById('ui-period').textContent = state.period;
+                state.sport = normalizeSport(state.sport);
+                state.logos = state.logos || {a:"", b:""};
+                updateSportUI();
+                updateLogoOutput();
             }
         });
 
@@ -323,6 +512,11 @@
         }
 
         populateMatchDropdown();
+        state.sport = normalizeSport(state.sport);
+        updateOperatorInputs();
+        updateTimerDisplay();
+        updateSportUI();
+        updateLogoOutput();
     </script>
 </body>
 </html>
