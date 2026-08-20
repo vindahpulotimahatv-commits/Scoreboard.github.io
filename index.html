@@ -11,13 +11,92 @@
         body { background-color: #0f172a; color: white; font-family: Arial, sans-serif; }
         .mode-output { background: transparent !important; overflow: hidden; }
         .scoreboard-root { width: 1280px; height: 720px; display: flex; justify-content: center; align-items: flex-start; pointer-events: none; }
-        .sb-main-bar { margin-top: 40px; display: flex; height: 75px; background: rgba(15, 23, 42, 0.95); border: 2px solid rgba(255,255,255,0.15); border-radius: 8px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .sb-team { display: flex; align-items: center; padding: 0 25px; min-width: 320px; font-size: 22px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
-        .sb-score-box { background: #000; display: flex; align-items: center; justify-content: center; min-width: 90px; font-size: 45px; font-weight: 900; color: #fff; }
-        .sb-center { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 180px; background: #000; border-left: 2px solid #333; border-right: 2px solid #333; }
-        .sb-timer { font-size: 28px; font-weight: 900; color: #fbbf24; }
-        .sb-logo { width: 48px; height: 48px; object-fit: contain; background: white; border-radius: 8px; padding: 3px; margin: 0 12px; }
-        .sport-badge { font-size: 9px; font-weight: 900; color: #fbbf24; text-transform: uppercase; letter-spacing: .5px; }
+        .sb-main-bar {
+            margin-top: 55px;
+            width: 1160px;
+            min-height: 185px;
+            display: flex;
+            align-items: stretch;
+            background: rgba(8, 15, 30, 0.97);
+            border: 3px solid rgba(255,255,255,0.18);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 16px 45px rgba(0,0,0,0.65);
+        }
+        .sb-team {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 18px 22px;
+            width: 330px;
+            min-width: 330px;
+            font-size: 30px;
+            line-height: 1.05;
+            font-weight: 900;
+            text-transform: uppercase;
+            white-space: normal;
+            text-align: center;
+        }
+        .sb-team span { max-width: 215px; }
+        .sb-score-box {
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 135px;
+            min-width: 135px;
+            font-size: 86px;
+            line-height: 1;
+            font-weight: 1000;
+            color: #fff;
+            text-shadow: 0 3px 12px rgba(255,255,255,0.2);
+        }
+        .sb-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 190px;
+            min-width: 190px;
+            background: #020617;
+            border-left: 2px solid #333;
+            border-right: 2px solid #333;
+            padding: 12px;
+        }
+        .sb-timer { font-size: 38px; font-weight: 1000; color: #fbbf24; }
+        .sb-logo {
+            width: 86px;
+            height: 86px;
+            object-fit: contain;
+            background: white;
+            border-radius: 14px;
+            padding: 5px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,.45);
+        }
+        .sport-badge {
+            font-size: 16px;
+            font-weight: 1000;
+            color: #fbbf24;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-bottom: 7px;
+        }
+        .sb-period {
+            font-size: 14px;
+            font-weight: 900;
+            color: #cbd5e1;
+            margin-top: 6px;
+            text-align: center;
+        }
+        .sb-vs {
+            font-size: 20px;
+            font-weight: 1000;
+            color: #64748b;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body class="p-2 sm:p-6">
@@ -148,15 +227,26 @@
     <div id="output-view" class="hidden">
         <div class="scoreboard-root">
             <div class="sb-main-bar">
-                <div class="sb-team" style="background:#dc2626"><img id="ui-logo-a" class="sb-logo" src="" style="display:none"><span id="ui-team-a">TIM A</span></div>
+                <div class="sb-team" style="background:#b91c1c">
+                    <img id="ui-logo-a" class="sb-logo" src="" style="display:none">
+                    <span id="ui-team-a">TIM A</span>
+                </div>
+
                 <div id="ui-score-a" class="sb-score-box">0</div>
+
                 <div class="sb-center">
                     <div id="ui-sport" class="sport-badge">SEPAK BOLA</div>
                     <div id="ui-timer" class="sb-timer">10:00</div>
-                    <div id="ui-period" style="font-size:10px; font-weight:bold; color:#94a3b8;">BABAK 1</div>
+                    <div id="ui-period" class="sb-period">BABAK 1</div>
+                    <div class="sb-vs">VS</div>
                 </div>
+
                 <div id="ui-score-b" class="sb-score-box">0</div>
-                <div class="sb-team" style="background:#2563eb"><span id="ui-team-b">TIM B</span><img id="ui-logo-b" class="sb-logo" src="" style="display:none"></div>
+
+                <div class="sb-team" style="background:#1d4ed8">
+                    <span id="ui-team-b">TIM B</span>
+                    <img id="ui-logo-b" class="sb-logo" src="" style="display:none">
+                </div>
             </div>
         </div>
     </div>
