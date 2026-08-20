@@ -316,6 +316,8 @@
                 state.period = "BABAK 1";
                 state.periodNumber = 1;
                 state.logos = { a: "", b: "" };
+                localStorage.removeItem("VIPT_LOGO_A");
+                localStorage.removeItem("VIPT_LOGO_B");
                 state.status = "JADWAL";
                 state.teamA = { name: "BELUM ADA JADWAL", score: 0 };
                 state.teamB = { name: "BELUM ADA JADWAL", score: 0 };
@@ -326,11 +328,14 @@
                 state.periodNumber = 1;
                 state.period = getDefaultPeriod(state.sport);
                 state.logos = { a: "", b: "" };
+                localStorage.removeItem("VIPT_LOGO_A");
+                localStorage.removeItem("VIPT_LOGO_B");
                 state.status = "LIVE";
                 state.teamA = { name: m.a, score: 0 };
                 state.teamB = { name: m.b, score: 0 };
             }
             updateOperatorInputs();
+            updateVmixOutputFromState();
             syncToFirebase();
         }
 
@@ -376,6 +381,7 @@
             state.teamA.score = 0;
             state.teamB.score = 0;
             updateOperatorInputs();
+            updateVmixOutputFromState();
             updateSportUI();
             syncToFirebase();
         }
@@ -394,6 +400,7 @@
             }
 
             updateOperatorInputs();
+            updateVmixOutputFromState();
             updateSportUI();
             syncToFirebase();
         }
@@ -410,42 +417,79 @@
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                const dataUrl = e.target.result;
-                if (team === "A") {
-                    state.logos = state.logos || {};
-                    state.logos.a = dataUrl;
-                    const preview = document.getElementById('preview-logo-a');
-                    preview.src = dataUrl;
-                    preview.classList.remove('hidden');
-                } else {
-                    state.logos = state.logos || {};
-                    state.logos.b = dataUrl;
-                    const preview = document.getElementById('preview-logo-b');
-                    preview.src = dataUrl;
-                    preview.classList.remove('hidden');
-                }
-                syncToFirebase();
-                updateLogoOutput();
+                const img = new Image();
+                img.onload = function() {
+                    // Perkecil logo agar ringan dan aman disimpan/sinkron ke Firebase.
+                    const maxSize = 300;
+                    const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+                    const canvas = document.createElement("canvas");
+                    canvas.width = Math.max(1, Math.round(img.width * scale));
+                    canvas.height = Math.max(1, Math.round(img.height * scale));
+
+                    const ctx = canvas.getContext("2d");
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    const dataUrl = canvas.toDataURL("image/png");
+
+                    state.logos = state.logos || {a:"", b:""};
+                    if (team === "A") {
+                        state.logos.a = dataUrl;
+                        localStorage.setItem("VIPT_LOGO_A", dataUrl);
+                        const preview = document.getElementById('preview-logo-a');
+                        if (preview) {
+                            preview.src = dataUrl;
+                            preview.classList.remove('hidden');
+                        }
+                    } else {
+                        state.logos.b = dataUrl;
+                        localStorage.setItem("VIPT_LOGO_B", dataUrl);
+                        const preview = document.getElementById('preview-logo-b');
+                        if (preview) {
+                            preview.src = dataUrl;
+                            preview.classList.remove('hidden');
+                        }
+                    }
+
+                    // Kirim ke Firebase untuk output vMix.
+                    syncToFirebase();
+                    updateLogoOutput();
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
+        function getSavedLogo(team) {
+            state.logos = state.logos || {a:"", b:""};
+            if (team === "A") {
+                return state.logos.a || localStorage.getItem("VIPT_LOGO_A") || "";
+            }
+            return state.logos.b || localStorage.getItem("VIPT_LOGO_B") || "";
+        }
+
         function updateLogoOutput() {
             state.logos = state.logos || {a:"", b:""};
+
             const logoA = document.getElementById('ui-logo-a');
             const logoB = document.getElementById('ui-logo-b');
 
-            if (state.logos.a) {
-                logoA.src = state.logos.a;
+            const logoAData = getSavedLogo("A");
+            const logoBData = getSavedLogo("B");
+
+            if (logoA && logoAData) {
+                logoA.src = logoAData;
                 logoA.style.display = "block";
-            } else {
+            } else if (logoA) {
+                logoA.removeAttribute("src");
                 logoA.style.display = "none";
             }
 
-            if (state.logos.b) {
-                logoB.src = state.logos.b;
+            if (logoB && logoBData) {
+                logoB.src = logoBData;
                 logoB.style.display = "block";
-            } else {
+            } else if (logoB) {
+                logoB.removeAttribute("src");
                 logoB.style.display = "none";
             }
 
@@ -453,17 +497,56 @@
             const previewB = document.getElementById('preview-logo-b');
 
             if (previewA) {
-                if (state.logos.a) {
-                    previewA.src = state.logos.a;
+                if (logoAData) {
+                    previewA.src = logoAData;
                     previewA.classList.remove('hidden');
-                } else previewA.classList.add('hidden');
+                } else {
+                    previewA.classList.add('hidden');
+                }
             }
 
             if (previewB) {
-                if (state.logos.b) {
-                    previewB.src = state.logos.b;
+                if (logoBData) {
+                    previewB.src = logoBData;
                     previewB.classList.remove('hidden');
-                } else previewB.classList.add('hidden');
+                } else {
+                    previewB.classList.add('hidden');
+                }
+            }
+        }
+
+                function getSportDisplayName(sport) {
+            const s = String(sport || "").toUpperCase();
+            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
+            if (s.includes("BADMINTON")) return "BADMINTON";
+            if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
+            if (s.includes("FUTSAL")) return "FUTSAL";
+            if (s.includes("SEPAK BOLA") || s.includes("SEPAKBOLA")) return "SEPAK BOLA";
+            return s || "SEPAK BOLA";
+        }
+
+        function updateVmixOutputFromState() {
+            const sportText = getSportDisplayName(state.sport);
+            const sportEl = document.getElementById('ui-sport');
+            const periodEl = document.getElementById('ui-period');
+            const timerEl = document.getElementById('ui-timer');
+            const scoreAEl = document.getElementById('ui-score-a');
+            const scoreBEl = document.getElementById('ui-score-b');
+            const teamAEl = document.getElementById('ui-team-a');
+            const teamBEl = document.getElementById('ui-team-b');
+
+            if (sportEl) sportEl.textContent = sportText;
+            if (periodEl) periodEl.textContent = state.period || getDefaultPeriod(sportText);
+
+            if (scoreAEl) scoreAEl.textContent = Number(state.teamA?.score || 0);
+            if (scoreBEl) scoreBEl.textContent = Number(state.teamB?.score || 0);
+            if (teamAEl) teamAEl.textContent = state.teamA?.name || "TIM A";
+            if (teamBEl) teamBEl.textContent = state.teamB?.name || "TIM B";
+
+            // Timer hanya ditonjolkan untuk sepak bola/futsal.
+            if (timerEl) {
+                const isBallSport = sportText === "SEPAK BOLA" || sportText === "FUTSAL";
+                timerEl.style.display = isBallSport ? "block" : "none";
             }
         }
 
@@ -586,9 +669,11 @@
                 document.getElementById('ui-team-b').textContent = state.teamB.name;
                 document.getElementById('ui-score-a').textContent = state.teamA.score;
                 document.getElementById('ui-score-b').textContent = state.teamB.score;
-                document.getElementById('ui-period').textContent = state.period;
                 state.sport = normalizeSport(state.sport);
                 state.logos = state.logos || {a:"", b:""};
+                if (state.logos.a) localStorage.setItem("VIPT_LOGO_A", state.logos.a);
+                if (state.logos.b) localStorage.setItem("VIPT_LOGO_B", state.logos.b);
+                updateVmixOutputFromState();
                 updateSportUI();
                 updateLogoOutput();
             }
@@ -605,6 +690,7 @@
         state.sport = normalizeSport(state.sport);
         updateOperatorInputs();
         updateTimerDisplay();
+        updateVmixOutputFromState();
         updateSportUI();
         updateLogoOutput();
     </script>
