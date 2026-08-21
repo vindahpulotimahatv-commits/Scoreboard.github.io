@@ -274,18 +274,18 @@
             {id:"VP-8B2", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 02 / RW 021", b:"RT 04 / RW 021"},
             {id:"VP-8B3", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 10 / RW 021", b:"RT 08 / RW 021"},
             {id:"VP-8B4", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 06 / RW 021", b:"RT 07 / RW 021"},
+            {id:"VP-8B5", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 06 / RW 021", b:"RT 08 / RW 021"},
             {id:"VW-SF1", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
             {id:"VW-SF2", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 06 / RW 021", b:"RT 08 / RW 021"},
             {id:"FS-SF1", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 13 / RW 021", b:"RT 04 / RW 021"},
             {id:"FS-SF2", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 02 / RW 021"},
             {id:"TM-1", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 08 / RW 014", b:"RT 10 / RW 014"},
             {id:"TM-2", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 08 / RW 021"},
-            {id:"BD-1", sport:"BADMINTON", round:"BABAK SEMIFINAL", a:"RT 10 / RW 021", b:"RT 13 / RW 021"}
+            {id:"BD-1", sport:"BADMINTON", round:"BABAK SEMIFINAL", a:"RT 10 / RW 021", b:"RT 13 / RW 021"},
+            {id:"BD-2", sport:"BADMINTON PUTRA", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 08 / RW 014"}
         ];
 
-        // LOGO TIM OTOMATIS — tertanam di index.html agar web, APK dan vMix
-        // tidak membutuhkan folder/file logo tambahan. Nama tim menjadi kunci pencarian logo.
-        // Logo pertandingan VP-8B4: RT 06/RW 021 vs RT 07/RW 021
+        // LOGO TIM OTOMATIS
         const TEAM_LOGOS = {
             "RT 02/RW 021": "assets/logos/RT_02-RW_021.png",
             "RT 04/RW 021": "assets/logos/RT_04-RW_021.png",
@@ -374,7 +374,7 @@
             const s = String(sport || "").toUpperCase();
             if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
             if (s.includes("BADMINTON")) return "BADMINTON";
-            if (s.includes("TENIS MEJA") || s.includes("PINGPONG") || s.includes("PINGPONG")) return "TENIS MEJA";
+            if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
             if (s.includes("FUTSAL")) return "FUTSAL";
             return "SEPAK BOLA";
         }
@@ -440,8 +440,6 @@
             const emptyA = document.getElementById('preview-logo-a-empty');
             const emptyB = document.getElementById('preview-logo-b-empty');
 
-            // Logo selalu dicari berdasarkan NAMA TIM yang sedang aktif.
-            // Karena data logo tertanam di index.html, perubahan pertandingan langsung ikut berubah.
             const logoAData = getAutoLogoForTeam(state.teamA?.name);
             const logoBData = getAutoLogoForTeam(state.teamB?.name);
 
@@ -504,10 +502,8 @@
             if (teamAEl) teamAEl.textContent = state.teamA?.name || "TIM A";
             if (teamBEl) teamBEl.textContent = state.teamB?.name || "TIM B";
 
-            // Logo mengikuti nama Team A / Team B yang sama dengan Live Score.
             updateLogoOutput();
 
-            // Futsal/sepak bola memakai countdown. Volly, badminton dan pingpong memakai jam lokal.
             if (timerEl) {
                 const isCountdownSport = sportText === "SEPAK BOLA" || sportText === "FUTSAL";
                 timerEl.style.display = "block";
@@ -545,8 +541,6 @@
             state.period = document.getElementById('inp-period').value;
             state.status = document.getElementById('select-status').value;
             state.sport = normalizeSport(state.sport);
-            // Logo TIDAK disimpan ke Firebase sebagai base64 besar.
-            // Semua client mencari logo dari nama tim menggunakan TEAM_LOGOS.
             state.logos = {a:"", b:""};
             updateLogoOutput();
 
@@ -576,7 +570,6 @@
             document.getElementById('ui-timer').textContent = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? timeStr : formatLocalClock();
         }
 
-        // Jam lokal Indonesia berjalan independen dari timer pertandingan.
         setInterval(() => {
             const sport = normalizeSport(state.sport);
             if (sport !== "SEPAK BOLA" && sport !== "FUTSAL") {
@@ -638,7 +631,6 @@
             state.timerRunning = false;
             syncToFirebase();
 
-            // Push ke history database
             firebase.database().ref("vipt_scoreboard/history").push(state);
             alert("Pertandingan berhasil disimpan ke Hasil Match Center!");
         }
@@ -646,11 +638,6 @@
         function openOutputTab() { window.open(window.location.href + '?mode=output', '_blank'); }
         function exitTestOutput() { location.reload(); }
 
-        // MENDENGARKAN PERUBAHAN FIREBASE UNTUK TAMPILAN MATCH CENTER
-        // VP-8B4 wajib: RT 06/RW 021 vs RT 07/RW 021.
-        // Jika Firebase masih menyimpan pasangan lama RT 07/RW 014,
-        // tampilan langsung dikoreksi dan pasangan benar ditulis kembali
-        // ke vipt_scoreboard/live agar website dan APK tetap sinkron.
         let correctingVP8B4 = false;
 
         dbRef.on('value', (snapshot) => {
@@ -707,7 +694,6 @@
             }
         });
 
-        // Cek mode URL apakah vMix output atau operator
         if (new URLSearchParams(window.location.search).get('mode') === 'output') {
             document.getElementById('operator-view').classList.add('hidden');
             document.getElementById('output-view').classList.remove('hidden');
