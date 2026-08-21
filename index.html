@@ -151,12 +151,12 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
                         <label class="block text-[10px] text-gray-400 font-bold mb-2">LOGO TIM A — OTOMATIS</label>
-                        <img id="preview-logo-a" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
+                        <img id="preview-logo-a" alt="Logo Tim A" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
                         <div id="preview-logo-a-empty" class="text-[10px] text-gray-500">Logo mengikuti nama Team A</div>
                     </div>
                     <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
                         <label class="block text-[10px] text-gray-400 font-bold mb-2">LOGO TIM B — OTOMATIS</label>
-                        <img id="preview-logo-b" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
+                        <img id="preview-logo-b" alt="Logo Tim B" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
                         <div id="preview-logo-b-empty" class="text-[10px] text-gray-500">Logo mengikuti nama Team B</div>
                     </div>
                 </div>
@@ -227,7 +227,7 @@
         <div class="scoreboard-root">
             <div class="sb-main-bar">
                 <div class="sb-team" style="background:#b91c1c">
-                    <img id="ui-logo-a" class="sb-logo" src="" style="display:none">
+                    <img id="ui-logo-a" alt="Logo A" class="sb-logo" src="" style="display:none">
                     <span id="ui-team-a">TIM A</span>
                 </div>
 
@@ -244,18 +244,16 @@
 
                 <div class="sb-team" style="background:#1d4ed8">
                     <span id="ui-team-b">TIM B</span>
-                    <img id="ui-logo-b" class="sb-logo" src="" style="display:none">
+                    <img id="ui-logo-b" alt="Logo B" class="sb-logo" src="" style="display:none">
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        /* ==========================================================
-           KONFIGURASI FIREBASE & DATA JADWAL MATCH CENTER
-           ========================================================== */
+        /* KONFIGURASI FIREBASE */
         const FIREBASE_CONFIG = {
-            apiKey: "AIzaSyBIww6sg-mRtUUx3rIylnu6qfYG6Ahfih8",
+            apiKey: "YOUR_FIREBASE_API_KEY", // Ganti dengan Key Anda jika dipublish secara privat
             authDomain: "scorebordviptcup.firebaseapp.com",
             databaseURL: "https://scorebordviptcup-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "scorebordviptcup",
@@ -285,7 +283,6 @@
             {id:"BD-2", sport:"BADMINTON PUTRA", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 08 / RW 014"}
         ];
 
-        // LOGO TIM OTOMATIS
         const TEAM_LOGOS = {
             "RT 02/RW 021": "assets/logos/RT_02-RW_021.png",
             "RT 04/RW 021": "assets/logos/RT_04-RW_021.png",
@@ -386,15 +383,8 @@
             return "GAME 1";
         }
 
-        function getScoreUnit() {
-            const sport = normalizeSport(state.sport);
-            if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "GOAL";
-            return "POIN";
-        }
-
         function updateSportUI() {
             const sport = normalizeSport(state.sport);
-            const unit = getScoreUnit();
 
             document.getElementById('select-sport').value = sport;
             document.getElementById('period-label').textContent = state.period;
@@ -547,7 +537,6 @@
             dbRef.set(state);
         }
 
-        // FUNGSI TIMER
         function formatTimer(sec) {
             const m = Math.floor(sec / 60);
             const s = sec % 60;
@@ -624,7 +613,6 @@
             syncToFirebase();
         }
 
-        // SIMPAN KE HISTORY
         function finishAndSaveMatch() {
             if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke hasil?")) return;
             state.status = "SELESAI";
