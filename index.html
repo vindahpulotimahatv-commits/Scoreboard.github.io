@@ -166,7 +166,7 @@
                     </select>
                 </div>
 
-                <!-- KHUSUS BEREGU: PENGATUR PARTAI TIM (PARTAI 1, PARTAI 2, PARTAI 3) -->
+                <!-- KHUSUS BEREGU: PENGATUR PARTAI TIM -->
                 <div id="beregu-partai-box" class="bg-cyan-950/40 border border-cyan-700/50 p-3 rounded-xl">
                     <label class="block text-[10px] text-cyan-300 font-black mb-1">KONTROL PARTAI BEREGU (BEST OF 3 PARTAI)</label>
                     <div class="grid grid-cols-3 gap-2">
@@ -191,7 +191,7 @@
             </div>
         </div>
 
-        <!-- KONTROL SKOR TIM A & B (TERDIRI DARI 3 TINGKAT SKOR) -->
+        <!-- KONTROL SKOR TIM A & B -->
         <div class="grid grid-cols-2 gap-3">
             <!-- TIM A -->
             <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl flex flex-col justify-between">
@@ -199,7 +199,6 @@
                     <span class="text-[10px] font-bold text-red-400 block mb-1">TIM A (KIRI)</span>
                     <input type="text" id="inp-name-a" oninput="syncToFirebase()" class="w-full bg-gray-800 border border-gray-700 p-2 mb-3 rounded-xl text-xs font-bold" placeholder="Nama Tim A">
                     
-                    <!-- SKOR BESAR TIM A -->
                     <div id="box-team-a-score" class="bg-amber-500/10 border border-amber-500/30 p-2 rounded-xl mb-3 flex justify-between items-center">
                         <span class="text-[10px] font-black text-amber-400">SKOR TIM (BESAR):</span>
                         <div class="flex items-center gap-2">
@@ -209,7 +208,6 @@
                         </div>
                     </div>
 
-                    <!-- SKOR SET A -->
                     <div id="box-set-a-score" class="flex justify-between items-center mb-2 px-1">
                         <span class="text-xs font-bold text-gray-400">SET MENANG:</span>
                         <span class="text-sm font-black text-amber-400" id="op-set-a">0</span>
@@ -232,7 +230,6 @@
                     <span class="text-[10px] font-bold text-blue-400 block mb-1">TIM B (KANAN)</span>
                     <input type="text" id="inp-name-b" oninput="syncToFirebase()" class="w-full bg-gray-800 border border-gray-700 p-2 mb-3 rounded-xl text-xs font-bold" placeholder="Nama Tim B">
                     
-                    <!-- SKOR BESAR TIM B -->
                     <div id="box-team-b-score" class="bg-amber-500/10 border border-amber-500/30 p-2 rounded-xl mb-3 flex justify-between items-center">
                         <span class="text-[10px] font-black text-amber-400">SKOR TIM (BESAR):</span>
                         <div class="flex items-center gap-2">
@@ -242,7 +239,6 @@
                         </div>
                     </div>
 
-                    <!-- SKOR SET B -->
                     <div id="box-set-b-score" class="flex justify-between items-center mb-2 px-1">
                         <span class="text-xs font-bold text-gray-400">SET MENANG:</span>
                         <span class="text-sm font-black text-amber-400" id="op-set-b">0</span>
@@ -345,11 +341,43 @@
         const dbRef = firebase.database().ref("vipt_scoreboard/live");
         const matchesRef = firebase.database().ref("vipt_scoreboard/matches");
 
+        // DAFTAR PERTANDINGAN LENGKAP VIPT CUP IV 2026
         const VIPT_MATCHES = [
-            {id:"", sport:"PILIH", round:"-", a:"BELUM ADA", b:"PERTANDINGAN"},
-            {id:"BD-1", sport:"BADMINTON BEREGU", round:"BABAK SEMIFINAL", a:"RT 10 / RW 021", b:"RT 13 / RW 021"},
-            {id:"VP-8B1", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
-            {id:"FS-SF1", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 13 / RW 021", b:"RT 04 / RW 021"}
+            { id: "", sport: "PILIH", round: "-", a: "BELUM ADA", b: "PERTANDINGAN" },
+            { id: "M1", sport: "VOLLY PUTRA", round: "BABAK 16 BESAR", a: "RT 07/RW 014", b: "RT 10/RW 014" },
+            { id: "M2", sport: "VOLLY PUTRA", round: "BABAK 16 BESAR", a: "RT 08/RW 021", b: "RT 11/RW 021" },
+            { id: "M3", sport: "VOLLY PUTRA", round: "BABAK 16 BESAR", a: "RT 04/RW 021", b: "RT 08/RW 014" },
+            { id: "M4", sport: "VOLLY PUTRA", round: "BABAK 16 BESAR", a: "RT 06/RW 021", b: "RT 10/RW 021" },
+
+            { id: "VP-8B1", sport: "VOLLY PUTRA", round: "BABAK 8 BESAR", a: "RT 09/RW 014", b: "RT 08/RW 014" },
+            { id: "VP-8B2", sport: "VOLLY PUTRA", round: "BABAK 8 BESAR", a: "RT 02/RW 021", b: "WINNER MATCH 1" },
+            { id: "VP-8B3", sport: "VOLLY PUTRA", round: "BABAK 8 BESAR", a: "RT 07/RW 021", b: "WINNER MATCH 2" },
+            { id: "VP-8B4", sport: "VOLLY PUTRA", round: "BABAK 8 BESAR", a: "RT 13/RW 021", b: "WINNER MATCH 4" },
+
+            { id: "VP-SF1", sport: "VOLLY PUTRA", round: "BABAK SEMIFINAL", a: "WINNER 8B1", b: "WINNER 8B2" },
+            { id: "VP-SF2", sport: "VOLLY PUTRA", round: "BABAK SEMIFINAL", a: "WINNER 8B3", b: "WINNER 8B4" },
+            { id: "VP-34", sport: "VOLLY PUTRA", round: "PEREBUTAN JUARA 3", a: "LOSER SF1", b: "LOSER SF2" },
+            { id: "VP-FN", sport: "VOLLY PUTRA", round: "BABAK FINAL", a: "WINNER SF1", b: "WINNER SF2" },
+
+            { id: "BD-1", sport: "BADMINTON BEREGU", round: "BABAK SEMIFINAL", a: "RT 10 / RW 021", b: "RT 13 / RW 021" },
+            { id: "BD-2", sport: "BADMINTON BEREGU", round: "BABAK SEMIFINAL", a: "RT 07 / RW 021", b: "RT 09 / RW 014" },
+            { id: "BD-34", sport: "BADMINTON BEREGU", round: "PEREBUTAN JUARA 3", a: "LOSER BD1", b: "LOSER BD2" },
+            { id: "BD-FN", sport: "BADMINTON BEREGU", round: "BABAK FINAL", a: "WINNER BD1", b: "WINNER BD2" },
+
+            { id: "FS-1", sport: "FUTSAL", round: "BABAK 16 BESAR", a: "RT 02/RW 021", b: "RT 07/RW 014" },
+            { id: "FS-2", sport: "FUTSAL", round: "BABAK 16 BESAR", a: "RT 06/RW 021", b: "RT 08/RW 014" },
+            { id: "FS-3", sport: "FUTSAL", round: "BABAK 16 BESAR", a: "RT 10/RW 014", b: "RT 11/RW 021" },
+            { id: "FS-4", sport: "FUTSAL", round: "BABAK 16 BESAR", a: "RT 07/RW 021", b: "RT 08/RW 021" },
+
+            { id: "FS-8B1", sport: "FUTSAL", round: "BABAK 8 BESAR", a: "RT 09/RW 014", b: "WINNER FS1" },
+            { id: "FS-8B2", sport: "FUTSAL", round: "BABAK 8 BESAR", a: "RT 13/RW 021", b: "WINNER FS2" },
+            { id: "FS-8B3", sport: "FUTSAL", round: "BABAK 8 BESAR", a: "RT 04/RW 021", b: "WINNER FS3" },
+            { id: "FS-8B4", sport: "FUTSAL", round: "RT 10/RW 021", b: "WINNER FS4" },
+
+            { id: "FS-SF1", sport: "FUTSAL", round: "BABAK SEMIFINAL", a: "RT 13 / RW 021", b: "RT 04 / RW 021" },
+            { id: "FS-SF2", sport: "FUTSAL", round: "BABAK SEMIFINAL", a: "WINNER 8B3", b: "WINNER 8B4" },
+            { id: "FS-34", sport: "FUTSAL", round: "PEREBUTAN JUARA 3", a: "LOSER SF1", b: "LOSER SF2" },
+            { id: "FS-FN", sport: "FUTSAL", round: "BABAK FINAL", a: "WINNER SF1", b: "WINNER SF2" }
         ];
 
         const TEAM_LOGOS = {
