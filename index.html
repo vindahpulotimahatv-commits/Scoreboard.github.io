@@ -273,7 +273,7 @@
             {id:"VP-8B1", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
             {id:"VP-8B2", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 02 / RW 021", b:"RT 04 / RW 021"},
             {id:"VP-8B3", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 10 / RW 021", b:"RT 08 / RW 021"},
-            {id:"VP-8B4", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 06 / RW 021", b:"RT 07 / RW 021"}, // KOREKSI: RT 06/RW 021 vs RT 07/RW 021
+            {id:"VP-8B4", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 06 / RW 021", b:"RT 07 / RW 021"},
             {id:"VW-SF1", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
             {id:"VW-SF2", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 06 / RW 021", b:"RT 08 / RW 021"},
             {id:"FS-SF1", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 13 / RW 021", b:"RT 04 / RW 021"},
@@ -646,11 +646,54 @@
         function openOutputTab() { window.open(window.location.href + '?mode=output', '_blank'); }
         function exitTestOutput() { location.reload(); }
 
-        // MENDENGARKAN PERUBAHAN DARI DATABASE UNTUK TAMPILAN vMIX
+        // MENDENGARKAN PERUBAHAN FIREBASE UNTUK TAMPILAN MATCH CENTER
+        // VP-8B4 wajib: RT 06/RW 021 vs RT 07/RW 021.
+        // Jika Firebase masih menyimpan pasangan lama RT 07/RW 014,
+        // tampilan langsung dikoreksi dan pasangan benar ditulis kembali
+        // ke vipt_scoreboard/live agar website dan APK tetap sinkron.
+        let correctingVP8B4 = false;
+
         dbRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            if(data) {
-                state = data;
+            const raw = snapshot.val();
+            if(raw) {
+                const matchId = String(raw.matchId || '').trim();
+                const oldA = String(raw.teamA?.name || '').trim();
+                const oldB = String(raw.teamB?.name || '').trim();
+
+                const isVP8B4 =
+                    matchId === 'VP-8B4' ||
+                    (oldA === 'RT 06 / RW 021' && oldB === 'RT 07 / RW 014');
+
+                if (isVP8B4) {
+                    const correctA = 'RT 06 / RW 021';
+                    const correctB = 'RT 07 / RW 021';
+
+                    state = {
+                        ...raw,
+                        matchId: 'VP-8B4',
+                        teamA: { ...(raw.teamA || {}), name: correctA },
+                        teamB: { ...(raw.teamB || {}), name: correctB },
+                        logos: {a:"", b:""}
+                    };
+
+                    const needsFix =
+                        matchId !== 'VP-8B4' ||
+                        oldA !== correctA ||
+                        oldB !== correctB;
+
+                    if (needsFix && !correctingVP8B4) {
+                        correctingVP8B4 = true;
+                        dbRef.update({
+                            matchId: 'VP-8B4',
+                            teamA: state.teamA,
+                            teamB: state.teamB,
+                            logos: {a:"", b:""}
+                        }).finally(() => { correctingVP8B4 = false; });
+                    }
+                } else {
+                    state = raw;
+                }
+
                 updateTimerDisplay();
                 document.getElementById('ui-team-a').textContent = state.teamA.name;
                 document.getElementById('ui-team-b').textContent = state.teamB.name;
