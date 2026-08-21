@@ -267,6 +267,8 @@
 
         if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
         const dbRef = firebase.database().ref("vipt_scoreboard/live");
+        const matchesRef = firebase.database().ref("vipt_scoreboard/matches");
+        const bracketRef = firebase.database().ref("vipt_scoreboard/bracket");
 
         const VIPT_MATCHES = [
             {id:"", sport:"PILIH", round:"-", a:"BELUM ADA", b:"PERTANDINGAN"},
@@ -329,6 +331,45 @@
         };
 
         let timerInterval = null;
+
+        function applyFirebaseMatchToDropdown(matchMap) {
+            if (!matchMap || typeof matchMap !== "object") return;
+
+            Object.entries(matchMap).forEach(([id, m]) => {
+                if (!id || !m || typeof m !== "object") return;
+
+                const existing = VIPT_MATCHES.find(x => x.id === id);
+
+                if (existing) {
+                    if (m.teamA?.name) existing.a = m.teamA.name;
+                    if (m.teamB?.name) existing.b = m.teamB.name;
+                    if (m.sport) existing.sport = m.sport;
+                    if (m.round) existing.round = m.round;
+                } else if (m.teamA?.name || m.teamB?.name) {
+                    VIPT_MATCHES.push({
+                        id,
+                        sport: m.sport || "VOLLY PUTRA",
+                        round: m.round || "NEXT MATCH",
+                        a: m.teamA?.name || "MENUNGGU PEMENANG",
+                        b: m.teamB?.name || "MENUNGGU PEMENANG"
+                    });
+                }
+            });
+
+            populateMatchDropdown();
+
+            // Jika operator sedang membuka next match, jangan reset skor.
+            const currentId = String(state.matchId || "");
+            if (currentId) {
+                const m = VIPT_MATCHES.find(x => x.id === currentId);
+                if (m && state.status !== "LIVE") {
+                    state.teamA.name = m.a;
+                    state.teamB.name = m.b;
+                    updateOperatorInputs();
+                    updateVmixOutputFromState();
+                }
+            }
+        }
 
         function populateMatchDropdown() {
             const select = document.getElementById('select-match-list');
@@ -632,15 +673,142 @@
         }
 
         // SIMPAN KE HISTORY
-        function finishAndSaveMatch() {
+        // ==========================================================
+        // SYNC JADWAL & BRACKET DARI FIREBASE
+        // ==========================================================
+        matchesRef.on("value", (snapshot) => {
+            applyFirebaseMatchToDropdown(snapshot.val());
+        });
+
+        bracketRef.on("value", (snapshot) => {
+            console.log("Bracket Firebase diperbarui:", snapshot.val());
+        });
+
+        // ==========================================================
+        // OTOMATIS BRACKET -> NEXT MATCH
+        // Sumber hasil: vipt_scoreboard/history
+        // Jadwal berikutnya: vipt_scoreboard/matches
+        // Bracket: vipt_scoreboard/bracket
+        // ==========================================================
+
+        const BRACKET_FLOW = {
+            "VP-8B1": { next: "VP-SF1", slot: "a" },
+            "VP-8B2": { next: "VP-SF1", slot: "b" },
+            "VP-8B3": { next: "VP-SF2", slot: "a" },
+            "VP-8B4": { next: "VP-SF2", slot: "b" },
+
+            "VW-SF1": { next: "VW-FINAL", slot: "a" },
+            "VW-SF2": { next: "VW-FINAL", slot: "b" },
+
+            "FS-SF1": { next: "FS-FINAL", slot: "a" },
+            "FS-SF2": { next: "FS-FINAL", slot: "b" },
+
+            "TM-1": { next: "TM-FINAL", slot: "a" },
+            "TM-2": { next: "TM-FINAL", slot: "b" },
+
+            "BD-1": { next: "BD-FINAL", slot: "a" }
+        };
+
+        function getWinnerFromState(matchState) {
+            const a = Number(matchState?.teamA?.score ?? 0);
+            const b = Number(matchState?.teamB?.score ?? 0);
+
+            if (a > b) return matchState?.teamA?.name || "";
+            if (b > a) return matchState?.teamB?.name || "";
+
+            return "";
+        }
+
+        async function updateBracketAfterFinish(matchState) {
+            const matchId = String(matchState?.matchId || "").trim();
+            if (!matchId) return;
+
+            const winner = getWinnerFromState(matchState);
+            if (!winner) {
+                console.warn("Pemenang belum dapat ditentukan:", matchId);
+                return;
+            }
+
+            const flow = BRACKET_FLOW[matchId];
+            if (!flow) {
+                console.log("Tidak ada next-match mapping untuk", matchId);
+                return;
+            }
+
+            const db = firebase.database();
+
+            // Simpan hasil pemenang di node bracket.
+            await db.ref("vipt_scoreboard/bracket/" + matchId).set({
+                matchId: matchId,
+                winner: winner,
+                loser: matchState.teamA.name === winner
+                    ? matchState.teamB.name
+                    : matchState.teamA.name,
+                scoreA: Number(matchState.teamA.score || 0),
+                scoreB: Number(matchState.teamB.score || 0),
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            // Ambil pertandingan berikutnya yang sudah ada di Firebase.
+            const nextRef = db.ref("vipt_scoreboard/matches/" + flow.next);
+            const nextSnap = await nextRef.once("value");
+            const next = nextSnap.val() || {};
+
+            const teamKey = flow.slot === "a" ? "teamA" : "teamB";
+            const currentTeam = next[teamKey] || {};
+
+            next.matchId = flow.next;
+            next[teamKey] = {
+                ...(typeof currentTeam === "object" ? currentTeam : {}),
+                name: winner,
+                score: 0
+            };
+            next.status = next.status || "JADWAL";
+            next.updatedAt = firebase.database.ServerValue.TIMESTAMP;
+
+            await nextRef.set(next);
+
+            console.log(
+                "NEXT MATCH OTOMATIS:",
+                matchId,
+                "->",
+                flow.next,
+                winner
+            );
+        }
+
+        async function finishAndSaveMatch() {
             if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke hasil?")) return;
+
             state.status = "SELESAI";
             state.timerRunning = false;
+
+            // Pastikan hasil terakhir tersimpan di LIVE sebelum masuk HISTORY.
             syncToFirebase();
 
-            // Push ke history database
-            firebase.database().ref("vipt_scoreboard/history").push(state);
-            alert("Pertandingan berhasil disimpan ke Hasil Match Center!");
+            const historyState = JSON.parse(JSON.stringify(state));
+
+            try {
+                // 1. Simpan hasil pertandingan.
+                await firebase.database()
+                    .ref("vipt_scoreboard/history")
+                    .push(historyState);
+
+                // 2. Tentukan pemenang dan isi next match.
+                await updateBracketAfterFinish(historyState);
+
+                alert(
+                    "Pertandingan selesai.\n\n" +
+                    "Hasil sudah masuk HISTORY dan pemenang diproses ke NEXT MATCH."
+                );
+
+            } catch (error) {
+                console.error("Gagal update bracket:", error);
+                alert(
+                    "Hasil sudah disimpan ke HISTORY, tetapi NEXT MATCH gagal diperbarui.\n\n" +
+                    error.message
+                );
+            }
         }
 
         function openOutputTab() { window.open(window.location.href + '?mode=output', '_blank'); }
