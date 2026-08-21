@@ -127,7 +127,7 @@
     <div id="operator-view" class="max-w-2xl mx-auto space-y-4 pb-12">
         <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
             <h1 class="text-lg font-black text-center text-amber-400 mb-1">VIPT CUP IV 2026</h1>
-            <p class="text-xs text-center text-gray-400 mb-4">PANEL OPERATOR BADMINTON BEREGU & ALL SPORTS</p>
+            <p class="text-xs text-center text-gray-400 mb-4">PANEL OPERATOR BADMINTON GANDA PUTRI & ALL SPORTS</p>
             
             <label class="block text-xs font-bold text-gray-300 mb-2">PILIH PERTANDINGAN JADWAL</label>
             <div class="flex gap-2 mb-3">
@@ -166,13 +166,13 @@
                     </select>
                 </div>
 
-                <!-- KHUSUS BEREGU: PENGATUR PARTAI TIM -->
+                <!-- KHUSUS BEREGU: PENGATUR PARTAI GANDA -->
                 <div id="beregu-partai-box" class="bg-cyan-950/40 border border-cyan-700/50 p-3 rounded-xl">
-                    <label class="block text-[10px] text-cyan-300 font-black mb-1">KONTROL PARTAI BEREGU (BEST OF 3 PARTAI)</label>
+                    <label class="block text-[10px] text-cyan-300 font-black mb-1">KONTROL PARTAI BEREGU GANDA (BEST OF 3 PARTAI GANDA)</label>
                     <div class="grid grid-cols-3 gap-2">
                         <button onclick="setPartaiBeregu(1)" class="bg-gray-800 hover:bg-cyan-800 py-2 rounded-lg font-bold text-xs text-white">PARTAI 1 (GANDA 1)</button>
-                        <button onclick="setPartaiBeregu(2)" class="bg-gray-800 hover:bg-cyan-800 py-2 rounded-lg font-bold text-xs text-white">PARTAI 2 (TUNGGAL)</button>
-                        <button onclick="setPartaiBeregu(3)" class="bg-gray-800 hover:bg-cyan-800 py-2 rounded-lg font-bold text-xs text-white">PARTAI 3 (GANDA 2)</button>
+                        <button onclick="setPartaiBeregu(2)" class="bg-gray-800 hover:bg-cyan-800 py-2 rounded-lg font-bold text-xs text-white">PARTAI 2 (GANDA 2)</button>
+                        <button onclick="setPartaiBeregu(3)" class="bg-gray-800 hover:bg-cyan-800 py-2 rounded-lg font-bold text-xs text-white">PARTAI 3 (GANDA 3)</button>
                     </div>
                 </div>
 
@@ -341,43 +341,25 @@
         const dbRef = firebase.database().ref("vipt_scoreboard/live");
         const matchesRef = firebase.database().ref("vipt_scoreboard/matches");
 
-        // DAFTAR PERTANDINGAN LENGKAP VIPT CUP IV 2026
+        // DAFTAR SELURUH TIM & PERTANDINGAN FULL RESET (GANDA PUTRI - BRACKET 8 BESAR)
         const VIPT_MATCHES = [
             { id: "", sport: "PILIH", round: "-", a: "BELUM ADA", b: "PERTANDINGAN" },
-            { id: "M1", sport: "VOLLY PUTRA", round: "BABAK 16 BESAR", a: "RT 07/RW 014", b: "RT 10/RW 014" },
-            { id: "M2", sport: "VOLLY PUTRA", round: "BABAK 16 BESAR", a: "RT 08/RW 021", b: "RT 11/RW 021" },
-            { id: "M3", sport: "VOLLY PUTRA", round: "BABAK 16 BESAR", a: "RT 04/RW 021", b: "RT 08/RW 014" },
-            { id: "M4", sport: "VOLLY PUTRA", round: "BABAK 16 BESAR", a: "RT 06/RW 021", b: "RT 10/RW 021" },
+            
+            // PERTANDINGAN GANDA PUTRI BABAK 8 BESAR (SEMUA TIM MASUK & SKOR DIRESET 0-0)
+            { id: "BD-PI-8B1", sport: "BADMINTON BEREGU", round: "GANDA PUTRI - BABAK 8 BESAR (MATCH 1)", a: "RT 13 / RW 021", b: "RT 04 / RW 021" },
+            { id: "BD-PI-8B2", sport: "BADMINTON BEREGU", round: "GANDA PUTRI - BABAK 8 BESAR (MATCH 2)", a: "RT 07 / RW 021", b: "RT 10 / RW 021" },
+            { id: "BD-PI-8B3", sport: "BADMINTON BEREGU", round: "GANDA PUTRI - BABAK 8 BESAR (MATCH 3)", a: "RT 08 / RW 014", b: "RT 09 / RW 014" },
+            { id: "BD-PI-8B4", sport: "BADMINTON BEREGU", round: "GANDA PUTRI - BABAK 8 BESAR (MATCH 4)", a: "RT 02 / RW 021", b: "RT 06 / RW 021" },
 
-            { id: "VP-8B1", sport: "VOLLY PUTRA", round: "BABAK 8 BESAR", a: "RT 09/RW 014", b: "RT 08/RW 014" },
-            { id: "VP-8B2", sport: "VOLLY PUTRA", round: "BABAK 8 BESAR", a: "RT 02/RW 021", b: "WINNER MATCH 1" },
-            { id: "VP-8B3", sport: "VOLLY PUTRA", round: "BABAK 8 BESAR", a: "RT 07/RW 021", b: "WINNER MATCH 2" },
-            { id: "VP-8B4", sport: "VOLLY PUTRA", round: "BABAK 8 BESAR", a: "RT 13/RW 021", b: "WINNER MATCH 4" },
+            // BAGAN BABAK LANJUTAN (SEMIFINAL & FINAL - MENUNGGU PEMENANG)
+            { id: "BD-PI-SF1", sport: "BADMINTON BEREGU", round: "GANDA PUTRI - SEMIFINAL 1", a: "PEMENANG MATCH 1", b: "PEMENANG MATCH 2" },
+            { id: "BD-PI-SF2", sport: "BADMINTON BEREGU", round: "GANDA PUTRI - SEMIFINAL 2", a: "PEMENANG MATCH 3", b: "PEMENANG MATCH 4" },
+            { id: "BD-PI-34",  sport: "BADMINTON BEREGU", round: "GANDA PUTRI - PEREBUTAN JUARA 3", a: "KALAH SF1", b: "KALAH SF2" },
+            { id: "BD-PI-FN",  sport: "BADMINTON BEREGU", round: "GANDA PUTRI - FINAL", a: "PEMENANG SF1", b: "PEMENANG SF2" },
 
-            { id: "VP-SF1", sport: "VOLLY PUTRA", round: "BABAK SEMIFINAL", a: "WINNER 8B1", b: "WINNER 8B2" },
-            { id: "VP-SF2", sport: "VOLLY PUTRA", round: "BABAK SEMIFINAL", a: "WINNER 8B3", b: "WINNER 8B4" },
-            { id: "VP-34", sport: "VOLLY PUTRA", round: "PEREBUTAN JUARA 3", a: "LOSER SF1", b: "LOSER SF2" },
-            { id: "VP-FN", sport: "VOLLY PUTRA", round: "BABAK FINAL", a: "WINNER SF1", b: "WINNER SF2" },
-
-            { id: "BD-1", sport: "BADMINTON BEREGU", round: "BABAK SEMIFINAL", a: "RT 10 / RW 021", b: "RT 13 / RW 021" },
-            { id: "BD-2", sport: "BADMINTON BEREGU", round: "BABAK SEMIFINAL", a: "RT 07 / RW 021", b: "RT 09 / RW 014" },
-            { id: "BD-34", sport: "BADMINTON BEREGU", round: "PEREBUTAN JUARA 3", a: "LOSER BD1", b: "LOSER BD2" },
-            { id: "BD-FN", sport: "BADMINTON BEREGU", round: "BABAK FINAL", a: "WINNER BD1", b: "WINNER BD2" },
-
-            { id: "FS-1", sport: "FUTSAL", round: "BABAK 16 BESAR", a: "RT 02/RW 021", b: "RT 07/RW 014" },
-            { id: "FS-2", sport: "FUTSAL", round: "BABAK 16 BESAR", a: "RT 06/RW 021", b: "RT 08/RW 014" },
-            { id: "FS-3", sport: "FUTSAL", round: "BABAK 16 BESAR", a: "RT 10/RW 014", b: "RT 11/RW 021" },
-            { id: "FS-4", sport: "FUTSAL", round: "BABAK 16 BESAR", a: "RT 07/RW 021", b: "RT 08/RW 021" },
-
-            { id: "FS-8B1", sport: "FUTSAL", round: "BABAK 8 BESAR", a: "RT 09/RW 014", b: "WINNER FS1" },
-            { id: "FS-8B2", sport: "FUTSAL", round: "BABAK 8 BESAR", a: "RT 13/RW 021", b: "WINNER FS2" },
-            { id: "FS-8B3", sport: "FUTSAL", round: "BABAK 8 BESAR", a: "RT 04/RW 021", b: "WINNER FS3" },
-            { id: "FS-8B4", sport: "FUTSAL", round: "RT 10/RW 021", b: "WINNER FS4" },
-
-            { id: "FS-SF1", sport: "FUTSAL", round: "BABAK SEMIFINAL", a: "RT 13 / RW 021", b: "RT 04 / RW 021" },
-            { id: "FS-SF2", sport: "FUTSAL", round: "BABAK SEMIFINAL", a: "WINNER 8B3", b: "WINNER 8B4" },
-            { id: "FS-34", sport: "FUTSAL", round: "PEREBUTAN JUARA 3", a: "LOSER SF1", b: "LOSER SF2" },
-            { id: "FS-FN", sport: "FUTSAL", round: "BABAK FINAL", a: "WINNER SF1", b: "WINNER SF2" }
+            // CABANG OLAHRAGA LAIN (TETAP LENGKAP)
+            { id: "VP-8B1", sport: "VOLLY PUTRA", round: "BABAK 8 BESAR", a: "RT 09 / RW 014", b: "RT 08 / RW 014" },
+            { id: "FS-SF1", sport: "FUTSAL", round: "BABAK SEMIFINAL", a: "RT 13 / RW 021", b: "RT 04 / RW 021" }
         ];
 
         const TEAM_LOGOS = {
@@ -489,7 +471,7 @@
 
             if (state.teamA.setWins >= 2 || state.teamB.setWins >= 2) {
                 const winner = state.teamA.setWins >= 2 ? state.teamA.name : state.teamB.name;
-                alert(`Partai ke-${state.partaiBeregu} selesai! Dimenangkan oleh: ${winner}`);
+                alert(`Partai Ganda ke-${state.partaiBeregu} selesai! Dimenangkan oleh: ${winner}`);
                 if (isBeregu()) {
                     finishPartaiBeregu();
                     return;
@@ -517,7 +499,7 @@
                 return;
             }
 
-            alert(`Partai ${state.partaiBeregu} Selesai!\nSkor Besar Tim Sekarang: ${state.teamA.name} (${state.teamA.teamWins}) vs (${state.teamB.teamWins}) ${state.teamB.name}\n\nLanjut ke Partai Berikutnya.`);
+            alert(`Partai ${state.partaiBeregu} Selesai!\nSkor Besar Tim Sekarang: ${state.teamA.name} (${state.teamA.teamWins}) vs (${state.teamB.teamWins}) ${state.teamB.name}\n\nLanjut ke Partai Ganda Berikutnya.`);
             setPartaiBeregu(state.partaiBeregu + 1);
         }
 
