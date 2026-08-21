@@ -142,7 +142,8 @@
                     <select id="select-sport" onchange="changeSport()" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-xl text-xs font-bold">
                         <option value="SEPAK BOLA">SEPAK BOLA — GOAL / 2 BABAK</option>
                         <option value="FUTSAL">FUTSAL — GOAL / 2 BABAK</option>
-                        <option value="VOLLY">VOLLY — POIN / SET</option>
+                        <option value="VOLLY PUTRA">VOLLY PUTRA — POIN / SET</option>
+                        <option value="VOLLY PUTRI">VOLLY PUTRI — POIN / SET</option>
                         <option value="BADMINTON">BADMINTON — POIN / GAME</option>
                         <option value="TENIS MEJA">TENIS MEJA / PINGPONG — POIN / GAME</option>
                     </select>
@@ -251,9 +252,6 @@
     </div>
 
     <script>
-        /* ==========================================================
-           KONFIGURASI FIREBASE & DATA JADWAL MATCH CENTER
-           ========================================================== */
         const FIREBASE_CONFIG = {
             apiKey: "AIzaSyBIww6sg-mRtUUx3rIylnu6qfYG6Ahfih8",
             authDomain: "scorebordviptcup.firebaseapp.com",
@@ -268,6 +266,7 @@
         if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
         const dbRef = firebase.database().ref("vipt_scoreboard/live");
 
+        // SEMUA NAMA TIM DISESUAIKAN DENGAN DAFTAR MATCH CENTER LENGKAP
         const VIPT_MATCHES = [
             {id:"", sport:"PILIH", round:"-", a:"BELUM ADA", b:"PERTANDINGAN"},
             {id:"VP-8B1", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
@@ -283,16 +282,17 @@
             {id:"BD-1", sport:"BADMINTON", round:"BABAK SEMIFINAL", a:"RT 10 / RW 021", b:"RT 13 / RW 021"}
         ];
 
-        // LOGO TIM OTOMATIS — tertanam di index.html agar web, APK dan vMix
-        // tidak membutuhkan folder/file logo tambahan. Nama tim menjadi kunci pencarian logo.
-        // Logo pertandingan VP-8B4: RT 06/RW 021 vs RT 07/RW 021
         const TEAM_LOGOS = {
             "RT 02/RW 021": "assets/logos/RT_02-RW_021.png",
+            "RT 02/RW 021 (A)": "assets/logos/RT_02-RW_021.png",
+            "RT 02/RW 021 (B)": "assets/logos/RT_02-RW_021.png",
             "RT 04/RW 021": "assets/logos/RT_04-RW_021.png",
             "RT 06/RW 021": "assets/logos/RT_06-RW_021.png",
             "RT 07/RW 014": "assets/logos/RT_07-RW_014.png",
             "RT 07/RW 021": "assets/logos/RT_07-RW_021.png",
             "RT 08/RW 014": "assets/logos/RT_08-RW_014.png",
+            "RT 08/RW 014 (A)": "assets/logos/RT_08-RW_014.png",
+            "RT 08/RW 014 (B)": "assets/logos/RT_08-RW_014.png",
             "RT 08/RW 021": "assets/logos/RT_08-RW_021.png",
             "RT 09/RW 014": "assets/logos/RT_09-RW_014.png",
             "RT 10/RW 014": "assets/logos/RT_10-RW_014.png",
@@ -347,8 +347,6 @@
                 state.period = "BABAK 1";
                 state.periodNumber = 1;
                 state.logos = { a: "", b: "" };
-                localStorage.removeItem("VIPT_LOGO_A");
-                localStorage.removeItem("VIPT_LOGO_B");
                 state.status = "JADWAL";
                 state.teamA = { name: "BELUM ADA JADWAL", score: 0 };
                 state.teamB = { name: "BELUM ADA JADWAL", score: 0 };
@@ -359,8 +357,6 @@
                 state.periodNumber = 1;
                 state.period = getDefaultPeriod(state.sport);
                 state.logos = { a: "", b: "" };
-                localStorage.removeItem("VIPT_LOGO_A");
-                localStorage.removeItem("VIPT_LOGO_B");
                 state.status = "LIVE";
                 state.teamA = { name: m.a, score: 0 };
                 state.teamB = { name: m.b, score: 0 };
@@ -372,9 +368,10 @@
 
         function normalizeSport(sport) {
             const s = String(sport || "").toUpperCase();
-            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
+            if (s.includes("VOLLY PUTRI")) return "VOLLY PUTRI";
+            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY PUTRA";
             if (s.includes("BADMINTON")) return "BADMINTON";
-            if (s.includes("TENIS MEJA") || s.includes("PINGPONG") || s.includes("PINGPONG")) return "TENIS MEJA";
+            if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
             if (s.includes("FUTSAL")) return "FUTSAL";
             return "SEPAK BOLA";
         }
@@ -382,20 +379,12 @@
         function getDefaultPeriod(sport) {
             sport = normalizeSport(sport);
             if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "BABAK 1";
-            if (sport === "VOLLY") return "SET 1";
+            if (sport.includes("VOLLY")) return "SET 1";
             return "GAME 1";
-        }
-
-        function getScoreUnit() {
-            const sport = normalizeSport(state.sport);
-            if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "GOAL";
-            return "POIN";
         }
 
         function updateSportUI() {
             const sport = normalizeSport(state.sport);
-            const unit = getScoreUnit();
-
             document.getElementById('select-sport').value = sport;
             document.getElementById('period-label').textContent = state.period;
             document.getElementById('ui-sport').textContent = sport;
@@ -415,12 +404,12 @@
 
         function changePeriod(delta) {
             const sport = normalizeSport(state.sport);
-            const max = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? 2 : (sport === "VOLLY" ? 5 : 3);
+            const max = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? 2 : (sport.includes("VOLLY") ? 5 : 3);
             state.periodNumber = Math.max(1, Math.min(max, (Number(state.periodNumber) || 1) + delta));
 
             if (sport === "SEPAK BOLA" || sport === "FUTSAL") {
                 state.period = "BABAK " + state.periodNumber;
-            } else if (sport === "VOLLY") {
+            } else if (sport.includes("VOLLY")) {
                 state.period = "SET " + state.periodNumber;
             } else {
                 state.period = "GAME " + state.periodNumber;
@@ -440,74 +429,36 @@
             const emptyA = document.getElementById('preview-logo-a-empty');
             const emptyB = document.getElementById('preview-logo-b-empty');
 
-            // Logo selalu dicari berdasarkan NAMA TIM yang sedang aktif.
-            // Karena data logo tertanam di index.html, perubahan pertandingan langsung ikut berubah.
             const logoAData = getAutoLogoForTeam(state.teamA?.name);
             const logoBData = getAutoLogoForTeam(state.teamB?.name);
 
             if (logoA) {
-                if (logoAData) {
-                    logoA.src = logoAData;
-                    logoA.style.display = "block";
-                } else {
-                    logoA.removeAttribute("src");
-                    logoA.style.display = "none";
-                }
+                if (logoAData) { logoA.src = logoAData; logoA.style.display = "block"; } 
+                else { logoA.removeAttribute("src"); logoA.style.display = "none"; }
             }
             if (logoB) {
-                if (logoBData) {
-                    logoB.src = logoBData;
-                    logoB.style.display = "block";
-                } else {
-                    logoB.removeAttribute("src");
-                    logoB.style.display = "none";
-                }
+                if (logoBData) { logoB.src = logoBData; logoB.style.display = "block"; } 
+                else { logoB.removeAttribute("src"); logoB.style.display = "none"; }
             }
 
-            if (previewA) {
-                previewA.src = logoAData;
-                previewA.classList.toggle('hidden', !logoAData);
-            }
-            if (previewB) {
-                previewB.src = logoBData;
-                previewB.classList.toggle('hidden', !logoBData);
-            }
+            if (previewA) { previewA.src = logoAData; previewA.classList.toggle('hidden', !logoAData); }
+            if (previewB) { previewB.src = logoBData; previewB.classList.toggle('hidden', !logoBData); }
             if (emptyA) emptyA.style.display = logoAData ? 'none' : 'block';
             if (emptyB) emptyB.style.display = logoBData ? 'none' : 'block';
         }
 
-        function getSportDisplayName(sport) {
-            const s = String(sport || "").toUpperCase();
-            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
-            if (s.includes("BADMINTON")) return "BADMINTON";
-            if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
-            if (s.includes("FUTSAL")) return "FUTSAL";
-            if (s.includes("SEPAK BOLA") || s.includes("SEPAKBOLA")) return "SEPAK BOLA";
-            return s || "SEPAK BOLA";
-        }
-
         function updateVmixOutputFromState() {
-            const sportText = getSportDisplayName(state.sport);
-            const sportEl = document.getElementById('ui-sport');
-            const periodEl = document.getElementById('ui-period');
-            const timerEl = document.getElementById('ui-timer');
-            const scoreAEl = document.getElementById('ui-score-a');
-            const scoreBEl = document.getElementById('ui-score-b');
-            const teamAEl = document.getElementById('ui-team-a');
-            const teamBEl = document.getElementById('ui-team-b');
+            const sportText = normalizeSport(state.sport);
+            document.getElementById('ui-sport').textContent = sportText;
+            document.getElementById('ui-period').textContent = state.period || getDefaultPeriod(sportText);
+            document.getElementById('ui-score-a').textContent = Number(state.teamA?.score || 0);
+            document.getElementById('ui-score-b').textContent = Number(state.teamB?.score || 0);
+            document.getElementById('ui-team-a').textContent = state.teamA?.name || "TIM A";
+            document.getElementById('ui-team-b').textContent = state.teamB?.name || "TIM B";
 
-            if (sportEl) sportEl.textContent = sportText;
-            if (periodEl) periodEl.textContent = state.period || getDefaultPeriod(sportText);
-
-            if (scoreAEl) scoreAEl.textContent = Number(state.teamA?.score || 0);
-            if (scoreBEl) scoreBEl.textContent = Number(state.teamB?.score || 0);
-            if (teamAEl) teamAEl.textContent = state.teamA?.name || "TIM A";
-            if (teamBEl) teamBEl.textContent = state.teamB?.name || "TIM B";
-
-            // Logo mengikuti nama Team A / Team B yang sama dengan Live Score.
             updateLogoOutput();
 
-            // Futsal/sepak bola memakai countdown. Volly, badminton dan pingpong memakai jam lokal.
+            const timerEl = document.getElementById('ui-timer');
             if (timerEl) {
                 const isCountdownSport = sportText === "SEPAK BOLA" || sportText === "FUTSAL";
                 timerEl.style.display = "block";
@@ -523,7 +474,6 @@
             document.getElementById('op-score-a').textContent = state.teamA.score;
             document.getElementById('op-score-b').textContent = state.teamB.score;
             state.sport = normalizeSport(state.sport);
-            state.logos = state.logos || {a:"", b:""};
             updateSportUI();
             updateLogoOutput();
         }
@@ -545,15 +495,12 @@
             state.period = document.getElementById('inp-period').value;
             state.status = document.getElementById('select-status').value;
             state.sport = normalizeSport(state.sport);
-            // Logo TIDAK disimpan ke Firebase sebagai base64 besar.
-            // Semua client mencari logo dari nama tim menggunakan TEAM_LOGOS.
             state.logos = {a:"", b:""};
             updateLogoOutput();
 
             dbRef.set(state);
         }
 
-        // FUNGSI TIMER
         function formatTimer(sec) {
             const m = Math.floor(sec / 60);
             const s = sec % 60;
@@ -562,10 +509,7 @@
 
         function formatLocalClock() {
             return new Intl.DateTimeFormat('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
             }).format(new Date());
         }
 
@@ -576,7 +520,6 @@
             document.getElementById('ui-timer').textContent = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? timeStr : formatLocalClock();
         }
 
-        // Jam lokal Indonesia berjalan independen dari timer pertandingan.
         setInterval(() => {
             const sport = normalizeSport(state.sport);
             if (sport !== "SEPAK BOLA" && sport !== "FUTSAL") {
@@ -631,14 +574,12 @@
             syncToFirebase();
         }
 
-        // SIMPAN KE HISTORY
         function finishAndSaveMatch() {
             if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke hasil?")) return;
             state.status = "SELESAI";
             state.timerRunning = false;
             syncToFirebase();
 
-            // Push ke history database
             firebase.database().ref("vipt_scoreboard/history").push(state);
             alert("Pertandingan berhasil disimpan ke Hasil Match Center!");
         }
@@ -646,68 +587,22 @@
         function openOutputTab() { window.open(window.location.href + '?mode=output', '_blank'); }
         function exitTestOutput() { location.reload(); }
 
-        // MENDENGARKAN PERUBAHAN FIREBASE UNTUK TAMPILAN MATCH CENTER
-        // VP-8B4 wajib: RT 06/RW 021 vs RT 07/RW 021.
-        // Jika Firebase masih menyimpan pasangan lama RT 07/RW 014,
-        // tampilan langsung dikoreksi dan pasangan benar ditulis kembali
-        // ke vipt_scoreboard/live agar website dan APK tetap sinkron.
-        let correctingVP8B4 = false;
-
         dbRef.on('value', (snapshot) => {
             const raw = snapshot.val();
             if(raw) {
-                const matchId = String(raw.matchId || '').trim();
-                const oldA = String(raw.teamA?.name || '').trim();
-                const oldB = String(raw.teamB?.name || '').trim();
-
-                const isVP8B4 =
-                    matchId === 'VP-8B4' ||
-                    (oldA === 'RT 06 / RW 021' && oldB === 'RT 07 / RW 014');
-
-                if (isVP8B4) {
-                    const correctA = 'RT 06 / RW 021';
-                    const correctB = 'RT 07 / RW 021';
-
-                    state = {
-                        ...raw,
-                        matchId: 'VP-8B4',
-                        teamA: { ...(raw.teamA || {}), name: correctA },
-                        teamB: { ...(raw.teamB || {}), name: correctB },
-                        logos: {a:"", b:""}
-                    };
-
-                    const needsFix =
-                        matchId !== 'VP-8B4' ||
-                        oldA !== correctA ||
-                        oldB !== correctB;
-
-                    if (needsFix && !correctingVP8B4) {
-                        correctingVP8B4 = true;
-                        dbRef.update({
-                            matchId: 'VP-8B4',
-                            teamA: state.teamA,
-                            teamB: state.teamB,
-                            logos: {a:"", b:""}
-                        }).finally(() => { correctingVP8B4 = false; });
-                    }
-                } else {
-                    state = raw;
-                }
-
+                state = raw;
                 updateTimerDisplay();
                 document.getElementById('ui-team-a').textContent = state.teamA.name;
                 document.getElementById('ui-team-b').textContent = state.teamB.name;
                 document.getElementById('ui-score-a').textContent = state.teamA.score;
                 document.getElementById('ui-score-b').textContent = state.teamB.score;
                 state.sport = normalizeSport(state.sport);
-                state.logos = {a:"", b:""};
                 updateVmixOutputFromState();
                 updateSportUI();
                 updateLogoOutput();
             }
         });
 
-        // Cek mode URL apakah vMix output atau operator
         if (new URLSearchParams(window.location.search).get('mode') === 'output') {
             document.getElementById('operator-view').classList.add('hidden');
             document.getElementById('output-view').classList.remove('hidden');
