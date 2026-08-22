@@ -99,6 +99,109 @@
             margin-top: 2px;
         }
         
+        /* LAYOUT KHUSUS VOLLY - sesuai layout vMix yang diminta */
+        .vl-layout {
+            display:none;
+            width:1860px;
+            min-height:340px;
+            margin-top:70px;
+            background:rgba(8,15,30,.97);
+            border:2px solid rgba(255,255,255,.16);
+            border-radius:24px;
+            overflow:hidden;
+            box-shadow:0 16px 45px rgba(0,0,0,.65);
+            flex-direction:column;
+        }
+        .vl-header {
+            min-height:72px;
+            display:grid;
+            grid-template-columns:1fr auto 1fr;
+            align-items:center;
+            background:#020617;
+            border-bottom:2px solid #333;
+            font-weight:1000;
+            letter-spacing:1px;
+            text-transform:uppercase;
+            padding:0 28px;
+        }
+        .vl-header-left { justify-self:start; font-size:30px; color:#f8fafc; }
+        .vl-header-center { justify-self:center; font-size:30px; color:#f8fafc; }
+        .vl-header-right { justify-self:end; font-size:30px; color:#f8fafc; }
+        .vl-grid {
+            display:grid;
+            grid-template-columns:380px repeat(3,1fr) 180px;
+            grid-template-rows:1fr 1fr;
+            min-height:300px;
+        }
+        .vl-team {
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:12px;
+            padding:12px 16px;
+            font-size:28px;
+            font-weight:1000;
+            text-transform:uppercase;
+            text-align:center;
+        }
+        .vl-team-a { background:#c51b1b; }
+        .vl-team-b { background:#2453d4; }
+        .vl-team span { max-width:100%; line-height:1.1; overflow-wrap:break-word; }
+        .vl-logo { width:105px; height:105px; object-fit:contain; background:#fff; border-radius:18px; padding:5px; flex-shrink:0; }
+        .vl-set {
+            display:grid;
+            grid-template-rows:70px 1fr;
+            border:2px solid #334155;
+            border-radius:16px;
+            overflow:hidden;
+            background:#020617;
+        }
+        .vl-set-title {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#111827;
+            color:#fbbf24;
+            font-size:23px;
+            font-weight:1000;
+            text-align:center;
+        }
+        .vl-point {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:72px;
+            font-weight:1000;
+            border-top:1px solid #334155;
+        }
+        .vl-point-a { color:#fca5a5; }
+        .vl-point-b { color:#93c5fd; }
+        .vl-total {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex-direction:column;
+            background:#000;
+            border-left:2px solid #333;
+        }
+        .vl-total-label { font-size:20px; color:#94a3b8; font-weight:900; }
+        .vl-total-score { font-size:86px; line-height:1; font-weight:1000; color:#fff; }
+        @media (max-width:900px) {
+            .scoreboard-root{width:100vw;height:100vh;flex-direction:column;align-items:center;justify-content:flex-start}
+            .vl-layout{width:98vw; min-height:0}
+            .vl-header{min-height:58px; padding:0 10px}
+            .vl-header-left,.vl-header-center,.vl-header-right{font-size:15px}
+            .vl-grid{grid-template-columns:28% repeat(3,1fr) 15%; min-height:220px}
+            .vl-team{font-size:14px; padding:8px; gap:6px}
+            .vl-logo{width:70px; height:70px}
+            .vl-set{grid-template-rows:55px 1fr}
+            .vl-set-title{font-size:13px}
+            .vl-point{font-size:42px}
+            .vl-total-label{font-size:11px}
+            .vl-total-score{font-size:48px}
+        }
+
         /* LAYOUT KHUSUS BADMINTON: teks di bawah logo, lebih panjang, lebih rapi */
         .bd-layout {
             display: none;
@@ -344,6 +447,27 @@
                 </div>
             </div>
             
+            <div id="volly-layout" class="vl-layout">
+                <div class="vl-header">
+                    <span id="vl-title" class="vl-header-left">VOLLY</span>
+                    <span id="vl-period" class="vl-header-center">SET 1</span>
+                    <span id="vl-status" class="vl-header-right">LIVE SEKARANG</span>
+                </div>
+                <div class="vl-grid">
+                    <div class="vl-team vl-team-a"><img id="vl-logo-a" class="vl-logo" style="display:none"><span id="vl-team-a">TIM A</span></div>
+                    <div class="vl-set"><div class="vl-set-title">SET 1</div><div id="vl-a1" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-set"><div class="vl-set-title">SET 2</div><div id="vl-a2" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-set"><div class="vl-set-title">SET 3 /<br>PENENTU</div><div id="vl-a3" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-total"><div class="vl-total-label">SET MENANG</div><div id="vl-total-a" class="vl-total-score">0</div></div>
+
+                    <div class="vl-team vl-team-b"><img id="vl-logo-b" class="vl-logo" style="display:none"><span id="vl-team-b">TIM B</span></div>
+                    <div class="vl-set"><div class="vl-set-title">SET 1</div><div id="vl-b1" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-set"><div class="vl-set-title">SET 2</div><div id="vl-b2" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-set"><div class="vl-set-title">SET 3 /<br>PENENTU</div><div id="vl-b3" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-total"><div class="vl-total-label">SET MENANG</div><div id="vl-total-b" class="vl-total-score">0</div></div>
+                </div>
+            </div>
+
             <div id="badminton-layout" class="bd-layout">
                 <div class="bd-header"><span>BADMINTON</span><span id="bd-period">GAME 1</span><span id="bd-status">LIVE SEKARANG</span></div>
                 <div class="bd-grid">
@@ -775,6 +899,59 @@
             return {a,b};
         }
 
+        function getVolleyballDisplayName() {
+            const id = String(state.matchId || '').toUpperCase();
+            if (id.startsWith('VP-')) return 'VOLLY PUTRA';
+            if (id.startsWith('VW-')) return 'VOLLY PUTRI';
+            return 'VOLLY';
+        }
+
+        function updateVolleyballOutput() {
+            ensureVolleyballSets();
+            const wins = getVolleyballSetWins();
+            const ids = ['1','2','3'];
+            ids.forEach((n,i) => {
+                const a = document.getElementById('vl-a'+n);
+                const b = document.getElementById('vl-b'+n);
+                if (a) a.textContent = Number(state.volleyballSets[i]?.a || 0);
+                if (b) b.textContent = Number(state.volleyballSets[i]?.b || 0);
+            });
+            const totalA = document.getElementById('vl-total-a');
+            const totalB = document.getElementById('vl-total-b');
+            if (totalA) totalA.textContent = wins.a;
+            if (totalB) totalB.textContent = wins.b;
+
+            const ta = document.getElementById('vl-team-a');
+            const tb = document.getElementById('vl-team-b');
+            if (ta) ta.textContent = state.teamA?.name || 'TIM A';
+            if (tb) tb.textContent = state.teamB?.name || 'TIM B';
+
+            const title = document.getElementById('vl-title');
+            const period = document.getElementById('vl-period');
+            const status = document.getElementById('vl-status');
+            if (title) title.textContent = getVolleyballDisplayName();
+            if (period) period.textContent = state.period || 'SET 1';
+            if (status) status.textContent = state.status === 'LIVE' ? 'LIVE SEKARANG' : (state.status || 'LIVE');
+
+            const logoA = getAutoLogoForTeam(state.teamA?.name);
+            const logoB = getAutoLogoForTeam(state.teamB?.name);
+            const la = document.getElementById('vl-logo-a');
+            const lb = document.getElementById('vl-logo-b');
+            if (la) { la.src = logoA; la.style.display = logoA ? 'block' : 'none'; }
+            if (lb) { lb.src = logoB; lb.style.display = logoB ? 'block' : 'none'; }
+        }
+
+        function updateVolleyballLayoutVisibility() {
+            const isVolly = normalizeSport(state.sport) === 'VOLLY';
+            const old = document.querySelector('.sb-main-bar');
+            const bd = document.getElementById('badminton-layout');
+            const vl = document.getElementById('volly-layout');
+            if (old) old.style.display = isVolly ? 'none' : 'flex';
+            if (bd) bd.style.display = (!isVolly && normalizeSport(state.sport) === 'BADMINTON') ? 'flex' : 'none';
+            if (vl) vl.style.display = isVolly ? 'flex' : 'none';
+            if (isVolly) updateVolleyballOutput();
+        }
+
         function updateBadmintonOutput() {
             ensureBadmintonSets();
             const wins=getBadmintonSetWins();
@@ -796,10 +973,13 @@
 
         function updateBadmintonLayoutVisibility() {
             const isBd=normalizeSport(state.sport)==='BADMINTON';
-            const old=document.querySelector('.sb-main-bar'), bd=document.getElementById('badminton-layout');
-            if(old) old.style.display=isBd?'none':'flex';
+            const isVolly=normalizeSport(state.sport)==='VOLLY';
+            const old=document.querySelector('.sb-main-bar'), bd=document.getElementById('badminton-layout'), vl=document.getElementById('volly-layout');
+            if(old) old.style.display=(isBd || isVolly)?'none':'flex';
             if(bd) bd.style.display=isBd?'flex':'none';
+            if(vl) vl.style.display=isVolly?'flex':'none';
             if(isBd) updateBadmintonOutput();
+            if(isVolly) updateVolleyballOutput();
         }
 
         function changeBadmintonSetScore(setIndex, team, val) {
