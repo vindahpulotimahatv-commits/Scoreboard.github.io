@@ -98,6 +98,39 @@
             color: #64748b;
             margin-top: 2px;
         }
+        /* LAYOUT KHUSUS BADMINTON: horizontal, 3 set, skor tim di kanan */
+        .bd-layout {
+            display: none;
+            width: 1760px;
+            min-height: 260px;
+            margin-top: 70px;
+            background: rgba(8,15,30,.97);
+            border: 2px solid rgba(255,255,255,.16);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 16px 45px rgba(0,0,0,.65);
+            flex-direction: column;
+        }
+        .bd-header {
+            height: 62px; display:flex; align-items:center; justify-content:center;
+            gap:24px; background:#020617; border-bottom:2px solid #333;
+            font-weight:1000; letter-spacing:1px;
+        }
+        .bd-grid { display:grid; grid-template-columns: 430px repeat(3,1fr) 170px; grid-template-rows:1fr 1fr; min-height:198px; }
+        .bd-team { display:flex; align-items:center; gap:22px; padding:16px 28px; font-size:34px; font-weight:1000; text-transform:uppercase; }
+        .bd-team-a { background:#b91c1c; } .bd-team-b { background:#1d4ed8; }
+        .bd-team span { max-width:270px; line-height:1.05; }
+        .bd-logo { width:110px; height:110px; object-fit:contain; background:#fff; border-radius:16px; padding:5px; flex-shrink:0; }
+        .bd-sets { display:contents; }
+        .bd-set { display:grid; grid-template-rows:48px 1fr; border:2px solid #334155; border-radius:14px; overflow:hidden; background:#020617; }
+        .bd-set-title { display:flex; align-items:center; justify-content:center; background:#111827; color:#fbbf24; font-size:18px; font-weight:1000; }
+        .bd-point { display:flex; align-items:center; justify-content:center; font-size:58px; font-weight:1000; border-top:1px solid #334155; }
+        .bd-point-a { color:#fca5a5; } .bd-point-b { color:#93c5fd; }
+        .bd-total { display:flex; align-items:center; justify-content:center; flex-direction:column; background:#000; border-left:2px solid #333; }
+        .bd-total-label { font-size:18px; color:#94a3b8; font-weight:900; }
+        .bd-total-score { font-size:82px; line-height:1; font-weight:1000; color:#fff; }
+        .bd-sub { font-size:15px; color:#cbd5e1; margin-top:7px; font-weight:800; }
+        @media (max-width:900px) { .bd-layout{width:95vw}.bd-grid{grid-template-columns:30% repeat(3,1fr) 12%}.bd-team{font-size:22px;padding:12px}.bd-logo{width:60px;height:60px}.bd-point{font-size:36px}.bd-set-title{font-size:12px}.bd-total-score{font-size:48px}.bd-team span{max-width:130px} }
     </style>
 </head>
 <body class="p-2 sm:p-6">
@@ -151,12 +184,12 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
                         <label class="block text-[10px] text-gray-400 font-bold mb-2">LOGO TIM A — OTOMATIS</label>
-                        <img id="preview-logo-a" alt="Logo Tim A" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
+                        <img id="preview-logo-a" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
                         <div id="preview-logo-a-empty" class="text-[10px] text-gray-500">Logo mengikuti nama Team A</div>
                     </div>
                     <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
                         <label class="block text-[10px] text-gray-400 font-bold mb-2">LOGO TIM B — OTOMATIS</label>
-                        <img id="preview-logo-b" alt="Logo Tim B" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
+                        <img id="preview-logo-b" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
                         <div id="preview-logo-b-empty" class="text-[10px] text-gray-500">Logo mengikuti nama Team B</div>
                     </div>
                 </div>
@@ -202,6 +235,16 @@
             </div>
         </div>
 
+        <!-- KONTROL KHUSUS BADMINTON: 3 SET, TARGET 21 POIN, MENANG 2 SET -->
+        <div id="badminton-operator" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl" style="display:none">
+            <div class="flex items-center justify-between mb-3"><span class="text-xs font-black text-amber-400">BADMINTON — BEREGU GANDA</span><span class="text-[10px] text-gray-400">3 pasangan • target 21 poin • menang 2 set</span></div>
+            <div class="grid grid-cols-3 gap-2">
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 1</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(0,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(0,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(0,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(0,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 2</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(1,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(1,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(1,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(1,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 3 / PENENTU</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(2,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(2,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(2,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(2,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
+            </div>
+        </div>
+
         <!-- KONTROL TIMER / WAKTU -->
         <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
             <div class="flex justify-between items-center mb-2">
@@ -227,7 +270,7 @@
         <div class="scoreboard-root">
             <div class="sb-main-bar">
                 <div class="sb-team" style="background:#b91c1c">
-                    <img id="ui-logo-a" alt="Logo A" class="sb-logo" src="" style="display:none">
+                    <img id="ui-logo-a" class="sb-logo" src="" style="display:none">
                     <span id="ui-team-a">TIM A</span>
                 </div>
 
@@ -244,16 +287,35 @@
 
                 <div class="sb-team" style="background:#1d4ed8">
                     <span id="ui-team-b">TIM B</span>
-                    <img id="ui-logo-b" alt="Logo B" class="sb-logo" src="" style="display:none">
+                    <img id="ui-logo-b" class="sb-logo" src="" style="display:none">
+                </div>
+            </div>
+        </div>
+            <div id="badminton-layout" class="bd-layout">
+                <div class="bd-header"><span>BADMINTON</span><span id="bd-period">GAME 1</span><span id="bd-status">LIVE SEKARANG</span></div>
+                <div class="bd-grid">
+                    <div class="bd-team bd-team-a"><img id="bd-logo-a" class="bd-logo" style="display:none"><span id="bd-team-a">TIM A</span></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-a1" class="bd-point bd-point-a">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-a2" class="bd-point bd-point-a">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 3 / PENENTU</div><div id="bd-a3" class="bd-point bd-point-a">0</div></div>
+                    <div class="bd-total"><div class="bd-total-label">SCORE TEAM</div><div id="bd-total-a" class="bd-total-score">0</div></div>
+
+                    <div class="bd-team bd-team-b"><img id="bd-logo-b" class="bd-logo" style="display:none"><span id="bd-team-b">TIM B</span></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-b1" class="bd-point bd-point-b">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-b2" class="bd-point bd-point-b">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 3 / PENENTU</div><div id="bd-b3" class="bd-point bd-point-b">0</div></div>
+                    <div class="bd-total"><div class="bd-total-label">SCORE TEAM</div><div id="bd-total-b" class="bd-total-score">0</div></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        /* KONFIGURASI FIREBASE */
+        /* ==========================================================
+           KONFIGURASI FIREBASE & DATA JADWAL MATCH CENTER
+           ========================================================== */
         const FIREBASE_CONFIG = {
-            apiKey: "YOUR_FIREBASE_API_KEY", // Ganti dengan Key Anda jika dipublish secara privat
+            apiKey: "AIzaSyBIww6sg-mRtUUx3rIylnu6qfYG6Ahfih8",
             authDomain: "scorebordviptcup.firebaseapp.com",
             databaseURL: "https://scorebordviptcup-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "scorebordviptcup",
@@ -272,17 +334,18 @@
             {id:"VP-8B2", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 02 / RW 021", b:"RT 04 / RW 021"},
             {id:"VP-8B3", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 10 / RW 021", b:"RT 08 / RW 021"},
             {id:"VP-8B4", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 06 / RW 021", b:"RT 07 / RW 021"},
-            {id:"VP-8B5", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 06 / RW 021", b:"RT 08 / RW 021"},
             {id:"VW-SF1", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
             {id:"VW-SF2", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 06 / RW 021", b:"RT 08 / RW 021"},
             {id:"FS-SF1", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 13 / RW 021", b:"RT 04 / RW 021"},
             {id:"FS-SF2", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 02 / RW 021"},
             {id:"TM-1", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 08 / RW 014", b:"RT 10 / RW 014"},
             {id:"TM-2", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 08 / RW 021"},
-            {id:"BD-1", sport:"BADMINTON", round:"BABAK SEMIFINAL", a:"RT 10 / RW 021", b:"RT 13 / RW 021"},
-            {id:"BD-2", sport:"BADMINTON PUTRA", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 08 / RW 014"}
+            {id:"BD-1", sport:"BADMINTON", round:"BABAK SEMIFINAL", a:"RT 10 / RW 021", b:"RT 13 / RW 021"}
         ];
 
+        // LOGO TIM OTOMATIS — tertanam di index.html agar web, APK dan vMix
+        // tidak membutuhkan folder/file logo tambahan. Nama tim menjadi kunci pencarian logo.
+        // Logo pertandingan VP-8B4: RT 06/RW 021 vs RT 07/RW 021
         const TEAM_LOGOS = {
             "RT 02/RW 021": "assets/logos/RT_02-RW_021.png",
             "RT 04/RW 021": "assets/logos/RT_04-RW_021.png",
@@ -322,7 +385,8 @@
             timer: 600,
             timerRunning: false,
             teamA: { name: "BELUM ADA JADWAL", score: 0 },
-            teamB: { name: "BELUM ADA JADWAL", score: 0 }
+            teamB: { name: "BELUM ADA JADWAL", score: 0 },
+            badmintonSets: [{a:0,b:0},{a:0,b:0},{a:0,b:0}]
         };
 
         let timerInterval = null;
@@ -349,6 +413,7 @@
                 state.status = "JADWAL";
                 state.teamA = { name: "BELUM ADA JADWAL", score: 0 };
                 state.teamB = { name: "BELUM ADA JADWAL", score: 0 };
+                state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
             } else {
                 const m = VIPT_MATCHES.find(x => x.id === id);
                 state.matchId = m.id;
@@ -361,6 +426,7 @@
                 state.status = "LIVE";
                 state.teamA = { name: m.a, score: 0 };
                 state.teamB = { name: m.b, score: 0 };
+                state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
             }
             updateOperatorInputs();
             updateVmixOutputFromState();
@@ -371,7 +437,7 @@
             const s = String(sport || "").toUpperCase();
             if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
             if (s.includes("BADMINTON")) return "BADMINTON";
-            if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
+            if (s.includes("TENIS MEJA") || s.includes("PINGPONG") || s.includes("PINGPONG")) return "TENIS MEJA";
             if (s.includes("FUTSAL")) return "FUTSAL";
             return "SEPAK BOLA";
         }
@@ -383,8 +449,15 @@
             return "GAME 1";
         }
 
+        function getScoreUnit() {
+            const sport = normalizeSport(state.sport);
+            if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "GOAL";
+            return "POIN";
+        }
+
         function updateSportUI() {
             const sport = normalizeSport(state.sport);
+            const unit = getScoreUnit();
 
             document.getElementById('select-sport').value = sport;
             document.getElementById('period-label').textContent = state.period;
@@ -397,6 +470,7 @@
             state.period = getDefaultPeriod(state.sport);
             state.teamA.score = 0;
             state.teamB.score = 0;
+            state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
             updateOperatorInputs();
             updateVmixOutputFromState();
             updateSportUI();
@@ -430,6 +504,8 @@
             const emptyA = document.getElementById('preview-logo-a-empty');
             const emptyB = document.getElementById('preview-logo-b-empty');
 
+            // Logo selalu dicari berdasarkan NAMA TIM yang sedang aktif.
+            // Karena data logo tertanam di index.html, perubahan pertandingan langsung ikut berubah.
             const logoAData = getAutoLogoForTeam(state.teamA?.name);
             const logoBData = getAutoLogoForTeam(state.teamB?.name);
 
@@ -474,6 +550,55 @@
             return s || "SEPAK BOLA";
         }
 
+        function ensureBadmintonSets() {
+            if (!Array.isArray(state.badmintonSets) || state.badmintonSets.length !== 3) {
+                state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
+            }
+            state.badmintonSets = state.badmintonSets.map(x => ({a:Math.max(0,Number(x?.a)||0), b:Math.max(0,Number(x?.b)||0)}));
+        }
+
+        function getBadmintonSetWins() {
+            ensureBadmintonSets();
+            let a=0,b=0;
+            state.badmintonSets.forEach(s => { if(s.a>s.b) a++; else if(s.b>s.a) b++; });
+            return {a,b};
+        }
+
+        function updateBadmintonOutput() {
+            ensureBadmintonSets();
+            const wins=getBadmintonSetWins();
+            const ids=['1','2','3'];
+            ids.forEach((n,i)=>{
+                const a=document.getElementById('bd-a'+n), b=document.getElementById('bd-b'+n);
+                if(a) a.textContent=state.badmintonSets[i].a;
+                if(b) b.textContent=state.badmintonSets[i].b;
+            });
+            const totalA=document.getElementById('bd-total-a'), totalB=document.getElementById('bd-total-b'); if(totalA) totalA.textContent=wins.a; if(totalB) totalB.textContent=wins.b;
+            const ta=document.getElementById('bd-team-a'), tb=document.getElementById('bd-team-b');
+            if(ta) ta.textContent=state.teamA?.name||'TIM A'; if(tb) tb.textContent=state.teamB?.name||'TIM B';
+            const per=document.getElementById('bd-period'); if(per) per.textContent=state.period||'GAME 1';
+            const st=document.getElementById('bd-status'); if(st) st.textContent=state.status==='LIVE'?'LIVE SEKARANG':(state.status||'LIVE');
+            const la=document.getElementById('bd-logo-a'), lb=document.getElementById('bd-logo-b');
+            const logoA=getAutoLogoForTeam(state.teamA?.name), logoB=getAutoLogoForTeam(state.teamB?.name);
+            if(la){la.src=logoA; la.style.display=logoA?'block':'none';} if(lb){lb.src=logoB; lb.style.display=logoB?'block':'none';}
+        }
+
+        function updateBadmintonLayoutVisibility() {
+            const isBd=normalizeSport(state.sport)==='BADMINTON';
+            const old=document.querySelector('.sb-main-bar'), bd=document.getElementById('badminton-layout');
+            if(old) old.style.display=isBd?'none':'flex';
+            if(bd) bd.style.display=isBd?'flex':'none';
+            if(isBd) updateBadmintonOutput();
+        }
+
+        function changeBadmintonSetScore(setIndex, team, val) {
+            ensureBadmintonSets();
+            const key=team==='A'?'a':'b';
+            state.badmintonSets[setIndex][key]=Math.max(0,state.badmintonSets[setIndex][key]+val);
+            state.teamA.score=getBadmintonSetWins().a; state.teamB.score=getBadmintonSetWins().b;
+            updateOperatorInputs(); updateVmixOutputFromState(); syncToFirebase();
+        }
+
         function updateVmixOutputFromState() {
             const sportText = getSportDisplayName(state.sport);
             const sportEl = document.getElementById('ui-sport');
@@ -492,7 +617,11 @@
             if (teamAEl) teamAEl.textContent = state.teamA?.name || "TIM A";
             if (teamBEl) teamBEl.textContent = state.teamB?.name || "TIM B";
 
+            // Logo mengikuti nama Team A / Team B yang sama dengan Live Score.
             updateLogoOutput();
+
+            // Futsal/sepak bola memakai countdown. Volly, badminton dan pingpong memakai jam lokal.
+            updateBadmintonLayoutVisibility();
 
             if (timerEl) {
                 const isCountdownSport = sportText === "SEPAK BOLA" || sportText === "FUTSAL";
@@ -512,6 +641,10 @@
             state.logos = state.logos || {a:"", b:""};
             updateSportUI();
             updateLogoOutput();
+            const bdOp=document.getElementById('badminton-operator');
+            if(bdOp) bdOp.style.display=normalizeSport(state.sport)==='BADMINTON'?'block':'none';
+            ensureBadmintonSets();
+            updateBadmintonOutput();
         }
 
         function changeScore(team, val) {
@@ -531,12 +664,15 @@
             state.period = document.getElementById('inp-period').value;
             state.status = document.getElementById('select-status').value;
             state.sport = normalizeSport(state.sport);
+            // Logo TIDAK disimpan ke Firebase sebagai base64 besar.
+            // Semua client mencari logo dari nama tim menggunakan TEAM_LOGOS.
             state.logos = {a:"", b:""};
             updateLogoOutput();
 
             dbRef.set(state);
         }
 
+        // FUNGSI TIMER
         function formatTimer(sec) {
             const m = Math.floor(sec / 60);
             const s = sec % 60;
@@ -559,6 +695,7 @@
             document.getElementById('ui-timer').textContent = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? timeStr : formatLocalClock();
         }
 
+        // Jam lokal Indonesia berjalan independen dari timer pertandingan.
         setInterval(() => {
             const sport = normalizeSport(state.sport);
             if (sport !== "SEPAK BOLA" && sport !== "FUTSAL") {
@@ -613,12 +750,14 @@
             syncToFirebase();
         }
 
+        // SIMPAN KE HISTORY
         function finishAndSaveMatch() {
             if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke hasil?")) return;
             state.status = "SELESAI";
             state.timerRunning = false;
             syncToFirebase();
 
+            // Push ke history database
             firebase.database().ref("vipt_scoreboard/history").push(state);
             alert("Pertandingan berhasil disimpan ke Hasil Match Center!");
         }
@@ -626,6 +765,11 @@
         function openOutputTab() { window.open(window.location.href + '?mode=output', '_blank'); }
         function exitTestOutput() { location.reload(); }
 
+        // MENDENGARKAN PERUBAHAN FIREBASE UNTUK TAMPILAN MATCH CENTER
+        // VP-8B4 wajib: RT 06/RW 021 vs RT 07/RW 021.
+        // Jika Firebase masih menyimpan pasangan lama RT 07/RW 014,
+        // tampilan langsung dikoreksi dan pasangan benar ditulis kembali
+        // ke vipt_scoreboard/live agar website dan APK tetap sinkron.
         let correctingVP8B4 = false;
 
         dbRef.on('value', (snapshot) => {
@@ -668,7 +812,7 @@
                 } else {
                     state = raw;
                 }
-
+                ensureBadmintonSets();
                 updateTimerDisplay();
                 document.getElementById('ui-team-a').textContent = state.teamA.name;
                 document.getElementById('ui-team-b').textContent = state.teamB.name;
@@ -682,6 +826,7 @@
             }
         });
 
+        // Cek mode URL apakah vMix output atau operator
         if (new URLSearchParams(window.location.search).get('mode') === 'output') {
             document.getElementById('operator-view').classList.add('hidden');
             document.getElementById('output-view').classList.remove('hidden');
@@ -689,6 +834,7 @@
         }
 
         populateMatchDropdown();
+        ensureBadmintonSets();
         state.sport = normalizeSport(state.sport);
         updateOperatorInputs();
         updateTimerDisplay();
