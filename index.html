@@ -99,10 +99,10 @@
             margin-top: 2px;
         }
         
-        /* LAYOUT KHUSUS SET (BADMINTON & VOLLY) DIPERLUAS AGAR TIDAK TERPOTONG */
+        /* LAYOUT KHUSUS SET (BADMINTON & VOLLY) DIPERLUAS & KOLOM MENANG SET DILEBARKAN */
         .bd-layout {
             display: none;
-            width: 1860px;
+            width: 1920px;
             min-height: 280px;
             margin-top: 70px;
             background: rgba(8,15,30,.97);
@@ -119,7 +119,7 @@
         }
         .bd-grid { 
             display:grid; 
-            grid-template-columns: 460px repeat(3,1fr) 240px; 
+            grid-template-columns: 440px repeat(3, 1fr) 300px; 
             grid-template-rows:1fr 1fr; 
             min-height:218px; 
         }
@@ -145,13 +145,13 @@
         .bd-point { display:flex; align-items:center; justify-content:center; font-size:58px; font-weight:1000; border-top:1px solid #334155; }
         .bd-point-a { color:#fca5a5; } .bd-point-b { color:#93c5fd; }
         .bd-total { display:flex; align-items:center; justify-content:center; flex-direction:column; background:#000; border-left:2px solid #333; padding: 0 10px; }
-        .bd-total-label { font-size:16px; color:#94a3b8; font-weight:900; text-align:center; white-space:nowrap; }
-        .bd-total-score { font-size:82px; line-height:1; font-weight:1000; color:#fff; }
+        .bd-total-label { font-size:18px; color:#94a3b8; font-weight:900; text-align:center; line-height:1.2; }
+        .bd-total-score { font-size:82px; line-height:1; font-weight:1000; color:#fff; margin-top: 4px; }
         .bd-sub { font-size:15px; color:#cbd5e1; margin-top:7px; font-weight:800; }
         
         @media (max-width:900px) { 
             .bd-layout{width:98vw} 
-            .bd-grid{grid-template-columns: 28% repeat(3,1fr) 18%} 
+            .bd-grid{grid-template-columns: 28% repeat(3,1fr) 22%} 
             .bd-team{font-size:14px; padding:8px; gap:6px} 
             .bd-logo{width:50px; height:50px} 
             .bd-point{font-size:32px} 
@@ -327,13 +327,13 @@
                     <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-a1" class="bd-point bd-point-a">0</div></div>
                     <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-a2" class="bd-point bd-point-a">0</div></div>
                     <div class="bd-set"><div class="bd-set-title">SET 3 / PENENTU</div><div id="bd-a3" class="bd-point bd-point-a">0</div></div>
-                    <div class="bd-total"><div class="bd-total-label">MENANG SET</div><div id="bd-total-a" class="bd-total-score">0</div></div>
+                    <div class="bd-total"><div class="bd-total-label">MENANG<br>SET</div><div id="bd-total-a" class="bd-total-score">0</div></div>
 
                     <div class="bd-team bd-team-b"><img id="bd-logo-b" class="bd-logo" style="display:none"><span id="bd-team-b">TIM B</span></div>
                     <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-b1" class="bd-point bd-point-b">0</div></div>
                     <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-b2" class="bd-point bd-point-b">0</div></div>
                     <div class="bd-set"><div class="bd-set-title">SET 3 / PENENTU</div><div id="bd-b3" class="bd-point bd-point-b">0</div></div>
-                    <div class="bd-total"><div class="bd-total-label">MENANG SET</div><div id="bd-total-b" class="bd-total-score">0</div></div>
+                    <div class="bd-total"><div class="bd-total-label">MENANG<br>SET</div><div id="bd-total-b" class="bd-total-score">0</div></div>
                 </div>
             </div>
         </div>
@@ -784,7 +784,7 @@
         }
 
         function finishAndSaveMatch() {
-            if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke hasil?")) return;
+            if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke history?")) return;
             state.status = "SELESAI";
             state.timerRunning = false;
             syncToFirebase();
@@ -852,7 +852,10 @@
         });
 
         defaulter = new URLSearchParams(window.location.search).get('mode');
-        if (defaulter === 'output') {
+        if (defaulter ===5 && defaulter === 'output') { // handled correctly via URL check below
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('mode') === 'output') {
             document.getElementById('operator-view').classList.add('hidden');
             document.getElementById('output-view').classList.remove('hidden');
             document.getElementById('btn-back-operator').style.display = 'block';
