@@ -203,6 +203,8 @@
         }
 
         /* KONTROL & OUTPUT KHUSUS FUTSAL: PENCETAK GOL */
+        /* Template FUTSAL sengaja dibuat SAMA PANJANG dan PROPORSINYA dengan scoreboard SEPAK BOLA.
+           Jangan dibuat responsive/mobile agar output vMix tetap 1920x1080 dan tidak mengecil. */
         .futsal-operator { display:none; }
         .futsal-goal-card { background:rgba(15,23,42,.72); border:1px solid #334155; border-radius:14px; padding:12px; }
         .futsal-goal-title { font-size:11px; font-weight:1000; color:#fbbf24; margin-bottom:8px; text-transform:uppercase; }
@@ -230,6 +232,44 @@
             .futsal-goal-banner-name { font-size:12px; max-width:100%; }
             .futsal-goal-banner-label { font-size:9px; }
             .futsal-event-row { font-size:10px; }
+        }
+
+        /* FUTSAL vMix: PAKAI UKURAN SCOREBOARD SEPAK BOLA, TETAP PANJANG */
+        .futsal-output {
+            width:1760px !important;
+            min-width:1760px !important;
+            height:270px !important;
+            min-height:270px !important;
+            margin-top:70px !important;
+        }
+        .futsal-output-main {
+            width:1760px !important;
+            min-width:1760px !important;
+            height:270px !important;
+            min-height:270px !important;
+            grid-template-columns:540px 190px 260px 190px 540px !important;
+        }
+        .futsal-team {
+            width:540px !important;
+            min-width:540px !important;
+            height:270px !important;
+            min-height:270px !important;
+            font-size:42px !important;
+            padding:24px 34px !important;
+        }
+        .futsal-score {
+            width:190px !important;
+            min-width:190px !important;
+            height:270px !important;
+            min-height:270px !important;
+            font-size:116px !important;
+        }
+        .futsal-center {
+            width:260px !important;
+            min-width:260px !important;
+            height:270px !important;
+            min-height:270px !important;
+            padding:18px !important;
         }
 
         /* LAYOUT KHUSUS BADMINTON: teks di bawah logo, lebih panjang, lebih rapi */
