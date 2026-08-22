@@ -99,10 +99,10 @@
             margin-top: 2px;
         }
         
-        /* LAYOUT KHUSUS SET (BADMINTON & VOLLY) DIPERLUAS & TANPA TEKS MENANG SET */
+        /* LAYOUT KHUSUS BADMINTON: teks di bawah logo, lebih panjang, lebih rapi */
         .bd-layout {
             display: none;
-            width: 1920px;
+            width: 1860px; /* DIPANJANGKAN */
             min-height: 280px;
             margin-top: 70px;
             background: rgba(8,15,30,.97);
@@ -119,7 +119,7 @@
         }
         .bd-grid { 
             display:grid; 
-            grid-template-columns: 440px repeat(3, 1fr) 260px; 
+            grid-template-columns: 380px repeat(3,1fr) 180px; 
             grid-template-rows:1fr 1fr; 
             min-height:218px; 
         }
@@ -129,7 +129,7 @@
             align-items:center; 
             justify-content: center;
             gap:12px; 
-            padding:16px 20px; 
+            padding:12px 16px; 
             font-size:26px; 
             font-weight:1000; 
             text-transform:uppercase; 
@@ -144,12 +144,14 @@
         .bd-set-title { display:flex; align-items:center; justify-content:center; background:#111827; color:#fbbf24; font-size:18px; font-weight:1000; }
         .bd-point { display:flex; align-items:center; justify-content:center; font-size:58px; font-weight:1000; border-top:1px solid #334155; }
         .bd-point-a { color:#fca5a5; } .bd-point-b { color:#93c5fd; }
-        .bd-total { display:flex; align-items:center; justify-content:center; background:#000; border-left:2px solid #333; padding: 0 10px; }
-        .bd-total-score { font-size:96px; line-height:1; font-weight:1000; color:#fff; }
+        .bd-total { display:flex; align-items:center; justify-content:center; flex-direction:column; background:#000; border-left:2px solid #333; }
+        .bd-total-label { font-size:18px; color:#94a3b8; font-weight:900; }
+        .bd-total-score { font-size:82px; line-height:1; font-weight:1000; color:#fff; }
+        .bd-sub { font-size:15px; color:#cbd5e1; margin-top:7px; font-weight:800; }
         
         @media (max-width:900px) { 
             .bd-layout{width:98vw} 
-            .bd-grid{grid-template-columns: 28% repeat(3,1fr) 22%} 
+            .bd-grid{grid-template-columns: 28% repeat(3,1fr) 15%} 
             .bd-team{font-size:14px; padding:8px; gap:6px} 
             .bd-logo{width:50px; height:50px} 
             .bd-point{font-size:32px} 
@@ -201,8 +203,7 @@
                     <select id="select-sport" onchange="changeSport()" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-xl text-xs font-bold">
                         <option value="SEPAK BOLA">SEPAK BOLA — GOAL / 2 BABAK</option>
                         <option value="FUTSAL">FUTSAL — GOAL / 2 BABAK</option>
-                        <option value="VOLLY PUTRA">VOLLY PUTRA — 25 POINT / 3 SET</option>
-                        <option value="VOLLY PUTRI">VOLLY PUTRI — 25 POINT / 3 SET</option>
+                        <option value="VOLLY">VOLLY — POIN / SET</option>
                         <option value="BADMINTON">BADMINTON — POIN / GAME</option>
                         <option value="TENIS MEJA">TENIS MEJA / PINGPONG — POIN / GAME</option>
                     </select>
@@ -262,13 +263,38 @@
             </div>
         </div>
 
-        <!-- KONTROL KHUSUS SET (BADMINTON & VOLLY) -->
+        <!-- KONTROL KHUSUS VOLLY: MAKSIMAL 3 SET, MENANG 2 SET -->
+        <div id="volly-operator" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl" style="display:none">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-black text-amber-400">VOLLY — PENYELESAIAN SET</span>
+                <span id="volly-set-info" class="text-[10px] text-gray-400">SET 1 • MENANG 2 SET</span>
+            </div>
+            <div class="grid grid-cols-1 gap-2">
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+                        <div class="text-[10px] text-red-400 font-black mb-1">TIM A — SET BERJALAN</div>
+                        <div id="volly-current-a" class="text-3xl font-black text-red-500">0</div>
+                    </div>
+                    <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+                        <div class="text-[10px] text-blue-400 font-black mb-1">TIM B — SET BERJALAN</div>
+                        <div id="volly-current-b" class="text-3xl font-black text-blue-500">0</div>
+                    </div>
+                </div>
+                <div id="volly-set-history" class="grid grid-cols-5 gap-1"></div>
+                <button id="btn-finish-volly-set" onclick="finishVollySet()" class="w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-black text-xs shadow-lg">
+                    SELESAI SET 1
+                </button>
+                <p class="text-[9px] text-gray-500 text-center">Set 1–2 target 25 poin (selisih 2). Set 3 hanya dimainkan jika rubber (1–1), target 15 poin (selisih 2).</p>
+            </div>
+        </div>
+
+        <!-- KONTROL KHUSUS BADMINTON: 3 SET, TARGET 21 POIN, MENANG 2 SET -->
         <div id="badminton-operator" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl" style="display:none">
-            <div class="flex items-center justify-between mb-3"><span id="set-op-title" class="text-xs font-black text-amber-400">PENGATURAN SET</span><span class="text-[10px] text-gray-400">Target 25 Poin • Max 3 Set • 2 Menang Lolos</span></div>
+            <div class="flex items-center justify-between mb-3"><span class="text-xs font-black text-amber-400">BADMINTON — BEREGU GANDA</span><span class="text-[10px] text-gray-400">3 pasangan • target 21 poin • menang 2 set</span></div>
             <div class="grid grid-cols-3 gap-2">
                 <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 1</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(0,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(0,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(0,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(0,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
                 <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 2</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(1,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(1,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(1,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(1,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
-                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 3</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(2,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(2,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(2,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(2,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 3 / PENENTU</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(2,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(2,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(2,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(2,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
             </div>
         </div>
 
@@ -319,19 +345,19 @@
             </div>
             
             <div id="badminton-layout" class="bd-layout">
-                <div class="bd-header"><span id="bd-sport-title">BADMINTON</span><span id="bd-period">GAME 1</span><span id="bd-status">LIVE SEKARANG</span></div>
+                <div class="bd-header"><span>BADMINTON</span><span id="bd-period">GAME 1</span><span id="bd-status">LIVE SEKARANG</span></div>
                 <div class="bd-grid">
                     <div class="bd-team bd-team-a"><img id="bd-logo-a" class="bd-logo" style="display:none"><span id="bd-team-a">TIM A</span></div>
                     <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-a1" class="bd-point bd-point-a">0</div></div>
                     <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-a2" class="bd-point bd-point-a">0</div></div>
-                    <div class="bd-set"><div class="bd-set-title">SET 3</div><div id="bd-a3" class="bd-point bd-point-a">0</div></div>
-                    <div class="bd-total"><div id="bd-total-a" class="bd-total-score">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 3 / PENENTU</div><div id="bd-a3" class="bd-point bd-point-a">0</div></div>
+                    <div class="bd-total"><div class="bd-total-label">SCORE TEAM</div><div id="bd-total-a" class="bd-total-score">0</div></div>
 
                     <div class="bd-team bd-team-b"><img id="bd-logo-b" class="bd-logo" style="display:none"><span id="bd-team-b">TIM B</span></div>
                     <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-b1" class="bd-point bd-point-b">0</div></div>
                     <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-b2" class="bd-point bd-point-b">0</div></div>
-                    <div class="bd-set"><div class="bd-set-title">SET 3</div><div id="bd-b3" class="bd-point bd-point-b">0</div></div>
-                    <div class="bd-total"><div id="bd-total-b" class="bd-total-score">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 3 / PENENTU</div><div id="bd-b3" class="bd-point bd-point-b">0</div></div>
+                    <div class="bd-total"><div class="bd-total-label">SCORE TEAM</div><div id="bd-total-b" class="bd-total-score">0</div></div>
                 </div>
             </div>
         </div>
@@ -411,6 +437,7 @@
             timerRunning: false,
             teamA: { name: "BELUM ADA JADWAL", score: 0 },
             teamB: { name: "BELUM ADA JADWAL", score: 0 },
+            volleyballSets: [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}],
             badmintonSets: [{a:0,b:0},{a:0,b:0},{a:0,b:0}]
         };
 
@@ -438,6 +465,7 @@
                 state.status = "JADWAL";
                 state.teamA = { name: "BELUM ADA JADWAL", score: 0 };
                 state.teamB = { name: "BELUM ADA JADWAL", score: 0 };
+                state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
                 state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
             } else {
                 const m = VIPT_MATCHES.find(x => x.id === id);
@@ -451,6 +479,7 @@
                 state.status = "LIVE";
                 state.teamA = { name: m.a, score: 0 };
                 state.teamB = { name: m.b, score: 0 };
+                state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
                 state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
             }
             updateOperatorInputs();
@@ -460,11 +489,9 @@
 
         function normalizeSport(sport) {
             const s = String(sport || "").toUpperCase();
-            if (s.includes("VOLLY PUTRA") || s.includes("VOLLEY PUTRA")) return "VOLLY PUTRA";
-            if (s.includes("VOLLY PUTRI") || s.includes("VOLLEY PUTRI")) return "VOLLY PUTRI";
-            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY PUTRA";
+            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
             if (s.includes("BADMINTON")) return "BADMINTON";
-            if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
+            if (s.includes("TENIS MEJA") || s.includes("PINGPONG") || s.includes("PINGPONG")) return "TENIS MEJA";
             if (s.includes("FUTSAL")) return "FUTSAL";
             return "SEPAK BOLA";
         }
@@ -472,7 +499,7 @@
         function getDefaultPeriod(sport) {
             sport = normalizeSport(sport);
             if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "BABAK 1";
-            if (sport.includes("VOLLY")) return "SET 1";
+            if (sport === "VOLLY") return "SET 1";
             return "GAME 1";
         }
 
@@ -484,6 +511,8 @@
 
         function updateSportUI() {
             const sport = normalizeSport(state.sport);
+            const unit = getScoreUnit();
+
             document.getElementById('select-sport').value = sport;
             document.getElementById('period-label').textContent = state.period;
             document.getElementById('ui-sport').textContent = sport;
@@ -495,6 +524,7 @@
             state.period = getDefaultPeriod(state.sport);
             state.teamA.score = 0;
             state.teamB.score = 0;
+            state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
             state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
             updateOperatorInputs();
             updateVmixOutputFromState();
@@ -504,13 +534,17 @@
 
         function changePeriod(delta) {
             const sport = normalizeSport(state.sport);
-            const max = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? 2 : (sport.includes("VOLLY") ? 3 : 3);
+            const max = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? 2 : (sport === "VOLLY" ? 3 : 3);
             state.periodNumber = Math.max(1, Math.min(max, (Number(state.periodNumber) || 1) + delta));
 
             if (sport === "SEPAK BOLA" || sport === "FUTSAL") {
                 state.period = "BABAK " + state.periodNumber;
-            } else if (sport.includes("VOLLY")) {
+            } else if (sport === "VOLLY") {
+                ensureVolleyballSets();
                 state.period = "SET " + state.periodNumber;
+                const current = state.volleyballSets[state.periodNumber - 1] || {a:0,b:0};
+                state.teamA.score = current.winner ? 0 : current.a;
+                state.teamB.score = current.winner ? 0 : current.b;
             } else {
                 state.period = "GAME " + state.periodNumber;
             }
@@ -565,14 +599,166 @@
 
         function getSportDisplayName(sport) {
             const s = String(sport || "").toUpperCase();
-            if (s.includes("VOLLY PUTRA") || s.includes("VOLLEY PUTRA")) return "VOLLY PUTRA";
-            if (s.includes("VOLLY PUTRI") || s.includes("VOLLEY PUTRI")) return "VOLLY PUTRI";
-            if (s.includes("VOLLY")) return "VOLLY PUTRA";
+            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
             if (s.includes("BADMINTON")) return "BADMINTON";
             if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
             if (s.includes("FUTSAL")) return "FUTSAL";
-            if (s.includes("SEPAK BOLA")) return "SEPAK BOLA";
+            if (s.includes("SEPAK BOLA") || s.includes("SEPAKBOLA")) return "SEPAK BOLA";
             return s || "SEPAK BOLA";
+        }
+
+        function ensureVolleyballSets() {
+            if (!Array.isArray(state.volleyballSets) || state.volleyballSets.length !== 3) {
+                state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
+            }
+            state.volleyballSets = state.volleyballSets.map(x => ({
+                a: Math.max(0, Number(x?.a) || 0),
+                b: Math.max(0, Number(x?.b) || 0),
+                winner: x?.winner === 'A' || x?.winner === 'B' ? x.winner : null
+            }));
+        }
+
+        function getVolleyballSetWins() {
+            ensureVolleyballSets();
+            let a = 0, b = 0;
+            state.volleyballSets.forEach(s => {
+                if (s.winner === 'A') a++;
+                if (s.winner === 'B') b++;
+            });
+            return {a, b};
+        }
+
+        function getVolleyballTarget() {
+            return Number(state.periodNumber) === 3 ? 15 : 25;
+        }
+
+        function isVolleyballSetReady() {
+            const setNo = Number(state.periodNumber) || 1;
+            if (setNo > 3) return false;
+            // Set 3 hanya boleh dimainkan bila skor kemenangan set adalah 1-1 (rubber).
+            if (setNo === 3) {
+                const wins = getVolleyballSetWins();
+                if (!(wins.a === 1 && wins.b === 1)) return false;
+            }
+            const a = Number(state.teamA?.score || 0);
+            const b = Number(state.teamB?.score || 0);
+            const target = getVolleyballTarget();
+            return Math.max(a,b) >= target && Math.abs(a-b) >= 2;
+        }
+
+        function updateVolleyballUI() {
+            const box = document.getElementById('volly-operator');
+            if (!box) return;
+            const isVolly = normalizeSport(state.sport) === 'VOLLY';
+            box.style.display = isVolly ? 'block' : 'none';
+            if (!isVolly) return;
+
+            ensureVolleyballSets();
+            const wins = getVolleyballSetWins();
+            const setNo = Math.max(1, Number(state.periodNumber) || 1);
+            const target = getVolleyballTarget();
+            const info = document.getElementById('volly-set-info');
+            const ca = document.getElementById('volly-current-a');
+            const cb = document.getElementById('volly-current-b');
+            const btn = document.getElementById('btn-finish-volly-set');
+            const history = document.getElementById('volly-set-history');
+
+            if (info) info.textContent = `SET ${setNo} • TARGET ${target} • MENANG 2 SET (A ${wins.a} - B ${wins.b})`;
+            if (ca) ca.textContent = Number(state.teamA?.score || 0);
+            if (cb) cb.textContent = Number(state.teamB?.score || 0);
+
+            if (btn) {
+                btn.textContent = `SELESAI SET ${setNo}`;
+                if (setNo === 3 && !(wins.a === 1 && wins.b === 1)) {
+                    btn.textContent = 'SET 3 HANYA UNTUK RUBBER';
+                }
+                btn.disabled = !isVolleyballSetReady();
+                btn.className = btn.disabled
+                    ? "w-full bg-gray-700 text-gray-500 py-3 rounded-xl font-black text-xs shadow-lg cursor-not-allowed"
+                    : "w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-black text-xs shadow-lg";
+            }
+
+            if (history) {
+                history.innerHTML = state.volleyballSets.map((s, i) => {
+                    const done = s.winner === 'A' || s.winner === 'B';
+                    const label = done ? `${s.a}-${s.b}` : '—';
+                    const cls = done ? (s.winner === 'A' ? 'text-red-400' : 'text-blue-400') : 'text-gray-600';
+                    return `<div class="bg-black/30 border border-gray-800 rounded-lg p-1 text-center">
+                        <div class="text-[8px] text-gray-500 font-bold">SET ${i+1}</div>
+                        <div class="text-[11px] ${cls} font-black">${label}</div>
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        function finishVollySet() {
+            if (normalizeSport(state.sport) !== 'VOLLY') return;
+            const setNo = Math.max(1, Number(state.periodNumber) || 1);
+            const winsBefore = getVolleyballSetWins();
+            if (setNo === 3 && !(winsBefore.a === 1 && winsBefore.b === 1)) {
+                alert('SET 3 hanya digunakan jika hasil SET 1 dan SET 2 adalah 1-1 (RUBBER).');
+                return;
+            }
+            if (!isVolleyballSetReady()) {
+                const target = getVolleyballTarget();
+                alert(`Set belum memenuhi syarat. SET ${setNo} harus mencapai ${target} poin dan unggul minimal 2 poin.`);
+                return;
+            }
+
+            ensureVolleyballSets();
+            const idx = setNo - 1;
+            const a = Number(state.teamA.score || 0);
+            const b = Number(state.teamB.score || 0);
+            const winner = a > b ? 'A' : 'B';
+            state.volleyballSets[idx] = {a, b, winner};
+
+            const wins = getVolleyballSetWins();
+            state.teamA.score = 0;
+            state.teamB.score = 0;
+
+            // Best of 3: pertandingan selesai bila salah satu tim menang 2 set.
+            if (wins.a >= 2 || wins.b >= 2) {
+                state.status = 'SELESAI';
+                state.timerRunning = false;
+                state.period = `SET ${setNo} SELESAI`;
+                syncToFirebase();
+                firebase.database().ref('vipt_scoreboard/history').push(state);
+                updateOperatorInputs();
+                updateVmixOutputFromState();
+                alert(`Pertandingan selesai. Tim ${winner === 'A' ? 'A' : 'B'} memenangkan SET ${setNo} (${a}-${b}). Hasil sudah dikirim ke Match Center.`);
+                return;
+            }
+
+            // Setelah SET 2, hanya lanjut ke SET 3 bila skor set 1-1.
+            if (setNo === 2) {
+                if (wins.a === 1 && wins.b === 1) {
+                    state.periodNumber = 3;
+                    state.period = 'SET 3';
+                    state.status = 'LIVE';
+                    syncToFirebase();
+                    updateOperatorInputs();
+                    updateVmixOutputFromState();
+                    alert(`SET 2 selesai: ${a}-${b}. Skor set 1-1, lanjut ke SET 3 (RUBBER), target 15 poin.`);
+                } else {
+                    // Seharusnya sudah selesai di atas; pengaman tambahan.
+                    state.status = 'SELESAI';
+                    state.period = 'PERTANDINGAN SELESAI';
+                    syncToFirebase();
+                    firebase.database().ref('vipt_scoreboard/history').push(state);
+                    updateOperatorInputs();
+                    updateVmixOutputFromState();
+                }
+                return;
+            }
+
+            // Setelah SET 1, lanjut SET 2.
+            state.periodNumber = 2;
+            state.period = 'SET 2';
+            state.status = 'LIVE';
+            syncToFirebase();
+            updateOperatorInputs();
+            updateVmixOutputFromState();
+            alert(`SET 1 selesai: ${a}-${b}. Sekarang lanjut ke SET 2.`);
         }
 
         function ensureBadmintonSets() {
@@ -601,24 +787,19 @@
             const totalA=document.getElementById('bd-total-a'), totalB=document.getElementById('bd-total-b'); if(totalA) totalA.textContent=wins.a; if(totalB) totalB.textContent=wins.b;
             const ta=document.getElementById('bd-team-a'), tb=document.getElementById('bd-team-b');
             if(ta) ta.textContent=state.teamA?.name||'TIM A'; if(tb) tb.textContent=state.teamB?.name||'TIM B';
-            const per=document.getElementById('bd-period'); if(per) per.textContent=state.period||'SET 1';
+            const per=document.getElementById('bd-period'); if(per) per.textContent=state.period||'GAME 1';
             const st=document.getElementById('bd-status'); if(st) st.textContent=state.status==='LIVE'?'LIVE SEKARANG':(state.status||'LIVE');
-            
-            const sportTitle = document.getElementById('bd-sport-title');
-            if(sportTitle) sportTitle.textContent = getSportDisplayName(state.sport);
-
             const la=document.getElementById('bd-logo-a'), lb=document.getElementById('bd-logo-b');
             const logoA=getAutoLogoForTeam(state.teamA?.name), logoB=getAutoLogoForTeam(state.teamB?.name);
             if(la){la.src=logoA; la.style.display=logoA?'block':'none';} if(lb){lb.src=logoB; lb.style.display=logoB?'block':'none';}
         }
 
         function updateBadmintonLayoutVisibility() {
-            const sport = normalizeSport(state.sport);
-            const isSetLayout = sport === 'BADMINTON' || sport.includes('VOLLY');
+            const isBd=normalizeSport(state.sport)==='BADMINTON';
             const old=document.querySelector('.sb-main-bar'), bd=document.getElementById('badminton-layout');
-            if(old) old.style.display=isSetLayout?'none':'flex';
-            if(bd) bd.style.display=isSetLayout?'flex':'none';
-            if(isSetLayout) updateBadmintonOutput();
+            if(old) old.style.display=isBd?'none':'flex';
+            if(bd) bd.style.display=isBd?'flex':'none';
+            if(isBd) updateBadmintonOutput();
         }
 
         function changeBadmintonSetScore(setIndex, team, val) {
@@ -668,21 +849,29 @@
             state.logos = state.logos || {a:"", b:""};
             updateSportUI();
             updateLogoOutput();
-            
-            const sport = normalizeSport(state.sport);
             const bdOp=document.getElementById('badminton-operator');
-            if(bdOp) bdOp.style.display = (sport === 'BADMINTON' || sport.includes('VOLLY')) ? 'block' : 'none';
-            
-            const setOpTitle = document.getElementById('set-op-title');
-            if(setOpTitle) {
-                setOpTitle.textContent = sport.includes('VOLLY') ? `${sport} — 25 POIN / 3 SET` : 'BADMINTON — BEREGU GANDA';
-            }
-
+            if(bdOp) bdOp.style.display=normalizeSport(state.sport)==='BADMINTON'?'block':'none';
+            ensureVolleyballSets();
+            updateVolleyballUI();
             ensureBadmintonSets();
             updateBadmintonOutput();
         }
 
         function changeScore(team, val) {
+            if (normalizeSport(state.sport) === 'VOLLY') {
+                ensureVolleyballSets();
+                const idx = Math.max(0, Number(state.periodNumber) - 1);
+                if (state.volleyballSets[idx]?.winner) return;
+                const key = team === 'A' ? 'a' : 'b';
+                state.volleyballSets[idx][key] = Math.max(0, Number(state.volleyballSets[idx][key] || 0) + val);
+                state.teamA.score = state.volleyballSets[idx].a;
+                state.teamB.score = state.volleyballSets[idx].b;
+                updateOperatorInputs();
+                updateVmixOutputFromState();
+                syncToFirebase();
+                return;
+            }
+
             if (team === 'A') {
                 state.teamA.score = Math.max(0, state.teamA.score + val);
                 document.getElementById('op-score-a').textContent = state.teamA.score;
@@ -700,7 +889,9 @@
             state.status = document.getElementById('select-status').value;
             state.sport = normalizeSport(state.sport);
             state.logos = {a:"", b:""};
+            ensureVolleyballSets();
             updateLogoOutput();
+            updateVolleyballUI();
 
             dbRef.set(state);
         }
@@ -782,7 +973,7 @@
         }
 
         function finishAndSaveMatch() {
-            if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke history?")) return;
+            if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke hasil?")) return;
             state.status = "SELESAI";
             state.timerRunning = false;
             syncToFirebase();
@@ -835,6 +1026,7 @@
                 } else {
                     state = raw;
                 }
+                ensureVolleyballSets();
                 ensureBadmintonSets();
                 updateTimerDisplay();
                 document.getElementById('ui-team-a').textContent = state.teamA.name;
@@ -849,14 +1041,14 @@
             }
         });
 
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('mode') === 'output') {
+        if (new URLSearchParams(window.location.search).get('mode') === 'output') {
             document.getElementById('operator-view').classList.add('hidden');
             document.getElementById('output-view').classList.remove('hidden');
             document.getElementById('btn-back-operator').style.display = 'block';
         }
 
         populateMatchDropdown();
+        ensureVolleyballSets();
         ensureBadmintonSets();
         state.sport = normalizeSport(state.sport);
         updateOperatorInputs();
