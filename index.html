@@ -210,20 +210,20 @@
         .futsal-goal-btn { width:100%; margin-top:8px; padding:9px; border-radius:10px; font-size:11px; font-weight:1000; }
         .futsal-output { display:none; width:1760px; min-height:270px; margin-top:70px; background:rgba(8,15,30,.97); border:2px solid rgba(255,255,255,.16); border-radius:26px; overflow:hidden; box-shadow:0 16px 45px rgba(0,0,0,.65); }
         .futsal-output-main { display:grid; grid-template-columns:540px 190px 260px 190px 540px; min-height:270px; }
-        .futsal-team { display:flex; align-items:center; justify-content:center; gap:24px; padding:24px 34px; font-size:42px; line-height:1.05; font-weight:900; text-transform:uppercase; text-align:center; }
+        .futsal-team { display:flex; align-items:center; justify-content:center; gap:24px; padding:24px 34px; width:540px; min-width:540px; font-size:42px; line-height:1.05; font-weight:900; text-transform:uppercase; white-space:normal; text-align:center; }
         .futsal-team span { max-width:285px; }
-        .futsal-score { background:#000; display:flex; align-items:center; justify-content:center; font-size:116px; line-height:1; font-weight:1000; }
-        .futsal-center { display:flex; flex-direction:column; align-items:center; justify-content:center; width:260px; background:#020617; border-left:2px solid #333; border-right:2px solid #333; padding:18px; }
-        .futsal-goal-banner { width:100%; margin-top:14px; padding:10px 8px; border-radius:10px; background:#111827; border:1px solid #334155; text-align:center; }
-        .futsal-goal-banner-label { font-size:12px; color:#fbbf24; font-weight:1000; }
-        .futsal-goal-banner-name { font-size:20px; color:#fff; font-weight:1000; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+        .futsal-score { background:#000; display:flex; align-items:center; justify-content:center; width:190px; min-width:190px; font-size:116px; line-height:1; font-weight:1000; color:#fff; text-shadow:0 3px 12px rgba(255,255,255,.2); }
+        .futsal-center { display:flex; flex-direction:column; align-items:center; justify-content:center; width:260px; min-width:260px; background:#020617; border-left:2px solid #333; border-right:2px solid #333; padding:18px; }
+        .futsal-goal-banner { width:100%; margin-top:8px; padding:5px 6px; border-radius:8px; background:#111827; border:1px solid #334155; text-align:center; }
+        .futsal-goal-banner-label { font-size:9px; color:#fbbf24; font-weight:1000; }
+        .futsal-goal-banner-name { font-size:13px; color:#fff; font-weight:1000; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
         .futsal-events { display:none; padding:10px 14px; background:#020617; border-top:2px solid #333; }
         .futsal-event-row { display:flex; align-items:center; justify-content:center; gap:10px; font-size:14px; font-weight:900; color:#cbd5e1; padding:4px 0; }
         .futsal-event-team-a { color:#fca5a5; } .futsal-event-team-b { color:#93c5fd; }
         @media (max-width:900px) {
             .futsal-output { width:98vw; min-height:0; margin-top:70px; }
             .futsal-output-main { grid-template-columns:28% 12% 20% 12% 28%; min-height:220px; }
-            .futsal-team { font-size:14px; padding:8px; gap:6px; }
+            .futsal-team { width:auto; min-width:0; font-size:14px; padding:8px; gap:6px; }
             .futsal-team span { max-width:100%; }
             .futsal-score { font-size:54px; }
             .futsal-center { width:auto; padding:8px; }
