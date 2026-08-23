@@ -99,10 +99,10 @@
             margin-top: 2px;
         }
         
-        /* LAYOUT KHUSUS BADMINTON: teks di bawah logo, lebih panjang, lebih rapi */
+        /* LAYOUT KHUSUS SET (BADMINTON & VOLLY) DIPERLUAS & TANPA TEKS MENANG SET */
         .bd-layout {
             display: none;
-            width: 1860px; /* DIPANJANGKAN */
+            width: 1920px;
             min-height: 280px;
             margin-top: 70px;
             background: rgba(8,15,30,.97);
@@ -119,7 +119,7 @@
         }
         .bd-grid { 
             display:grid; 
-            grid-template-columns: 380px repeat(3,1fr) 180px; 
+            grid-template-columns: 440px repeat(3, 1fr) 260px; 
             grid-template-rows:1fr 1fr; 
             min-height:218px; 
         }
@@ -129,7 +129,7 @@
             align-items:center; 
             justify-content: center;
             gap:12px; 
-            padding:12px 16px; 
+            padding:16px 20px; 
             font-size:26px; 
             font-weight:1000; 
             text-transform:uppercase; 
@@ -144,14 +144,12 @@
         .bd-set-title { display:flex; align-items:center; justify-content:center; background:#111827; color:#fbbf24; font-size:18px; font-weight:1000; }
         .bd-point { display:flex; align-items:center; justify-content:center; font-size:58px; font-weight:1000; border-top:1px solid #334155; }
         .bd-point-a { color:#fca5a5; } .bd-point-b { color:#93c5fd; }
-        .bd-total { display:flex; align-items:center; justify-content:center; flex-direction:column; background:#000; border-left:2px solid #333; }
-        .bd-total-label { font-size:18px; color:#94a3b8; font-weight:900; }
-        .bd-total-score { font-size:82px; line-height:1; font-weight:1000; color:#fff; }
-        .bd-sub { font-size:15px; color:#cbd5e1; margin-top:7px; font-weight:800; }
+        .bd-total { display:flex; align-items:center; justify-content:center; background:#000; border-left:2px solid #333; padding: 0 10px; }
+        .bd-total-score { font-size:96px; line-height:1; font-weight:1000; color:#fff; }
         
         @media (max-width:900px) { 
             .bd-layout{width:98vw} 
-            .bd-grid{grid-template-columns: 28% repeat(3,1fr) 15%} 
+            .bd-grid{grid-template-columns: 28% repeat(3,1fr) 22%} 
             .bd-team{font-size:14px; padding:8px; gap:6px} 
             .bd-logo{width:50px; height:50px} 
             .bd-point{font-size:32px} 
@@ -203,7 +201,8 @@
                     <select id="select-sport" onchange="changeSport()" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-xl text-xs font-bold">
                         <option value="SEPAK BOLA">SEPAK BOLA — GOAL / 2 BABAK</option>
                         <option value="FUTSAL">FUTSAL — GOAL / 2 BABAK</option>
-                        <option value="VOLLY">VOLLY — POIN / SET</option>
+                        <option value="VOLLY PUTRA">VOLLY PUTRA — 25 POINT / 3 SET</option>
+                        <option value="VOLLY PUTRI">VOLLY PUTRI — 25 POINT / 3 SET</option>
                         <option value="BADMINTON">BADMINTON — POIN / GAME</option>
                         <option value="TENIS MEJA">TENIS MEJA / PINGPONG — POIN / GAME</option>
                     </select>
@@ -263,13 +262,13 @@
             </div>
         </div>
 
-        <!-- KONTROL KHUSUS BADMINTON: 3 SET, TARGET 21 POIN, MENANG 2 SET -->
+        <!-- KONTROL KHUSUS SET (BADMINTON & VOLLY) -->
         <div id="badminton-operator" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl" style="display:none">
-            <div class="flex items-center justify-between mb-3"><span class="text-xs font-black text-amber-400">BADMINTON — BEREGU GANDA</span><span class="text-[10px] text-gray-400">3 pasangan • target 21 poin • menang 2 set</span></div>
+            <div class="flex items-center justify-between mb-3"><span id="set-op-title" class="text-xs font-black text-amber-400">PENGATURAN SET</span><span class="text-[10px] text-gray-400">Target 25 Poin • Max 3 Set • 2 Menang Lolos</span></div>
             <div class="grid grid-cols-3 gap-2">
                 <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 1</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(0,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(0,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(0,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(0,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
                 <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 2</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(1,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(1,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(1,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(1,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
-                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 3 / PENENTU</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(2,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(2,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(2,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(2,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 3</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(2,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(2,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(2,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(2,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
             </div>
         </div>
 
@@ -320,19 +319,19 @@
             </div>
             
             <div id="badminton-layout" class="bd-layout">
-                <div class="bd-header"><span>BADMINTON</span><span id="bd-period">GAME 1</span><span id="bd-status">LIVE SEKARANG</span></div>
+                <div class="bd-header"><span id="bd-sport-title">BADMINTON</span><span id="bd-period">GAME 1</span><span id="bd-status">LIVE SEKARANG</span></div>
                 <div class="bd-grid">
                     <div class="bd-team bd-team-a"><img id="bd-logo-a" class="bd-logo" style="display:none"><span id="bd-team-a">TIM A</span></div>
                     <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-a1" class="bd-point bd-point-a">0</div></div>
                     <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-a2" class="bd-point bd-point-a">0</div></div>
-                    <div class="bd-set"><div class="bd-set-title">SET 3 / PENENTU</div><div id="bd-a3" class="bd-point bd-point-a">0</div></div>
-                    <div class="bd-total"><div class="bd-total-label">SCORE TEAM</div><div id="bd-total-a" class="bd-total-score">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 3</div><div id="bd-a3" class="bd-point bd-point-a">0</div></div>
+                    <div class="bd-total"><div id="bd-total-a" class="bd-total-score">0</div></div>
 
                     <div class="bd-team bd-team-b"><img id="bd-logo-b" class="bd-logo" style="display:none"><span id="bd-team-b">TIM B</span></div>
                     <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-b1" class="bd-point bd-point-b">0</div></div>
                     <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-b2" class="bd-point bd-point-b">0</div></div>
-                    <div class="bd-set"><div class="bd-set-title">SET 3 / PENENTU</div><div id="bd-b3" class="bd-point bd-point-b">0</div></div>
-                    <div class="bd-total"><div class="bd-total-label">SCORE TEAM</div><div id="bd-total-b" class="bd-total-score">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 3</div><div id="bd-b3" class="bd-point bd-point-b">0</div></div>
+                    <div class="bd-total"><div id="bd-total-b" class="bd-total-score">0</div></div>
                 </div>
             </div>
         </div>
@@ -461,9 +460,11 @@
 
         function normalizeSport(sport) {
             const s = String(sport || "").toUpperCase();
-            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
+            if (s.includes("VOLLY PUTRA") || s.includes("VOLLEY PUTRA")) return "VOLLY PUTRA";
+            if (s.includes("VOLLY PUTRI") || s.includes("VOLLEY PUTRI")) return "VOLLY PUTRI";
+            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY PUTRA";
             if (s.includes("BADMINTON")) return "BADMINTON";
-            if (s.includes("TENIS MEJA") || s.includes("PINGPONG") || s.includes("PINGPONG")) return "TENIS MEJA";
+            if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
             if (s.includes("FUTSAL")) return "FUTSAL";
             return "SEPAK BOLA";
         }
@@ -471,7 +472,7 @@
         function getDefaultPeriod(sport) {
             sport = normalizeSport(sport);
             if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "BABAK 1";
-            if (sport === "VOLLY") return "SET 1";
+            if (sport.includes("VOLLY")) return "SET 1";
             return "GAME 1";
         }
 
@@ -483,8 +484,6 @@
 
         function updateSportUI() {
             const sport = normalizeSport(state.sport);
-            const unit = getScoreUnit();
-
             document.getElementById('select-sport').value = sport;
             document.getElementById('period-label').textContent = state.period;
             document.getElementById('ui-sport').textContent = sport;
@@ -505,12 +504,12 @@
 
         function changePeriod(delta) {
             const sport = normalizeSport(state.sport);
-            const max = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? 2 : (sport === "VOLLY" ? 5 : 3);
+            const max = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? 2 : (sport.includes("VOLLY") ? 3 : 3);
             state.periodNumber = Math.max(1, Math.min(max, (Number(state.periodNumber) || 1) + delta));
 
             if (sport === "SEPAK BOLA" || sport === "FUTSAL") {
                 state.period = "BABAK " + state.periodNumber;
-            } else if (sport === "VOLLY") {
+            } else if (sport.includes("VOLLY")) {
                 state.period = "SET " + state.periodNumber;
             } else {
                 state.period = "GAME " + state.periodNumber;
@@ -566,11 +565,13 @@
 
         function getSportDisplayName(sport) {
             const s = String(sport || "").toUpperCase();
-            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
+            if (s.includes("VOLLY PUTRA") || s.includes("VOLLEY PUTRA")) return "VOLLY PUTRA";
+            if (s.includes("VOLLY PUTRI") || s.includes("VOLLEY PUTRI")) return "VOLLY PUTRI";
+            if (s.includes("VOLLY")) return "VOLLY PUTRA";
             if (s.includes("BADMINTON")) return "BADMINTON";
             if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
             if (s.includes("FUTSAL")) return "FUTSAL";
-            if (s.includes("SEPAK BOLA") || s.includes("SEPAKBOLA")) return "SEPAK BOLA";
+            if (s.includes("SEPAK BOLA")) return "SEPAK BOLA";
             return s || "SEPAK BOLA";
         }
 
@@ -600,19 +601,24 @@
             const totalA=document.getElementById('bd-total-a'), totalB=document.getElementById('bd-total-b'); if(totalA) totalA.textContent=wins.a; if(totalB) totalB.textContent=wins.b;
             const ta=document.getElementById('bd-team-a'), tb=document.getElementById('bd-team-b');
             if(ta) ta.textContent=state.teamA?.name||'TIM A'; if(tb) tb.textContent=state.teamB?.name||'TIM B';
-            const per=document.getElementById('bd-period'); if(per) per.textContent=state.period||'GAME 1';
+            const per=document.getElementById('bd-period'); if(per) per.textContent=state.period||'SET 1';
             const st=document.getElementById('bd-status'); if(st) st.textContent=state.status==='LIVE'?'LIVE SEKARANG':(state.status||'LIVE');
+            
+            const sportTitle = document.getElementById('bd-sport-title');
+            if(sportTitle) sportTitle.textContent = getSportDisplayName(state.sport);
+
             const la=document.getElementById('bd-logo-a'), lb=document.getElementById('bd-logo-b');
             const logoA=getAutoLogoForTeam(state.teamA?.name), logoB=getAutoLogoForTeam(state.teamB?.name);
             if(la){la.src=logoA; la.style.display=logoA?'block':'none';} if(lb){lb.src=logoB; lb.style.display=logoB?'block':'none';}
         }
 
         function updateBadmintonLayoutVisibility() {
-            const isBd=normalizeSport(state.sport)==='BADMINTON';
+            const sport = normalizeSport(state.sport);
+            const isSetLayout = sport === 'BADMINTON' || sport.includes('VOLLY');
             const old=document.querySelector('.sb-main-bar'), bd=document.getElementById('badminton-layout');
-            if(old) old.style.display=isBd?'none':'flex';
-            if(bd) bd.style.display=isBd?'flex':'none';
-            if(isBd) updateBadmintonOutput();
+            if(old) old.style.display=isSetLayout?'none':'flex';
+            if(bd) bd.style.display=isSetLayout?'flex':'none';
+            if(isSetLayout) updateBadmintonOutput();
         }
 
         function changeBadmintonSetScore(setIndex, team, val) {
@@ -662,8 +668,16 @@
             state.logos = state.logos || {a:"", b:""};
             updateSportUI();
             updateLogoOutput();
+            
+            const sport = normalizeSport(state.sport);
             const bdOp=document.getElementById('badminton-operator');
-            if(bdOp) bdOp.style.display=normalizeSport(state.sport)==='BADMINTON'?'block':'none';
+            if(bdOp) bdOp.style.display = (sport === 'BADMINTON' || sport.includes('VOLLY')) ? 'block' : 'none';
+            
+            const setOpTitle = document.getElementById('set-op-title');
+            if(setOpTitle) {
+                setOpTitle.textContent = sport.includes('VOLLY') ? `${sport} — 25 POIN / 3 SET` : 'BADMINTON — BEREGU GANDA';
+            }
+
             ensureBadmintonSets();
             updateBadmintonOutput();
         }
@@ -768,7 +782,7 @@
         }
 
         function finishAndSaveMatch() {
-            if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke hasil?")) return;
+            if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke history?")) return;
             state.status = "SELESAI";
             state.timerRunning = false;
             syncToFirebase();
@@ -835,7 +849,8 @@
             }
         });
 
-        if (new URLSearchParams(window.location.search).get('mode') === 'output') {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('mode') === 'output') {
             document.getElementById('operator-view').classList.add('hidden');
             document.getElementById('output-view').classList.remove('hidden');
             document.getElementById('btn-back-operator').style.display = 'block';
