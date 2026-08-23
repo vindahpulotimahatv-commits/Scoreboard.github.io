@@ -3,14 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <title>VIPT CUP IV 2026 - Panel Kontrol Operator & Scoreboard</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+
     <style>
-        body { background-color: #0f172a; color: white; font-family: Arial, sans-serif; }
-        .mode-output { background: transparent !important; overflow: hidden; }
-        .scoreboard-root { width: 1280px; height: 720px; display: flex; justify-content: center; align-items: flex-start; pointer-events: none; transform: scale(1); transform-origin: top left; }
+        body {
+            background-color: #0f172a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .mode-output {
+            background: transparent !important;
+            overflow: hidden;
+        }
+
+        .scoreboard-root {
+            width: 1280px;
+            height: 720px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            pointer-events: none;
+            transform: scale(1);
+            transform-origin: top left;
+        }
+
+        /* =========================
+           SCOREBOARD NORMAL
+        ========================= */
+
         .sb-main-bar {
             margin-top: 45px;
             width: 1180px;
@@ -23,6 +50,7 @@
             overflow: hidden;
             box-shadow: 0 12px 35px rgba(0,0,0,0.65);
         }
+
         .sb-team {
             display: flex;
             align-items: center;
@@ -38,7 +66,11 @@
             white-space: normal;
             text-align: center;
         }
-        .sb-team span { max-width: 190px; }
+
+        .sb-team span {
+            max-width: 190px;
+        }
+
         .sb-score-box {
             background: #000;
             display: flex;
@@ -52,6 +84,7 @@
             color: #fff;
             text-shadow: 0 2px 8px rgba(255,255,255,0.2);
         }
+
         .sb-center {
             display: flex;
             flex-direction: column;
@@ -64,7 +97,13 @@
             border-right: 2px solid #333;
             padding: 12px;
         }
-        .sb-timer { font-size: 34px; font-weight: 1000; color: #fbbf24; }
+
+        .sb-timer {
+            font-size: 34px;
+            font-weight: 1000;
+            color: #fbbf24;
+        }
+
         .sb-logo {
             image-rendering: auto;
             width: 120px;
@@ -76,6 +115,7 @@
             flex-shrink: 0;
             box-shadow: 0 3px 10px rgba(0,0,0,.45);
         }
+
         .sport-badge {
             font-size: 14px;
             font-weight: 1000;
@@ -85,6 +125,7 @@
             text-align: center;
             margin-bottom: 6px;
         }
+
         .sb-period {
             font-size: 13px;
             font-weight: 900;
@@ -92,14 +133,19 @@
             margin-top: 4px;
             text-align: center;
         }
+
         .sb-vs {
             font-size: 18px;
             font-weight: 1000;
             color: #64748b;
             margin-top: 2px;
         }
-        
-        /* LAYOUT KHUSUS SET (BADMINTON & VOLLY) 1280x720 */
+
+        /* =========================
+           LAYOUT SET
+           VOLLY + BADMINTON
+        ========================= */
+
         .bd-layout {
             display: none;
             width: 1280px;
@@ -112,613 +158,4038 @@
             box-shadow: 0 12px 35px rgba(0,0,0,.65);
             flex-direction: column;
         }
+
         .bd-header {
-            height: 42px; display:flex; align-items:center; justify-content:center;
-            gap:16px; background:#020617; border-bottom:2px solid #333;
-            font-weight:1000; letter-spacing:1px; font-size: 14px;
+            height: 42px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:16px;
+            background:#020617;
+            border-bottom:2px solid #333;
+            font-weight:1000;
+            letter-spacing:1px;
+            font-size:14px;
         }
-        .bd-grid { 
-            display:grid; 
-            grid-template-columns: 300px repeat(3, 1fr) 170px; 
-            grid-template-rows: 1fr 1fr; 
-            min-height: 146px; 
+
+        .bd-grid {
+            display:grid;
+            grid-template-columns: 300px repeat(3, 1fr) 170px;
+            grid-template-rows: 1fr 1fr;
+            min-height:146px;
         }
-        .bd-team { 
-            display:flex; 
-            flex-direction: column; 
-            align-items:center; 
-            justify-content: center;
-            gap: 8px; 
-            padding: 10px 14px; 
-            font-size: 18px; 
-            font-weight:1000; 
-            text-transform:uppercase; 
-            text-align: center;
+
+        .bd-team {
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            padding:10px 14px;
+            font-size:18px;
+            font-weight:1000;
+            text-transform:uppercase;
+            text-align:center;
         }
-        .bd-team-a { background:#b91c1c; } .bd-team-b { background:#1d4ed8; }
-        .bd-team span { max-width:100%; line-height:1.1; word-break:normal; overflow-wrap:break-word; }
-        .bd-logo { width: 64px; height: 64px; object-fit:contain; background:#fff; border-radius:12px; padding:3px; flex-shrink:0; }
-        
-        .bd-sets { display:contents; }
-        .bd-set { display:grid; grid-template-rows: 32px 1fr; border:2px solid #334155; border-radius:10px; overflow:hidden; background:#020617; }
-        .bd-set-title { display:flex; align-items:center; justify-content:center; background:#111827; color:#fbbf24; font-size: 12px; font-weight:1000; }
-        .bd-point { display:flex; align-items:center; justify-content:center; font-size: 38px; font-weight:1000; border-top:1px solid #334155; }
-        .bd-point-a { color:#fca5a5; } .bd-point-b { color:#93c5fd; }
-        .bd-total { display:flex; align-items:center; justify-content:center; background:#000; border-left:2px solid #333; padding: 0 8px; }
-        .bd-total-score { font-size: 64px; line-height:1; font-weight:1000; color:#fff; }
+
+        .bd-team-a {
+            background:#b91c1c;
+        }
+
+        .bd-team-b {
+            background:#1d4ed8;
+        }
+
+        .bd-team span {
+            max-width:100%;
+            line-height:1.1;
+            word-break:normal;
+            overflow-wrap:break-word;
+        }
+
+        .bd-logo {
+            width:64px;
+            height:64px;
+            object-fit:contain;
+            background:#fff;
+            border-radius:12px;
+            padding:3px;
+            flex-shrink:0;
+        }
+
+        .bd-sets {
+            display:contents;
+        }
+
+        .bd-set {
+            display:grid;
+            grid-template-rows:32px 1fr;
+            border:2px solid #334155;
+            border-radius:10px;
+            overflow:hidden;
+            background:#020617;
+        }
+
+        .bd-set-title {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#111827;
+            color:#fbbf24;
+            font-size:12px;
+            font-weight:1000;
+        }
+
+        .bd-point {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:38px;
+            font-weight:1000;
+            border-top:1px solid #334155;
+        }
+
+        .bd-point-a {
+            color:#fca5a5;
+        }
+
+        .bd-point-b {
+            color:#93c5fd;
+        }
+
+        .bd-total {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#000;
+            border-left:2px solid #333;
+            padding:0 8px;
+        }
+
+        .bd-total-score {
+            font-size:64px;
+            line-height:1;
+            font-weight:1000;
+            color:#fff;
+        }
+
+        /* =========================
+           VOLLY STATUS SET
+        ========================= */
+
+        .volly-set-status {
+            font-size:10px;
+            font-weight:900;
+            margin-top:3px;
+            text-align:center;
+            color:#94a3b8;
+        }
+
+        .volly-set-status.done {
+            color:#34d399;
+        }
+
+        /* =========================
+           PANEL SET VOLLY
+        ========================= */
+
+        .volly-set-card {
+            background:rgba(0,0,0,.30);
+            border:1px solid #1f2937;
+            border-radius:14px;
+            padding:12px;
+        }
+
+        .volly-set-card.active {
+            border-color:#fbbf24;
+            box-shadow:0 0 0 1px rgba(251,191,36,.25);
+        }
+
+        .set-complete-btn {
+            width:100%;
+            margin-top:8px;
+            background:#065f46;
+            color:white;
+            padding:8px 5px;
+            border-radius:8px;
+            font-size:10px;
+            font-weight:900;
+        }
+
+        .set-complete-btn:hover {
+            background:#047857;
+        }
+
+        .set-complete-btn.completed {
+            background:#166534;
+            color:#bbf7d0;
+        }
+
+        .winner-box {
+            background:rgba(0,0,0,.35);
+            border:1px solid #334155;
+            border-radius:14px;
+            padding:12px;
+        }
     </style>
 </head>
+
 <body class="p-2 sm:p-6">
 
-    <button id="btn-back-operator" onclick="exitTestOutput()" style="display:none; position:fixed; top:10px; left:10px; z-index:9999; background:red; padding:10px; font-weight:bold; border-radius:8px;">KEMBALI KE PANEL</button>
+<button
+    id="btn-back-operator"
+    onclick="exitTestOutput()"
+    style="
+        display:none;
+        position:fixed;
+        top:10px;
+        left:10px;
+        z-index:9999;
+        background:red;
+        padding:10px;
+        font-weight:bold;
+        border-radius:8px;
+    "
+>
+    KEMBALI KE PANEL
+</button>
 
-    <!-- ==================== PANEL KONTROL OPERATOR ==================== -->
-    <div id="operator-view" class="max-w-xl mx-auto space-y-4 pb-12">
-        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
-            <h1 class="text-lg font-black text-center text-amber-400 mb-1">VIPT CUP IV 2026</h1>
-            <p class="text-xs text-center text-gray-400 mb-4">PANEL KONTROL OPERATOR & SYNC REAL-TIME</p>
-            
-            <label class="block text-xs font-bold text-gray-300 mb-2">PILIH PERTANDINGAN DARI JADWAL</label>
-            <div class="flex gap-2 mb-3">
-                <select id="select-match-list" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-xl text-xs font-bold"></select>
-                <button onclick="applySelectedMatch()" class="bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg transition">LOAD</button>
+
+<!-- =========================================================
+     PANEL KONTROL OPERATOR
+========================================================= -->
+
+<div id="operator-view" class="max-w-xl mx-auto space-y-4 pb-12">
+
+    <!-- PERTANDINGAN -->
+    <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
+
+        <h1 class="text-lg font-black text-center text-amber-400 mb-1">
+            VIPT CUP IV 2026
+        </h1>
+
+        <p class="text-xs text-center text-gray-400 mb-4">
+            PANEL KONTROL OPERATOR & SYNC REAL-TIME
+        </p>
+
+        <label class="block text-xs font-bold text-gray-300 mb-2">
+            PILIH PERTANDINGAN DARI JADWAL
+        </label>
+
+        <div class="flex gap-2 mb-3">
+
+            <select
+                id="select-match-list"
+                class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-xl text-xs font-bold"
+            ></select>
+
+            <button
+                onclick="applySelectedMatch()"
+                class="bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg transition"
+            >
+                LOAD
+            </button>
+
+        </div>
+
+
+        <div class="grid grid-cols-2 gap-2">
+
+            <div>
+
+                <label class="block text-[10px] text-gray-400 font-bold mb-1">
+                    BABAK / PERIODE
+                </label>
+
+                <input
+                    type="text"
+                    id="inp-period"
+                    oninput="syncToFirebase()"
+                    class="w-full bg-gray-800 border border-gray-700 p-2 rounded-xl text-xs font-bold"
+                    value="BABAK 1"
+                >
+
             </div>
-            
+
+
+            <div>
+
+                <label class="block text-[10px] text-gray-400 font-bold mb-1">
+                    STATUS MATCH
+                </label>
+
+                <select
+                    id="select-status"
+                    onchange="syncToFirebase()"
+                    class="w-full bg-gray-800 border border-gray-700 p-2 rounded-xl text-xs font-bold text-emerald-400"
+                >
+
+                    <option value="LIVE SEKARANG">
+                        LIVE SEKARANG
+                    </option>
+
+                    <option value="SET 1 SELESAI">
+                        SET 1 SELESAI
+                    </option>
+
+                    <option value="SET 2 SELESAI">
+                        SET 2 SELESAI
+                    </option>
+
+                    <option value="SET 3 SELESAI">
+                        SET 3 SELESAI
+                    </option>
+
+                    <option value="PERTANDINGAN SELESAI">
+                        PERTANDINGAN SELESAI
+                    </option>
+
+                    <option value="BELUM MULAI">
+                        BELUM MULAI
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CABOR -->
+    <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
+
+        <div class="grid grid-cols-1 gap-3">
+
+            <div>
+
+                <label class="block text-[10px] text-gray-400 font-bold mb-1">
+                    CABANG OLAHRAGA / MEKANISME SKOR
+                </label>
+
+                <select
+                    id="select-sport"
+                    onchange="changeSport()"
+                    class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-xl text-xs font-bold"
+                >
+
+                    <option value="SEPAK BOLA">
+                        SEPAK BOLA — GOAL / 2 BABAK
+                    </option>
+
+                    <option value="FUTSAL">
+                        FUTSAL — GOAL / 2 BABAK
+                    </option>
+
+                    <option value="VOLLY PUTRA">
+                        VOLLY PUTRA — 25 POINT / 3 SET
+                    </option>
+
+                    <option value="VOLLY PUTRI">
+                        VOLLY PUTRI — 25 POINT / 3 SET
+                    </option>
+
+                    <option value="BADMINTON">
+                        BADMINTON — POIN / GAME
+                    </option>
+
+                    <option value="TENIS MEJA">
+                        TENIS MEJA / PINGPONG — POIN / GAME
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- LOGO -->
+
+            <div class="grid grid-cols-2 gap-3">
+
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+
+                    <label class="block text-[10px] text-gray-400 font-bold mb-2">
+                        LOGO TIM A
+                    </label>
+
+                    <img
+                        id="preview-logo-a"
+                        class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg"
+                    >
+
+                    <div
+                        id="preview-logo-a-empty"
+                        class="text-[10px] text-gray-500"
+                    >
+                        Logo otomatis
+                    </div>
+
+                </div>
+
+
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+
+                    <label class="block text-[10px] text-gray-400 font-bold mb-2">
+                        LOGO TIM B
+                    </label>
+
+                    <img
+                        id="preview-logo-b"
+                        class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg"
+                    >
+
+                    <div
+                        id="preview-logo-b-empty"
+                        class="text-[10px] text-gray-500"
+                    >
+                        Logo otomatis
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="grid grid-cols-3 gap-2">
+
+                <button
+                    onclick="changePeriod(-1)"
+                    class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs"
+                >
+                    PERIODE -
+                </button>
+
+                <div
+                    id="period-label"
+                    class="bg-black/40 border border-gray-800 rounded-xl flex items-center justify-center text-[10px] font-black text-amber-400"
+                >
+                    BABAK 1
+                </div>
+
+                <button
+                    onclick="changePeriod(1)"
+                    class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs"
+                >
+                    PERIODE +
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TIM A DAN B -->
+
+    <div class="grid grid-cols-2 gap-3">
+
+        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl flex flex-col justify-between">
+
+            <div>
+
+                <p class="text-[10px] font-bold text-red-400 mb-1">
+                    TIM A (KIRI)
+                </p>
+
+                <input
+                    type="text"
+                    id="inp-name-a"
+                    oninput="syncToFirebase()"
+                    class="w-full bg-gray-800 border border-gray-700 p-2 mb-3 rounded-xl text-xs font-bold"
+                    placeholder="Nama Tim A"
+                >
+
+            </div>
+
+            <div class="text-center bg-black/40 py-3 rounded-xl border border-gray-800 mb-3">
+
+                <span
+                    id="op-score-a"
+                    class="text-4xl font-black text-red-500"
+                >
+                    0
+                </span>
+
+            </div>
+
             <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-[10px] text-gray-400 font-bold mb-1">BABAK / PERIODE</label>
-                    <input type="text" id="inp-period" oninput="syncToFirebase()" class="w-full bg-gray-800 border border-gray-700 p-2 rounded-xl text-xs font-bold" value="BABAK 1">
-                </div>
-                <div>
-                    <label class="block text-[10px] text-gray-400 font-bold mb-1">STATUS MATCH (DI VMIX / MATCH CENTER)</label>
-                    <select id="select-status" onchange="syncToFirebase()" class="w-full bg-gray-800 border border-gray-700 p-2 rounded-xl text-xs font-bold text-emerald-400">
-                        <option value="LIVE SEKARANG">LIVE SEKARANG</option>
-                        <option value="SET 1 SELESAI">SET 1 SELESAI</option>
-                        <option value="SET 2 SELESAI">SET 2 SELESAI</option>
-                        <option value="SET 3 SELESAI">SET 3 SELESAI</option>
-                        <option value="PERTANDINGAN SELESAI">PERTANDINGAN SELESAI</option>
-                        <option value="BELUM MULAI">BELUM MULAI</option>
-                    </select>
-                </div>
+
+                <button
+                    onclick="changeScore('A', -1)"
+                    class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-black text-sm"
+                >
+                    -1
+                </button>
+
+                <button
+                    onclick="changeScore('A', 1)"
+                    class="bg-red-600 hover:bg-red-500 py-2 rounded-xl font-black text-sm"
+                >
+                    +1
+                </button>
+
             </div>
+
         </div>
 
-        <!-- CABOR & LOGO PESERTA -->
-        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
+
+        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl flex flex-col justify-between">
+
+            <div>
+
+                <p class="text-[10px] font-bold text-blue-400 mb-1">
+                    TIM B (KANAN)
+                </p>
+
+                <input
+                    type="text"
+                    id="inp-name-b"
+                    oninput="syncToFirebase()"
+                    class="w-full bg-gray-800 border border-gray-700 p-2 mb-3 rounded-xl text-xs font-bold"
+                    placeholder="Nama Tim B"
+                >
+
+            </div>
+
+            <div class="text-center bg-black/40 py-3 rounded-xl border border-gray-800 mb-3">
+
+                <span
+                    id="op-score-b"
+                    class="text-4xl font-black text-blue-500"
+                >
+                    0
+                </span>
+
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+
+                <button
+                    onclick="changeScore('B', -1)"
+                    class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-black text-sm"
+                >
+                    -1
+                </button>
+
+                <button
+                    onclick="changeScore('B', 1)"
+                    class="bg-blue-600 hover:bg-blue-500 py-2 rounded-xl font-black text-sm"
+                >
+                    +1
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         KONTROL SET
+    ========================================================== -->
+
+    <div
+        id="badminton-operator"
+        class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl"
+        style="display:none"
+    >
+
+        <div class="flex items-center justify-between mb-3">
+
+            <span
+                id="set-op-title"
+                class="text-xs font-black text-amber-400"
+            >
+                PENGATURAN SET
+            </span>
+
+        </div>
+
+
+        <!-- =========================
+             VOLLY SET CONTROL
+        ========================== -->
+
+        <div id="volly-set-control" style="display:none">
+
+            <div class="text-[10px] text-gray-400 mb-3">
+                Atur skor setiap set. Setelah skor set selesai, tekan tombol
+                <b class="text-emerald-400">SET SELESAI</b>.
+            </div>
+
+
             <div class="grid grid-cols-1 gap-3">
-                <div>
-                    <label class="block text-[10px] text-gray-400 font-bold mb-1">CABANG OLAHRAGA / MEKANISME SKOR</label>
-                    <select id="select-sport" onchange="changeSport()" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-xl text-xs font-bold">
-                        <option value="SEPAK BOLA">SEPAK BOLA — GOAL / 2 BABAK</option>
-                        <option value="FUTSAL">FUTSAL — GOAL / 2 BABAK</option>
-                        <option value="VOLLY PUTRA">VOLLY PUTRA — 25 POINT / 3 SET</option>
-                        <option value="VOLLY PUTRI">VOLLY PUTRI — 25 POINT / 3 SET</option>
-                        <option value="BADMINTON">BADMINTON — POIN / GAME</option>
-                        <option value="TENIS MEJA">TENIS MEJA / PINGPONG — POIN / GAME</option>
-                    </select>
-                </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
-                        <label class="block text-[10px] text-gray-400 font-bold mb-2">LOGO TIM A</label>
-                        <img id="preview-logo-a" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
-                        <div id="preview-logo-a-empty" class="text-[10px] text-gray-500">Logo otomatis</div>
+                <!-- SET 1 -->
+
+                <div id="volly-card-set-1" class="volly-set-card">
+
+                    <div class="flex justify-between items-center mb-2">
+
+                        <div class="text-xs font-black text-amber-400">
+                            SET 1
+                        </div>
+
+                        <div
+                            id="volly-status-set-1"
+                            class="volly-set-status"
+                        >
+                            BELUM SELESAI
+                        </div>
+
                     </div>
-                    <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
-                        <label class="block text-[10px] text-gray-400 font-bold mb-2">LOGO TIM B</label>
-                        <img id="preview-logo-b" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
-                        <div id="preview-logo-b-empty" class="text-[10px] text-gray-500">Logo otomatis</div>
+
+
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+
+                        <div class="text-center">
+
+                            <div class="text-[10px] text-red-400 font-bold mb-1">
+                                TIM A
+                            </div>
+
+                            <div
+                                id="volly-a1-op"
+                                class="text-3xl font-black text-red-500"
+                            >
+                                0
+                            </div>
+
+                        </div>
+
+
+                        <div class="text-center">
+
+                            <div class="text-[10px] text-blue-400 font-bold mb-1">
+                                TIM B
+                            </div>
+
+                            <div
+                                id="volly-b1-op"
+                                class="text-3xl font-black text-blue-500"
+                            >
+                                0
+                            </div>
+
+                        </div>
+
                     </div>
+
+
+                    <div class="grid grid-cols-4 gap-1">
+
+                        <button
+                            onclick="changeBadmintonSetScore(0,'A',-1)"
+                            class="bg-gray-800 py-2 rounded text-xs"
+                        >
+                            A −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(0,'A',1)"
+                            class="bg-red-600 py-2 rounded text-xs"
+                        >
+                            A +
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(0,'B',-1)"
+                            class="bg-gray-800 py-2 rounded text-xs"
+                        >
+                            B −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(0,'B',1)"
+                            class="bg-blue-600 py-2 rounded text-xs"
+                        >
+                            B +
+                        </button>
+
+                    </div>
+
+
+                    <button
+                        id="btn-set-1-finish"
+                        onclick="finishVollySet(0)"
+                        class="set-complete-btn"
+                    >
+                        SET 1 SELESAI
+                    </button>
+
                 </div>
 
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="changePeriod(-1)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs">PERIODE -</button>
-                    <div id="period-label" class="bg-black/40 border border-gray-800 rounded-xl flex items-center justify-center text-[10px] font-black text-amber-400">BABAK 1</div>
-                    <button onclick="changePeriod(1)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs">PERIODE +</button>
+
+                <!-- SET 2 -->
+
+                <div id="volly-card-set-2" class="volly-set-card">
+
+                    <div class="flex justify-between items-center mb-2">
+
+                        <div class="text-xs font-black text-amber-400">
+                            SET 2
+                        </div>
+
+                        <div
+                            id="volly-status-set-2"
+                            class="volly-set-status"
+                        >
+                            BELUM SELESAI
+                        </div>
+
+                    </div>
+
+
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+
+                        <div class="text-center">
+
+                            <div class="text-[10px] text-red-400 font-bold mb-1">
+                                TIM A
+                            </div>
+
+                            <div
+                                id="volly-a2-op"
+                                class="text-3xl font-black text-red-500"
+                            >
+                                0
+                            </div>
+
+                        </div>
+
+
+                        <div class="text-center">
+
+                            <div class="text-[10px] text-blue-400 font-bold mb-1">
+                                TIM B
+                            </div>
+
+                            <div
+                                id="volly-b2-op"
+                                class="text-3xl font-black text-blue-500"
+                            >
+                                0
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="grid grid-cols-4 gap-1">
+
+                        <button
+                            onclick="changeBadmintonSetScore(1,'A',-1)"
+                            class="bg-gray-800 py-2 rounded text-xs"
+                        >
+                            A −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(1,'A',1)"
+                            class="bg-red-600 py-2 rounded text-xs"
+                        >
+                            A +
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(1,'B',-1)"
+                            class="bg-gray-800 py-2 rounded text-xs"
+                        >
+                            B −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(1,'B',1)"
+                            class="bg-blue-600 py-2 rounded text-xs"
+                        >
+                            B +
+                        </button>
+
+                    </div>
+
+
+                    <button
+                        id="btn-set-2-finish"
+                        onclick="finishVollySet(1)"
+                        class="set-complete-btn"
+                    >
+                        SET 2 SELESAI
+                    </button>
+
                 </div>
+
+
+                <!-- SET 3 -->
+
+                <div id="volly-card-set-3" class="volly-set-card">
+
+                    <div class="flex justify-between items-center mb-2">
+
+                        <div class="text-xs font-black text-amber-400">
+                            SET 3
+                        </div>
+
+                        <div
+                            id="volly-status-set-3"
+                            class="volly-set-status"
+                        >
+                            BELUM SELESAI
+                        </div>
+
+                    </div>
+
+
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+
+                        <div class="text-center">
+
+                            <div class="text-[10px] text-red-400 font-bold mb-1">
+                                TIM A
+                            </div>
+
+                            <div
+                                id="volly-a3-op"
+                                class="text-3xl font-black text-red-500"
+                            >
+                                0
+                            </div>
+
+                        </div>
+
+
+                        <div class="text-center">
+
+                            <div class="text-[10px] text-blue-400 font-bold mb-1">
+                                TIM B
+                            </div>
+
+                            <div
+                                id="volly-b3-op"
+                                class="text-3xl font-black text-blue-500"
+                            >
+                                0
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="grid grid-cols-4 gap-1">
+
+                        <button
+                            onclick="changeBadmintonSetScore(2,'A',-1)"
+                            class="bg-gray-800 py-2 rounded text-xs"
+                        >
+                            A −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(2,'A',1)"
+                            class="bg-red-600 py-2 rounded text-xs"
+                        >
+                            A +
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(2,'B',-1)"
+                            class="bg-gray-800 py-2 rounded text-xs"
+                        >
+                            B −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(2,'B',1)"
+                            class="bg-blue-600 py-2 rounded text-xs"
+                        >
+                            B +
+                        </button>
+
+                    </div>
+
+
+                    <button
+                        id="btn-set-3-finish"
+                        onclick="finishVollySet(2)"
+                        class="set-complete-btn"
+                    >
+                        SET 3 SELESAI
+                    </button>
+
+                </div>
+
             </div>
+
+
+            <!-- PEMENANG MANUAL -->
+
+            <div class="winner-box mt-4">
+
+                <label class="block text-[10px] text-gray-400 font-bold mb-2">
+                    PEMENANG PERTANDINGAN — PILIH MANUAL
+                </label>
+
+                <select
+                    id="select-winner"
+                    onchange="changeWinner()"
+                    class="w-full bg-gray-800 border border-gray-700 p-3 rounded-xl text-xs font-black text-amber-400"
+                >
+
+                    <option value="">
+                        -- BELUM DIPILIH --
+                    </option>
+
+                    <option value="A">
+                        TIM A
+                    </option>
+
+                    <option value="B">
+                        TIM B
+                    </option>
+
+                </select>
+
+
+                <div
+                    id="winner-preview"
+                    class="text-[10px] text-center text-gray-500 mt-2"
+                >
+                    Pemenang belum dipilih
+                </div>
+
+            </div>
+
+
+            <!-- TOMBOL PERTANDINGAN SELESAI -->
+
+            <button
+                onclick="finishVollyMatch()"
+                class="w-full mt-3 bg-emerald-700 hover:bg-emerald-600 py-3 rounded-xl font-black text-xs"
+            >
+                🏆 PERTANDINGAN VOLLY SELESAI
+            </button>
+
         </div>
 
-        <!-- KONTROL SKOR TIM A & B -->
-        <div class="grid grid-cols-2 gap-3">
-            <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl flex flex-col justify-between">
-                <div>
-                    <p class="text-[10px] font-bold text-red-400 mb-1">TIM A (KIRI)</p>
-                    <input type="text" id="inp-name-a" oninput="syncToFirebase()" class="w-full bg-gray-800 border border-gray-700 p-2 mb-3 rounded-xl text-xs font-bold" placeholder="Nama Tim A">
-                </div>
-                <div class="text-center bg-black/40 py-3 rounded-xl border border-gray-800 mb-3">
-                    <span id="op-score-a" class="text-4xl font-black text-red-500">0</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="changeScore('A', -1)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-black text-sm">-1</button>
-                    <button onclick="changeScore('A', 1)" class="bg-red-600 hover:bg-red-500 py-2 rounded-xl font-black text-sm">+1</button>
-                </div>
-            </div>
 
-            <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl flex flex-col justify-between">
-                <div>
-                    <p class="text-[10px] font-bold text-blue-400 mb-1">TIM B (KANAN)</p>
-                    <input type="text" id="inp-name-b" oninput="syncToFirebase()" class="w-full bg-gray-800 border border-gray-700 p-2 mb-3 rounded-xl text-xs font-bold" placeholder="Nama Tim B">
-                </div>
-                <div class="text-center bg-black/40 py-3 rounded-xl border border-gray-800 mb-3">
-                    <span id="op-score-b" class="text-4xl font-black text-blue-500">0</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="changeScore('B', -1)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-black text-sm">-1</button>
-                    <button onclick="changeScore('B', 1)" class="bg-blue-600 hover:bg-blue-500 py-2 rounded-xl font-black text-sm">+1</button>
-                </div>
-            </div>
-        </div>
+        <!-- =========================
+             BADMINTON CONTROL
+        ========================== -->
 
-        <!-- KONTROL KHUSUS SET (BADMINTON & VOLLY) -->
-        <div id="badminton-operator" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl" style="display:none">
-            <div class="flex items-center justify-between mb-3"><span id="set-op-title" class="text-xs font-black text-amber-400">PENGATURAN SET</span></div>
+        <div id="badminton-set-control">
+
             <div class="grid grid-cols-3 gap-2">
-                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 1</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(0,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(0,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(0,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(0,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
-                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 2</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(1,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(1,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(1,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(1,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
-                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 3</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(2,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(2,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(2,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(2,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
+
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2">
+
+                    <div class="text-[10px] text-amber-400 font-black text-center mb-2">
+                        SET 1
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-1">
+
+                        <button
+                            onclick="changeBadmintonSetScore(0,'A',-1)"
+                            class="bg-gray-800 py-2 rounded"
+                        >
+                            A −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(0,'A',1)"
+                            class="bg-red-600 py-2 rounded"
+                        >
+                            A +
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(0,'B',-1)"
+                            class="bg-gray-800 py-2 rounded"
+                        >
+                            B −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(0,'B',1)"
+                            class="bg-blue-600 py-2 rounded"
+                        >
+                            B +
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2">
+
+                    <div class="text-[10px] text-amber-400 font-black text-center mb-2">
+                        SET 2
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-1">
+
+                        <button
+                            onclick="changeBadmintonSetScore(1,'A',-1)"
+                            class="bg-gray-800 py-2 rounded"
+                        >
+                            A −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(1,'A',1)"
+                            class="bg-red-600 py-2 rounded"
+                        >
+                            A +
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(1,'B',-1)"
+                            class="bg-gray-800 py-2 rounded"
+                        >
+                            B −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(1,'B',1)"
+                            class="bg-blue-600 py-2 rounded"
+                        >
+                            B +
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2">
+
+                    <div class="text-[10px] text-amber-400 font-black text-center mb-2">
+                        SET 3
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-1">
+
+                        <button
+                            onclick="changeBadmintonSetScore(2,'A',-1)"
+                            class="bg-gray-800 py-2 rounded"
+                        >
+                            A −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(2,'A',1)"
+                            class="bg-red-600 py-2 rounded"
+                        >
+                            A +
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(2,'B',-1)"
+                            class="bg-gray-800 py-2 rounded"
+                        >
+                            B −
+                        </button>
+
+                        <button
+                            onclick="changeBadmintonSetScore(2,'B',1)"
+                            class="bg-blue-600 py-2 rounded"
+                        >
+                            B +
+                        </button>
+
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
 
-        <!-- KONTROL TIMER -->
-        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-xs font-bold text-amber-400">PENGATUR WAKTU (TIMER)</span>
-                <span id="op-timer-display" class="text-lg font-black text-amber-300">10:00</span>
-            </div>
-            <div class="grid grid-cols-3 gap-2">
-                <button onclick="toggleTimer()" id="btn-timer-toggle" class="bg-emerald-600 hover:bg-emerald-500 py-2 rounded-xl font-bold text-xs">MULAI</button>
-                <button onclick="resetTimer()" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs">RESET 10M</button>
-                <button onclick="adjustTimer(60)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs">+1 Menit</button>
-            </div>
-        </div>
-
-        <!-- TOMBOL AKSI UTAMA -->
-        <div class="space-y-2">
-            <button onclick="openOutputTab()" class="w-full bg-gradient-to-r from-red-600 to-rose-700 hover:opacity-90 py-3 rounded-2xl font-black text-xs shadow-lg">BUKA TAMPILAN vMIX OUTPUT</button>
-            <button onclick="finishAndSaveMatch()" class="w-full bg-emerald-700 hover:bg-emerald-600 py-3 rounded-2xl font-black text-xs shadow-lg">SELESAI & SIMPAN KE HISTORY</button>
-        </div>
     </div>
 
-    <!-- ==================== TAMPILAN vMIX OUTPUT (1280x720) ==================== -->
-    <div id="output-view" class="hidden">
-        <div class="scoreboard-root">
-            <div class="sb-main-bar">
-                <div class="sb-team" style="background:#b91c1c">
-                    <img id="ui-logo-a" class="sb-logo" src="" style="display:none">
-                    <span id="ui-team-a">TIM A</span>
-                </div>
 
-                <div id="ui-score-a" class="sb-score-box">0</div>
+    <!-- TIMER -->
 
-                <div class="sb-center">
-                    <div id="ui-sport" class="sport-badge">SEPAK BOLA</div>
-                    <div id="ui-timer" class="sb-timer">10:00</div>
-                    <div id="ui-period" class="sb-period">BABAK 1</div>
-                    <div class="sb-vs">VS</div>
-                </div>
+    <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
 
-                <div id="ui-score-b" class="sb-score-box">0</div>
+        <div class="flex justify-between items-center mb-2">
 
-                <div class="sb-team" style="background:#1d4ed8">
-                    <span id="ui-team-b">TIM B</span>
-                    <img id="ui-logo-b" class="sb-logo" src="" style="display:none">
-                </div>
-            </div>
-            
-            <div id="badminton-layout" class="bd-layout">
-                <div class="bd-header"><span id="bd-sport-title">BADMINTON</span><span id="bd-period">GAME 1</span><span id="bd-status" style="color: #fbbf24;">LIVE SEKARANG</span></div>
-                <div class="bd-grid">
-                    <div class="bd-team bd-team-a"><img id="bd-logo-a" class="bd-logo" style="display:none"><span id="bd-team-a">TIM A</span></div>
-                    <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-a1" class="bd-point bd-point-a">0</div></div>
-                    <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-a2" class="bd-point bd-point-a">0</div></div>
-                    <div class="bd-set"><div class="bd-set-title">SET 3</div><div id="bd-a3" class="bd-point bd-point-a">0</div></div>
-                    <div class="bd-total"><div id="bd-total-a" class="bd-total-score">0</div></div>
+            <span class="text-xs font-bold text-amber-400">
+                PENGATUR WAKTU (TIMER)
+            </span>
 
-                    <div class="bd-team bd-team-b"><img id="bd-logo-b" class="bd-logo" style="display:none"><span id="bd-team-b">TIM B</span></div>
-                    <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-b1" class="bd-point bd-point-b">0</div></div>
-                    <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-b2" class="bd-point bd-point-b">0</div></div>
-                    <div class="bd-set"><div class="bd-set-title">SET 3</div><div id="bd-b3" class="bd-point bd-point-b">0</div></div>
-                    <div class="bd-total"><div id="bd-total-b" class="bd-total-score">0</div></div>
-                </div>
-            </div>
+            <span
+                id="op-timer-display"
+                class="text-lg font-black text-amber-300"
+            >
+                10:00
+            </span>
+
         </div>
+
+
+        <div class="grid grid-cols-3 gap-2">
+
+            <button
+                onclick="toggleTimer()"
+                id="btn-timer-toggle"
+                class="bg-emerald-600 hover:bg-emerald-500 py-2 rounded-xl font-bold text-xs"
+            >
+                MULAI
+            </button>
+
+            <button
+                onclick="resetTimer()"
+                class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs"
+            >
+                RESET 10M
+            </button>
+
+            <button
+                onclick="adjustTimer(60)"
+                class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs"
+            >
+                +1 Menit
+            </button>
+
+        </div>
+
     </div>
 
-    <script>
-        const FIREBASE_CONFIG = {
-            apiKey: "AIzaSyBIww6sg-mRtUUx3rIylnu6qfYG6Ahfih8",
-            authDomain: "scorebordviptcup.firebaseapp.com",
-            databaseURL: "https://scorebordviptcup-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "scorebordviptcup",
-            storageBucket: "scorebordviptcup.firebasestorage.app",
-            messagingSenderId: "1001557073666",
-            appId: "1:1001557073666:web:10999e31e2b0c9add4ec1b",
-            measurementId: "G-WF9TT9MPNY"
-        };
 
-        if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
-        const dbRef = firebase.database().ref("vipt_scoreboard/live");
+    <!-- AKSI -->
 
-        const VIPT_MATCHES = [
-            {id:"", sport:"PILIH", round:"-", a:"BELUM ADA", b:"PERTANDINGAN"},
-            {id:"VP-8B1", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
-            {id:"VP-8B2", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 02 / RW 021", b:"RT 04 / RW 021"},
-            {id:"VP-8B3", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 10 / RW 021", b:"RT 08 / RW 021"},
-            {id:"VP-8B4", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 06 / RW 021", b:"RT 07 / RW 021"},
-            {id:"VW-SF1", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
-            {id:"VW-SF2", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 06 / RW 021", b:"RT 08 / RW 021"},
-            {id:"FS-SF1", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 13 / RW 021", b:"RT 04 / RW 021"},
-            {id:"FS-SF2", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 02 / RW 021"},
-            {id:"TM-1", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 08 / RW 014", b:"RT 10 / RW 014"},
-            {id:"TM-2", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 08 / RW 021"},
-            {id:"BD-1", sport:"BADMINTON", round:"BABAK SEMIFINAL", a:"RT 10 / RW 021", b:"RT 13 / RW 021"}
-        ];
+    <div class="space-y-2">
 
-        const TEAM_LOGOS = {
-            "RT 02/RW 021": "assets/logos/RT_02-RW_021.png",
-            "RT 04/RW 021": "assets/logos/RT_04-RW_021.png",
-            "RT 06/RW 021": "assets/logos/RT_06-RW_021.png",
-            "RT 07/RW 014": "assets/logos/RT_07-RW_014.png",
-            "RT 07/RW 021": "assets/logos/RT_07-RW_021.png",
-            "RT 08/RW 014": "assets/logos/RT_08-RW_014.png",
-            "RT 08/RW 021": "assets/logos/RT_08-RW_021.png",
-            "RT 09/RW 014": "assets/logos/RT_09-RW_014.png",
-            "RT 10/RW 014": "assets/logos/RT_10-RW_014.png",
-            "RT 10/RW 021": "assets/logos/RT_10-RW_021.png",
-            "RT 11/RW 021": "assets/logos/RT_11-RW_021.png",
-            "RT 13/RW 021": "assets/logos/RT_13-RW_021.png"
-        };
+        <button
+            onclick="openOutputTab()"
+            class="w-full bg-gradient-to-r from-red-600 to-rose-700 hover:opacity-90 py-3 rounded-2xl font-black text-xs shadow-lg"
+        >
+            BUKA TAMPILAN vMIX OUTPUT
+        </button>
 
-        function normalizeTeamName(name) {
-            return String(name || "").toUpperCase().replace(/[.]/g, "").replace(/\s*\/\s*/g, "/").replace(/\s+/g, " ").trim();
+        <button
+            onclick="finishAndSaveMatch()"
+            class="w-full bg-emerald-700 hover:bg-emerald-600 py-3 rounded-2xl font-black text-xs shadow-lg"
+        >
+            SELESAI & SIMPAN KE HISTORY
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     TAMPILAN vMIX OUTPUT
+========================================================= -->
+
+<div id="output-view" class="hidden">
+
+    <div class="scoreboard-root">
+
+        <!-- NORMAL SCOREBOARD -->
+
+        <div class="sb-main-bar">
+
+            <div
+                class="sb-team"
+                style="background:#b91c1c"
+            >
+
+                <img
+                    id="ui-logo-a"
+                    class="sb-logo"
+                    src=""
+                    style="display:none"
+                >
+
+                <span id="ui-team-a">
+                    TIM A
+                </span>
+
+            </div>
+
+
+            <div
+                id="ui-score-a"
+                class="sb-score-box"
+            >
+                0
+            </div>
+
+
+            <div class="sb-center">
+
+                <div
+                    id="ui-sport"
+                    class="sport-badge"
+                >
+                    SEPAK BOLA
+                </div>
+
+                <div
+                    id="ui-timer"
+                    class="sb-timer"
+                >
+                    10:00
+                </div>
+
+                <div
+                    id="ui-period"
+                    class="sb-period"
+                >
+                    BABAK 1
+                </div>
+
+                <div class="sb-vs">
+                    VS
+                </div>
+
+            </div>
+
+
+            <div
+                id="ui-score-b"
+                class="sb-score-box"
+            >
+                0
+            </div>
+
+
+            <div
+                class="sb-team"
+                style="background:#1d4ed8"
+            >
+
+                <span id="ui-team-b">
+                    TIM B
+                </span>
+
+                <img
+                    id="ui-logo-b"
+                    class="sb-logo"
+                    src=""
+                    style="display:none"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             SET LAYOUT VOLLY / BADMINTON
+        ====================================================== -->
+
+        <div
+            id="badminton-layout"
+            class="bd-layout"
+        >
+
+            <div class="bd-header">
+
+                <span id="bd-sport-title">
+                    VOLLY
+                </span>
+
+                <span id="bd-period">
+                    SET 1
+                </span>
+
+                <span
+                    id="bd-status"
+                    style="color:#fbbf24;"
+                >
+                    LIVE SEKARANG
+                </span>
+
+            </div>
+
+
+            <div class="bd-grid">
+
+                <!-- TIM A -->
+
+                <div class="bd-team bd-team-a">
+
+                    <img
+                        id="bd-logo-a"
+                        class="bd-logo"
+                        style="display:none"
+                    >
+
+                    <span id="bd-team-a">
+                        TIM A
+                    </span>
+
+                </div>
+
+
+                <!-- SET 1 -->
+
+                <div class="bd-set">
+
+                    <div class="bd-set-title">
+                        SET 1
+                    </div>
+
+                    <div
+                        id="bd-a1"
+                        class="bd-point bd-point-a"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <!-- SET 2 -->
+
+                <div class="bd-set">
+
+                    <div class="bd-set-title">
+                        SET 2
+                    </div>
+
+                    <div
+                        id="bd-a2"
+                        class="bd-point bd-point-a"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <!-- SET 3 -->
+
+                <div class="bd-set">
+
+                    <div class="bd-set-title">
+                        SET 3
+                    </div>
+
+                    <div
+                        id="bd-a3"
+                        class="bd-point bd-point-a"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <!-- TOTAL A -->
+
+                <div class="bd-total">
+
+                    <div
+                        id="bd-total-a"
+                        class="bd-total-score"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <!-- TIM B -->
+
+                <div class="bd-team bd-team-b">
+
+                    <img
+                        id="bd-logo-b"
+                        class="bd-logo"
+                        style="display:none"
+                    >
+
+                    <span id="bd-team-b">
+                        TIM B
+                    </span>
+
+                </div>
+
+
+                <!-- SET 1 B -->
+
+                <div class="bd-set">
+
+                    <div class="bd-set-title">
+                        SET 1
+                    </div>
+
+                    <div
+                        id="bd-b1"
+                        class="bd-point bd-point-b"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <!-- SET 2 B -->
+
+                <div class="bd-set">
+
+                    <div class="bd-set-title">
+                        SET 2
+                    </div>
+
+                    <div
+                        id="bd-b2"
+                        class="bd-point bd-point-b"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <!-- SET 3 B -->
+
+                <div class="bd-set">
+
+                    <div class="bd-set-title">
+                        SET 3
+                    </div>
+
+                    <div
+                        id="bd-b3"
+                        class="bd-point bd-point-b"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <!-- TOTAL B -->
+
+                <div class="bd-total">
+
+                    <div
+                        id="bd-total-b"
+                        class="bd-total-score"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* =========================================================
+       FIREBASE
+    ========================================================== */
+
+    const FIREBASE_CONFIG = {
+
+        apiKey: "AIzaSyBIww6sg-mRtUUx3rIylnu6qfYG6Ahfih8",
+
+        authDomain: "scorebordviptcup.firebaseapp.com",
+
+        databaseURL:
+            "https://scorebordviptcup-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+        projectId:
+            "scorebordviptcup",
+
+        storageBucket:
+            "scorebordviptcup.firebasestorage.app",
+
+        messagingSenderId:
+            "1001557073666",
+
+        appId:
+            "1:1001557073666:web:10999e31e2b0c9add4ec1b",
+
+        measurementId:
+            "G-WF9TT9MPNY"
+    };
+
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+    }
+
+
+    const dbRef =
+        firebase.database().ref("vipt_scoreboard/live");
+
+
+    /* =========================================================
+       DATA PERTANDINGAN
+    ========================================================== */
+
+    const VIPT_MATCHES = [
+
+        {
+            id:"",
+            sport:"PILIH",
+            round:"-",
+            a:"BELUM ADA",
+            b:"PERTANDINGAN"
+        },
+
+        {
+            id:"VP-8B1",
+            sport:"VOLLY PUTRA",
+            round:"BABAK 8 BESAR",
+            a:"RT 09 / RW 014",
+            b:"RT 08 / RW 014"
+        },
+
+        {
+            id:"VP-8B2",
+            sport:"VOLLY PUTRA",
+            round:"BABAK 8 BESAR",
+            a:"RT 02 / RW 021",
+            b:"RT 04 / RW 021"
+        },
+
+        {
+            id:"VP-8B3",
+            sport:"VOLLY PUTRA",
+            round:"BABAK 8 BESAR",
+            a:"RT 10 / RW 021",
+            b:"RT 08 / RW 021"
+        },
+
+        {
+            id:"VP-8B4",
+            sport:"VOLLY PUTRA",
+            round:"BABAK 8 BESAR",
+            a:"RT 06 / RW 021",
+            b:"RT 07 / RW 021"
+        },
+
+        {
+            id:"VW-SF1",
+            sport:"VOLLY PUTRI",
+            round:"BABAK SEMIFINAL",
+            a:"RT 09 / RW 014",
+            b:"RT 08 / RW 014"
+        },
+
+        {
+            id:"VW-SF2",
+            sport:"VOLLY PUTRI",
+            round:"BABAK SEMIFINAL",
+            a:"RT 06 / RW 021",
+            b:"RT 08 / RW 021"
+        },
+
+        {
+            id:"FS-SF1",
+            sport:"FUTSAL",
+            round:"BABAK SEMIFINAL",
+            a:"RT 13 / RW 021",
+            b:"RT 04 / RW 021"
+        },
+
+        {
+            id:"FS-SF2",
+            sport:"FUTSAL",
+            round:"BABAK SEMIFINAL",
+            a:"RT 11 / RW 021",
+            b:"RT 02 / RW 021"
+        },
+
+        {
+            id:"TM-1",
+            sport:"TENIS MEJA",
+            round:"BABAK SEMIFINAL",
+            a:"RT 08 / RW 014",
+            b:"RT 10 / RW 014"
+        },
+
+        {
+            id:"TM-2",
+            sport:"TENIS MEJA",
+            round:"BABAK SEMIFINAL",
+            a:"RT 11 / RW 021",
+            b:"RT 08 / RW 021"
+        },
+
+        {
+            id:"BD-1",
+            sport:"BADMINTON",
+            round:"BABAK SEMIFINAL",
+            a:"RT 10 / RW 021",
+            b:"RT 13 / RW 021"
         }
 
-        function getAutoLogoForTeam(name) {
-            return TEAM_LOGOS[normalizeTeamName(name)] || "";
-        }
+    ];
 
-        let state = {
-            matchId: "",
-            sport: "SEPAK BOLA",
-            period: "BABAK 1",
-            periodNumber: 1,
-            logos: { a: "", b: "" },
-            status: "LIVE SEKARANG",
-            timer: 600,
-            timerRunning: false,
-            teamA: { name: "BELUM ADA JADWAL", score: 0 },
-            teamB: { name: "BELUM ADA JADWAL", score: 0 },
-            badmintonSets: [{a:0,b:0},{a:0,b:0},{a:0,b:0}]
-        };
 
-        let timerInterval = null;
+    /* =========================================================
+       LOGO
+    ========================================================== */
 
-        function populateMatchDropdown() {
-            const select = document.getElementById('select-match-list');
-            select.innerHTML = '<option value="">-- PILIH PERTANDINGAN (KOSONG) --</option>';
-            VIPT_MATCHES.forEach(m => {
-                if(!m.id) return;
-                select.innerHTML += `<option value="${m.id}">[${m.sport}] ${m.a} vs ${m.b}</option>`;
-            });
-        }
+    const TEAM_LOGOS = {
 
-        function applySelectedMatch() {
-            const id = document.getElementById('select-match-list').value;
-            if (!id) {
-                state.matchId = "";
-                state.sport = "SEPAK BOLA";
-                state.period = "BABAK 1";
-                state.periodNumber = 1;
-                state.status = "BELUM MULAI";
-                state.teamA = { name: "BELUM ADA JADWAL", score: 0 };
-                state.teamB = { name: "BELUM ADA JADWAL", score: 0 };
-                state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
-            } else {
-                const m = VIPT_MATCHES.find(x => x.id === id);
-                state.matchId = m.id;
-                state.sport = normalizeSport(m.sport);
-                state.periodNumber = 1;
-                state.period = getDefaultPeriod(state.sport);
-                state.status = "LIVE SEKARANG";
-                state.teamA = { name: m.a, score: 0 };
-                state.teamB = { name: m.b, score: 0 };
-                state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
+        "RT 02/RW 021":
+            "assets/logos/RT_02-RW_021.png",
+
+        "RT 04/RW 021":
+            "assets/logos/RT_04-RW_021.png",
+
+        "RT 06/RW 021":
+            "assets/logos/RT_06-RW_021.png",
+
+        "RT 07/RW 014":
+            "assets/logos/RT_07-RW_014.png",
+
+        "RT 07/RW 021":
+            "assets/logos/RT_07-RW_021.png",
+
+        "RT 08/RW 014":
+            "assets/logos/RT_08-RW_014.png",
+
+        "RT 08/RW 021":
+            "assets/logos/RT_08-RW_021.png",
+
+        "RT 09/RW 014":
+            "assets/logos/RT_09-RW_014.png",
+
+        "RT 10/RW 014":
+            "assets/logos/RT_10-RW_014.png",
+
+        "RT 10/RW 021":
+            "assets/logos/RT_10-RW_021.png",
+
+        "RT 11/RW 021":
+            "assets/logos/RT_11-RW_021.png",
+
+        "RT 13/RW 021":
+            "assets/logos/RT_13-RW_021.png"
+
+    };
+
+
+    function normalizeTeamName(name) {
+
+        return String(name || "")
+            .toUpperCase()
+            .replace(/[.]/g, "")
+            .replace(/\s*\/\s*/g, "/")
+            .replace(/\s+/g, " ")
+            .trim();
+
+    }
+
+
+    function getAutoLogoForTeam(name) {
+
+        return TEAM_LOGOS[
+            normalizeTeamName(name)
+        ] || "";
+
+    }
+
+
+    /* =========================================================
+       STATE UTAMA
+    ========================================================== */
+
+    let state = {
+
+        matchId:"",
+
+        sport:"SEPAK BOLA",
+
+        period:"BABAK 1",
+
+        periodNumber:1,
+
+        logos:{
+            a:"",
+            b:""
+        },
+
+        status:"LIVE SEKARANG",
+
+        timer:600,
+
+        timerRunning:false,
+
+        teamA:{
+            name:"BELUM ADA JADWAL",
+            score:0
+        },
+
+        teamB:{
+            name:"BELUM ADA JADWAL",
+            score:0
+        },
+
+        /*
+         * SKOR SET
+         *
+         * index 0 = SET 1
+         * index 1 = SET 2
+         * index 2 = SET 3
+         */
+
+        badmintonSets:[
+            {
+                a:0,
+                b:0
+            },
+            {
+                a:0,
+                b:0
+            },
+            {
+                a:0,
+                b:0
             }
-            updateOperatorInputs();
-            updateVmixOutputFromState();
-            syncToFirebase();
-        }
+        ],
 
-        function normalizeSport(sport) {
-            const s = String(sport || "").toUpperCase();
-            if (s.includes("VOLLY")) return "VOLLY PUTRA";
-            if (s.includes("BADMINTON")) return "BADMINTON";
-            if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
-            if (s.includes("FUTSAL")) return "FUTSAL";
-            return "SEPAK BOLA";
-        }
+        /*
+         * STATUS SET VOLLY
+         */
 
-        function getDefaultPeriod(sport) {
-            sport = normalizeSport(sport);
-            if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "BABAK 1";
-            if (sport.includes("VOLLY")) return "SET 1";
-            return "GAME 1";
-        }
+        setStatus:[
+            false,
+            false,
+            false
+        ],
 
-        function updateSportUI() {
-            const sport = normalizeSport(state.sport);
-            document.getElementById('select-sport').value = sport;
-            document.getElementById('period-label').textContent = state.period;
-            document.getElementById('ui-sport').textContent = sport;
-        }
+        /*
+         * PEMENANG MANUAL
+         *
+         * "" = belum dipilih
+         * "A" = Tim A
+         * "B" = Tim B
+         */
 
-        function changeSport() {
-            state.sport = normalizeSport(document.getElementById('select-sport').value);
-            state.periodNumber = 1;
-            state.period = getDefaultPeriod(state.sport);
-            state.teamA.score = 0;
-            state.teamB.score = 0;
-            state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
-            updateOperatorInputs();
-            updateVmixOutputFromState();
-            updateSportUI();
-            syncToFirebase();
-        }
+        winner:"",
 
-        function changePeriod(delta) {
-            const sport = normalizeSport(state.sport);
-            const max = 3;
-            state.periodNumber = Math.max(1, Math.min(max, (Number(state.periodNumber) || 1) + delta));
+        winnerName:""
 
-            if (sport === "SEPAK BOLA" || sport === "FUTSAL") {
-                state.period = "BABAK " + state.periodNumber;
-            } else if (sport.includes("VOLLY")) {
-                state.period = "SET " + state.periodNumber;
-            } else {
-                state.period = "GAME " + state.periodNumber;
-            }
+    };
 
-            updateOperatorInputs();
-            updateVmixOutputFromState();
-            updateSportUI();
-            syncToFirebase();
-        }
 
-        function updateLogoOutput() {
-            const logoA = document.getElementById('ui-logo-a');
-            const logoB = document.getElementById('ui-logo-b');
-            const previewA = document.getElementById('preview-logo-a');
-            const previewB = document.getElementById('preview-logo-b');
-            const emptyA = document.getElementById('preview-logo-a-empty');
-            const emptyB = document.getElementById('preview-logo-b-empty');
+    let timerInterval = null;
 
-            const logoAData = getAutoLogoForTeam(state.teamA?.name);
-            const logoBData = getAutoLogoForTeam(state.teamB?.name);
 
-            if (logoA) { logoA.src = logoAData; logoA.style.display = logoAData ? "block" : "none"; }
-            if (logoB) { logoB.src = logoBData; logoB.style.display = logoBData ? "block" : "none"; }
-            if (previewA) { previewA.src = logoAData; previewA.classList.toggle('hidden', !logoAData); }
-            if (previewB) { previewB.src = logoBData; previewB.classList.toggle('hidden', !logoBData); }
-            if (emptyA) emptyA.style.display = logoAData ? 'none' : 'block';
-            if (emptyB) emptyB.style.display = logoBData ? 'none' : 'block';
-        }
+    /* =========================================================
+       DROPDOWN MATCH
+    ========================================================== */
 
-        function ensureBadmintonSets() {
-            if (!Array.isArray(state.badmintonSets) || state.badmintonSets.length !== 3) {
-                state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
-            }
-            state.badmintonSets = state.badmintonSets.map(x => ({a:Math.max(0,Number(x?.a)||0), b:Math.max(0,Number(x?.b)||0)}));
-        }
+    function populateMatchDropdown() {
 
-        function getBadmintonSetWins() {
-            ensureBadmintonSets();
-            let a=0,b=0;
-            state.badmintonSets.forEach(s => { if(s.a>s.b) a++; else if(s.b>s.a) b++; });
-            return {a,b};
-        }
+        const select =
+            document.getElementById(
+                'select-match-list'
+            );
 
-        function updateBadmintonOutput() {
-            ensureBadmintonSets();
-            const wins = getBadmintonSetWins();
-            ['1','2','3'].forEach((n,i)=>{
-                const a = document.getElementById('bd-a'+n), b = document.getElementById('bd-b'+n);
-                if(a) a.textContent = state.badmintonSets[i].a;
-                if(b) b.textContent = state.badmintonSets[i].b;
-            });
-            const totalA = document.getElementById('bd-total-a'), totalB = document.getElementById('bd-total-b'); 
-            if(totalA) totalA.textContent = wins.a; 
-            if(totalB) totalB.textContent = wins.b;
-            
-            const ta = document.getElementById('bd-team-a'), tb = document.getElementById('bd-team-b');
-            if(ta) ta.textContent = state.teamA?.name || 'TIM A'; 
-            if(tb) tb.textContent = state.teamB?.name || 'TIM B';
-            
-            const per = document.getElementById('bd-period'); 
-            if(per) per.textContent = state.period || 'SET 1';
-            
-            const st = document.getElementById('bd-status'); 
-            if(st) {
-                st.textContent = state.status || 'LIVE SEKARANG';
-                // Memberikan warna merah terang jika statusnya selesai / pertandingan selesai
-                if(state.status.includes("SELESAI")) {
-                    st.style.color = "#fca5a5"; 
-                } else {
-                    st.style.color = "#fbbf24";
-                }
-            }
-            
-            const sportTitle = document.getElementById('bd-sport-title');
-            if(sportTitle) sportTitle.textContent = normalizeSport(state.sport);
+        select.innerHTML =
+            '<option value="">-- PILIH PERTANDINGAN (KOSONG) --</option>';
 
-            const la = document.getElementById('bd-logo-a'), lb = document.getElementById('bd-logo-b');
-            const logoA = getAutoLogoForTeam(state.teamA?.name), logoB = getAutoLogoForTeam(state.teamB?.name);
-            if(la){la.src=logoA; la.style.display=logoA?'block':'none';} 
-            if(lb){lb.src=logoB; lb.style.display=logoB?'block':'none';}
-        }
+        VIPT_MATCHES.forEach(m => {
 
-        function updateBadmintonLayoutVisibility() {
-            const sport = normalizeSport(state.sport);
-            const isSetLayout = sport === 'BADMINTON' || sport.includes('VOLLY');
-            const old = document.querySelector('.sb-main-bar'), bd = document.getElementById('badminton-layout');
-            if(old) old.style.display = isSetLayout ? 'none' : 'flex';
-            if(bd) bd.style.display = isSetLayout ? 'flex' : 'none';
-            if(isSetLayout) updateBadmintonOutput();
-        }
+            if (!m.id) return;
 
-        function changeBadmintonSetScore(setIndex, team, val) {
-            ensureBadmintonSets();
-            const key = team === 'A' ? 'a' : 'b';
-            state.badmintonSets[setIndex][key] = Math.max(0, state.badmintonSets[setIndex][key] + val);
-            state.teamA.score = getBadmintonSetWins().a; 
-            state.teamB.score = getBadmintonSetWins().b;
-            updateOperatorInputs(); 
-            updateVmixOutputFromState(); 
-            syncToFirebase();
-        }
+            select.innerHTML += `
+                <option value="${m.id}">
+                    [${m.sport}] ${m.a} vs ${m.b}
+                </option>
+            `;
 
-        function updateVmixOutputFromState() {
-            const sportText = normalizeSport(state.sport);
-            document.getElementById('ui-sport').textContent = sportText;
-            document.getElementById('ui-period').textContent = state.period || getDefaultPeriod(sportText);
-            document.getElementById('ui-score-a').textContent = Number(state.teamA?.score || 0);
-            document.getElementById('ui-score-b').textContent = Number(state.teamB?.score || 0);
-            document.getElementById('ui-team-a').textContent = state.teamA?.name || "TIM A";
-            document.getElementById('ui-team-b').textContent = state.teamB?.name || "TIM B";
-
-            updateLogoOutput();
-            updateBadmintonLayoutVisibility();
-
-            const timerEl = document.getElementById('ui-timer');
-            if (timerEl) {
-                const isCountdownSport = sportText === "SEPAK BOLA" || sportText === "FUTSAL";
-                timerEl.style.display = "block";
-                timerEl.textContent = isCountdownSport ? formatTimer(state.timer) : formatLocalClock();
-            }
-        }
-
-        function updateOperatorInputs() {
-            document.getElementById('inp-name-a').value = state.teamA.name;
-            document.getElementById('inp-name-b').value = state.teamB.name;
-            document.getElementById('inp-period').value = state.period;
-            document.getElementById('select-status').value = state.status || "LIVE SEKARANG";
-            document.getElementById('op-score-a').textContent = state.teamA.score;
-            document.getElementById('op-score-b').textContent = state.teamB.score;
-            updateSportUI();
-            updateLogoOutput();
-            
-            const sport = normalizeSport(state.sport);
-            const bdOp = document.getElementById('badminton-operator');
-            if(bdOp) bdOp.style.display = (sport === 'BADMINTON' || sport.includes('VOLLY')) ? 'block' : 'none';
-            
-            ensureBadmintonSets();
-            updateBadmintonOutput();
-        }
-
-        function changeScore(team, val) {
-            if (team === 'A') {
-                state.teamA.score = Math.max(0, state.teamA.score + val);
-                document.getElementById('op-score-a').textContent = state.teamA.score;
-            } else {
-                state.teamB.score = Math.max(0, state.teamB.score + val);
-                document.getElementById('op-score-b').textContent = state.teamB.score;
-            }
-            syncToFirebase();
-        }
-
-        function syncToFirebase() {
-            state.teamA.name = document.getElementById('inp-name-a').value;
-            state.teamB.name = document.getElementById('inp-name-b').value;
-            state.period = document.getElementById('inp-period').value;
-            state.status = document.getElementById('select-status').value;
-            state.sport = normalizeSport(state.sport);
-            dbRef.set(state);
-        }
-
-        function formatTimer(sec) {
-            const m = Math.floor(sec / 60);
-            const s = sec % 60;
-            return String(m).padStart(2, '0') + ":" + String(s).padStart(2, '0');
-        }
-
-        function formatLocalClock() {
-            return new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(new Date());
-        }
-
-        function updateTimerDisplay() {
-            document.getElementById('op-timer-display').textContent = formatTimer(state.timer);
-        }
-
-        function toggleTimer() {
-            state.timerRunning = !state.timerRunning;
-            const btn = document.getElementById('btn-timer-toggle');
-            if (state.timerRunning) {
-                btn.textContent = "BERHENTI";
-                btn.className = "bg-rose-600 hover:bg-rose-500 py-2 rounded-xl font-bold text-xs";
-                startInterval();
-            } else {
-                btn.textContent = "MULAI";
-                btn.className = "bg-emerald-600 hover:bg-emerald-500 py-2 rounded-xl font-bold text-xs";
-                stopInterval();
-            }
-            syncToFirebase();
-        }
-
-        function startInterval() {
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if (state.timerRunning && state.timer > 0) {
-                    state.timer--;
-                    updateTimerDisplay();
-                    syncToFirebase();
-                } else if (state.timer <= 0 && state.timerRunning) {
-                    state.timerRunning = false;
-                    toggleTimer();
-                }
-            }, 1000);
-        }
-
-        function stopInterval() { if (timerInterval) clearInterval(timerInterval); }
-        function resetTimer() { state.timer = 600; state.timerRunning = false; updateTimerDisplay(); syncToFirebase(); }
-        function adjustTimer(sec) { state.timer = Math.max(0, state.timer + sec); updateTimerDisplay(); syncToFirebase(); }
-
-        function finishAndSaveMatch() {
-            if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke history?")) return;
-            state.status = "PERTANDINGAN SELESAI";
-            state.timerRunning = false;
-            syncToFirebase();
-            firebase.database().ref("vipt_scoreboard/history").push(state);
-            alert("Pertandingan berhasil diselesaikan dan disimpan ke History Match Center!");
-        }
-
-        function openOutputTab() { window.open(window.location.href + '?mode=output', '_blank'); }
-        function exitTestOutput() { location.reload(); }
-
-        dbRef.on('value', (snapshot) => {
-            const raw = snapshot.val();
-            if(raw) {
-                state = raw;
-                ensureBadmintonSets();
-                updateTimerDisplay();
-                updateVmixOutputFromState();
-                updateSportUI();
-                updateLogoOutput();
-                updateOperatorInputs();
-            }
         });
 
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('mode') === 'output') {
-            document.getElementById('operator-view').classList.add('hidden');
-            document.getElementById('output-view').classList.remove('hidden');
-            document.getElementById('btn-back-operator').style.display = 'block';
+    }
+
+
+    /* =========================================================
+       LOAD MATCH
+    ========================================================== */
+
+    function applySelectedMatch() {
+
+        const id =
+            document.getElementById(
+                'select-match-list'
+            ).value;
+
+
+        if (!id) {
+
+            state.matchId = "";
+
+            state.sport = "SEPAK BOLA";
+
+            state.period = "BABAK 1";
+
+            state.periodNumber = 1;
+
+            state.status = "BELUM MULAI";
+
+            state.teamA = {
+                name:"BELUM ADA JADWAL",
+                score:0
+            };
+
+            state.teamB = {
+                name:"BELUM ADA JADWAL",
+                score:0
+            };
+
+            resetSetData();
+
+        } else {
+
+            const m =
+                VIPT_MATCHES.find(
+                    x => x.id === id
+                );
+
+
+            state.matchId = m.id;
+
+            state.sport =
+                normalizeSport(m.sport);
+
+            state.periodNumber = 1;
+
+            state.period =
+                getDefaultPeriod(
+                    state.sport
+                );
+
+            state.status =
+                "LIVE SEKARANG";
+
+
+            state.teamA = {
+                name:m.a,
+                score:0
+            };
+
+
+            state.teamB = {
+                name:m.b,
+                score:0
+            };
+
+
+            resetSetData();
+
         }
 
-        populateMatchDropdown();
-        ensureBadmintonSets();
+
         updateOperatorInputs();
-        updateTimerDisplay();
+
         updateVmixOutputFromState();
-    </script>
+
+        syncToFirebase();
+
+    }
+
+
+    /* =========================================================
+       RESET SET
+    ========================================================== */
+
+    function resetSetData() {
+
+        state.badmintonSets = [
+
+            {
+                a:0,
+                b:0
+            },
+
+            {
+                a:0,
+                b:0
+            },
+
+            {
+                a:0,
+                b:0
+            }
+
+        ];
+
+
+        state.setStatus = [
+            false,
+            false,
+            false
+        ];
+
+
+        state.winner = "";
+
+        state.winnerName = "";
+
+    }
+
+
+    /* =========================================================
+       SPORT
+    ========================================================== */
+
+    function normalizeSport(sport) {
+
+        const s =
+            String(sport || "")
+                .toUpperCase();
+
+
+        if (s.includes("VOLLY")) {
+
+            if (s.includes("PUTRI")) {
+                return "VOLLY PUTRI";
+            }
+
+            return "VOLLY PUTRA";
+        }
+
+
+        if (s.includes("BADMINTON")) {
+            return "BADMINTON";
+        }
+
+
+        if (
+            s.includes("TENIS MEJA") ||
+            s.includes("PINGPONG")
+        ) {
+
+            return "TENIS MEJA";
+
+        }
+
+
+        if (s.includes("FUTSAL")) {
+            return "FUTSAL";
+        }
+
+
+        return "SEPAK BOLA";
+
+    }
+
+
+    function getDefaultPeriod(sport) {
+
+        sport =
+            normalizeSport(sport);
+
+
+        if (
+            sport === "SEPAK BOLA" ||
+            sport === "FUTSAL"
+        ) {
+
+            return "BABAK 1";
+
+        }
+
+
+        if (sport.includes("VOLLY")) {
+
+            return "SET 1";
+
+        }
+
+
+        return "GAME 1";
+
+    }
+
+
+    /* =========================================================
+       SPORT UI
+    ========================================================== */
+
+    function updateSportUI() {
+
+        const sport =
+            normalizeSport(state.sport);
+
+
+        document.getElementById(
+            'select-sport'
+        ).value = sport;
+
+
+        document.getElementById(
+            'period-label'
+        ).textContent = state.period;
+
+
+        document.getElementById(
+            'ui-sport'
+        ).textContent = sport;
+
+    }
+
+
+    /* =========================================================
+       GANTI SPORT
+    ========================================================== */
+
+    function changeSport() {
+
+        state.sport =
+            normalizeSport(
+                document.getElementById(
+                    'select-sport'
+                ).value
+            );
+
+
+        state.periodNumber = 1;
+
+        state.period =
+            getDefaultPeriod(
+                state.sport
+            );
+
+
+        state.teamA.score = 0;
+
+        state.teamB.score = 0;
+
+
+        resetSetData();
+
+
+        updateOperatorInputs();
+
+        updateVmixOutputFromState();
+
+        updateSportUI();
+
+        syncToFirebase();
+
+    }
+
+
+    /* =========================================================
+       GANTI PERIODE
+    ========================================================== */
+
+    function changePeriod(delta) {
+
+        const sport =
+            normalizeSport(state.sport);
+
+
+        const max = 3;
+
+
+        state.periodNumber =
+            Math.max(
+                1,
+                Math.min(
+                    max,
+                    (Number(state.periodNumber) || 1)
+                    + delta
+                )
+            );
+
+
+        if (
+            sport === "SEPAK BOLA" ||
+            sport === "FUTSAL"
+        ) {
+
+            state.period =
+                "BABAK " +
+                state.periodNumber;
+
+        }
+
+        else if (
+            sport.includes("VOLLY")
+        ) {
+
+            state.period =
+                "SET " +
+                state.periodNumber;
+
+        }
+
+        else {
+
+            state.period =
+                "GAME " +
+                state.periodNumber;
+
+        }
+
+
+        updateOperatorInputs();
+
+        updateVmixOutputFromState();
+
+        updateSportUI();
+
+        syncToFirebase();
+
+    }
+
+
+    /* =========================================================
+       LOGO
+    ========================================================== */
+
+    function updateLogoOutput() {
+
+        const logoA =
+            document.getElementById(
+                'ui-logo-a'
+            );
+
+        const logoB =
+            document.getElementById(
+                'ui-logo-b'
+            );
+
+
+        const previewA =
+            document.getElementById(
+                'preview-logo-a'
+            );
+
+        const previewB =
+            document.getElementById(
+                'preview-logo-b'
+            );
+
+
+        const emptyA =
+            document.getElementById(
+                'preview-logo-a-empty'
+            );
+
+        const emptyB =
+            document.getElementById(
+                'preview-logo-b-empty'
+            );
+
+
+        const logoAData =
+            getAutoLogoForTeam(
+                state.teamA?.name
+            );
+
+
+        const logoBData =
+            getAutoLogoForTeam(
+                state.teamB?.name
+            );
+
+
+        if (logoA) {
+
+            logoA.src = logoAData;
+
+            logoA.style.display =
+                logoAData
+                ? "block"
+                : "none";
+
+        }
+
+
+        if (logoB) {
+
+            logoB.src = logoBData;
+
+            logoB.style.display =
+                logoBData
+                ? "block"
+                : "none";
+
+        }
+
+
+        if (previewA) {
+
+            previewA.src = logoAData;
+
+            previewA.classList.toggle(
+                'hidden',
+                !logoAData
+            );
+
+        }
+
+
+        if (previewB) {
+
+            previewB.src = logoBData;
+
+            previewB.classList.toggle(
+                'hidden',
+                !logoBData
+            );
+
+        }
+
+
+        if (emptyA) {
+
+            emptyA.style.display =
+                logoAData
+                ? 'none'
+                : 'block';
+
+        }
+
+
+        if (emptyB) {
+
+            emptyB.style.display =
+                logoBData
+                ? 'none'
+                : 'block';
+
+        }
+
+    }
+
+
+    /* =========================================================
+       VALIDASI SET
+    ========================================================== */
+
+    function ensureBadmintonSets() {
+
+        if (
+            !Array.isArray(
+                state.badmintonSets
+            ) ||
+            state.badmintonSets.length !== 3
+        ) {
+
+            state.badmintonSets = [
+
+                {
+                    a:0,
+                    b:0
+                },
+
+                {
+                    a:0,
+                    b:0
+                },
+
+                {
+                    a:0,
+                    b:0
+                }
+
+            ];
+
+        }
+
+
+        state.badmintonSets =
+            state.badmintonSets.map(
+                x => ({
+
+                    a:
+                        Math.max(
+                            0,
+                            Number(x?.a) || 0
+                        ),
+
+                    b:
+                        Math.max(
+                            0,
+                            Number(x?.b) || 0
+                        )
+
+                })
+            );
+
+
+        if (
+            !Array.isArray(
+                state.setStatus
+            ) ||
+            state.setStatus.length !== 3
+        ) {
+
+            state.setStatus = [
+                false,
+                false,
+                false
+            ];
+
+        }
+
+
+        state.setStatus =
+            state.setStatus.map(
+                x => Boolean(x)
+            );
+
+
+        if (
+            typeof state.winner !== "string"
+        ) {
+
+            state.winner = "";
+
+        }
+
+
+        if (
+            typeof state.winnerName !== "string"
+        ) {
+
+            state.winnerName = "";
+
+        }
+
+    }
+
+
+    /* =========================================================
+       HITUNG KEMENANGAN SET
+    ========================================================== */
+
+    function getBadmintonSetWins() {
+
+        ensureBadmintonSets();
+
+
+        let a = 0;
+
+        let b = 0;
+
+
+        state.badmintonSets.forEach(
+            s => {
+
+                if (s.a > s.b) {
+
+                    a++;
+
+                }
+
+                else if (s.b > s.a) {
+
+                    b++;
+
+                }
+
+            }
+        );
+
+
+        return {
+            a,
+            b
+        };
+
+    }
+
+
+    /* =========================================================
+       UPDATE OUTPUT SET
+    ========================================================== */
+
+    function updateBadmintonOutput() {
+
+        ensureBadmintonSets();
+
+
+        const wins =
+            getBadmintonSetWins();
+
+
+        ['1','2','3'].forEach(
+            (n,i) => {
+
+                const a =
+                    document.getElementById(
+                        'bd-a' + n
+                    );
+
+                const b =
+                    document.getElementById(
+                        'bd-b' + n
+                    );
+
+
+                if (a) {
+
+                    a.textContent =
+                        state.badmintonSets[i].a;
+
+                }
+
+
+                if (b) {
+
+                    b.textContent =
+                        state.badmintonSets[i].b;
+
+                }
+
+            }
+        );
+
+
+        const totalA =
+            document.getElementById(
+                'bd-total-a'
+            );
+
+
+        const totalB =
+            document.getElementById(
+                'bd-total-b'
+            );
+
+
+        if (totalA) {
+
+            totalA.textContent =
+                wins.a;
+
+        }
+
+
+        if (totalB) {
+
+            totalB.textContent =
+                wins.b;
+
+        }
+
+
+        const ta =
+            document.getElementById(
+                'bd-team-a'
+            );
+
+
+        const tb =
+            document.getElementById(
+                'bd-team-b'
+            );
+
+
+        if (ta) {
+
+            ta.textContent =
+                state.teamA?.name ||
+                'TIM A';
+
+        }
+
+
+        if (tb) {
+
+            tb.textContent =
+                state.teamB?.name ||
+                'TIM B';
+
+        }
+
+
+        const per =
+            document.getElementById(
+                'bd-period'
+            );
+
+
+        if (per) {
+
+            per.textContent =
+                state.period ||
+                'SET 1';
+
+        }
+
+
+        const st =
+            document.getElementById(
+                'bd-status'
+            );
+
+
+        if (st) {
+
+            st.textContent =
+                state.status ||
+                'LIVE SEKARANG';
+
+
+            if (
+                state.status &&
+                state.status.includes(
+                    "SELESAI"
+                )
+            ) {
+
+                st.style.color =
+                    "#fca5a5";
+
+            }
+
+            else {
+
+                st.style.color =
+                    "#fbbf24";
+
+            }
+
+        }
+
+
+        const sportTitle =
+            document.getElementById(
+                'bd-sport-title'
+            );
+
+
+        if (sportTitle) {
+
+            sportTitle.textContent =
+                normalizeSport(
+                    state.sport
+                );
+
+        }
+
+
+        const la =
+            document.getElementById(
+                'bd-logo-a'
+            );
+
+
+        const lb =
+            document.getElementById(
+                'bd-logo-b'
+            );
+
+
+        const logoA =
+            getAutoLogoForTeam(
+                state.teamA?.name
+            );
+
+
+        const logoB =
+            getAutoLogoForTeam(
+                state.teamB?.name
+            );
+
+
+        if (la) {
+
+            la.src = logoA;
+
+            la.style.display =
+                logoA
+                ? 'block'
+                : 'none';
+
+        }
+
+
+        if (lb) {
+
+            lb.src = logoB;
+
+            lb.style.display =
+                logoB
+                ? 'block'
+                : 'none';
+
+        }
+
+
+        updateVollyOperatorSetUI();
+
+    }
+
+
+    /* =========================================================
+       VISIBILITY LAYOUT
+    ========================================================== */
+
+    function updateBadmintonLayoutVisibility() {
+
+        const sport =
+            normalizeSport(
+                state.sport
+            );
+
+
+        const isSetLayout =
+            sport === 'BADMINTON' ||
+            sport.includes('VOLLY');
+
+
+        const old =
+            document.querySelector(
+                '.sb-main-bar'
+            );
+
+
+        const bd =
+            document.getElementById(
+                'badminton-layout'
+            );
+
+
+        if (old) {
+
+            old.style.display =
+                isSetLayout
+                ? 'none'
+                : 'flex';
+
+        }
+
+
+        if (bd) {
+
+            bd.style.display =
+                isSetLayout
+                ? 'flex'
+                : 'none';
+
+        }
+
+
+        if (isSetLayout) {
+
+            updateBadmintonOutput();
+
+        }
+
+    }
+
+
+    /* =========================================================
+       UPDATE UI SET VOLLY
+    ========================================================== */
+
+    function updateVollyOperatorSetUI() {
+
+        const sport =
+            normalizeSport(
+                state.sport
+            );
+
+
+        if (
+            !sport.includes("VOLLY")
+        ) {
+
+            return;
+
+        }
+
+
+        ensureBadmintonSets();
+
+
+        for (
+            let i = 0;
+            i < 3;
+            i++
+        ) {
+
+            const setNumber =
+                i + 1;
+
+
+            const scoreA =
+                document.getElementById(
+                    `volly-a${setNumber}-op`
+                );
+
+
+            const scoreB =
+                document.getElementById(
+                    `volly-b${setNumber}-op`
+                );
+
+
+            const status =
+                document.getElementById(
+                    `volly-status-set-${setNumber}`
+                );
+
+
+            const card =
+                document.getElementById(
+                    `volly-card-set-${setNumber}`
+                );
+
+
+            const button =
+                document.getElementById(
+                    `btn-set-${setNumber}-finish`
+                );
+
+
+            if (scoreA) {
+
+                scoreA.textContent =
+                    state.badmintonSets[i].a;
+
+            }
+
+
+            if (scoreB) {
+
+                scoreB.textContent =
+                    state.badmintonSets[i].b;
+
+            }
+
+
+            if (state.setStatus[i]) {
+
+                if (status) {
+
+                    status.textContent =
+                        "SET SELESAI";
+
+                    status.classList.add(
+                        "done"
+                    );
+
+                }
+
+
+                if (button) {
+
+                    button.textContent =
+                        "✓ SET SELESAI";
+
+                    button.classList.add(
+                        "completed"
+                    );
+
+                }
+
+
+                if (card) {
+
+                    card.classList.remove(
+                        "active"
+                    );
+
+                }
+
+            }
+
+            else {
+
+                if (status) {
+
+                    status.textContent =
+                        "BELUM SELESAI";
+
+                    status.classList.remove(
+                        "done"
+                    );
+
+                }
+
+
+                if (button) {
+
+                    button.textContent =
+                        `SET ${setNumber} SELESAI`;
+
+                    button.classList.remove(
+                        "completed"
+                    );
+
+                }
+
+
+                if (
+                    state.periodNumber ===
+                    setNumber
+                ) {
+
+                    if (card) {
+
+                        card.classList.add(
+                            "active"
+                        );
+
+                    }
+
+                }
+
+                else {
+
+                    if (card) {
+
+                        card.classList.remove(
+                            "active"
+                        );
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+        updateWinnerUI();
+
+    }
+
+
+    /* =========================================================
+       SKOR SET
+    ========================================================== */
+
+    function changeBadmintonSetScore(
+        setIndex,
+        team,
+        val
+    ) {
+
+        ensureBadmintonSets();
+
+
+        if (
+            setIndex < 0 ||
+            setIndex > 2
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+         * Set yang sudah selesai
+         * masih bisa dikoreksi.
+         */
+
+        const key =
+            team === 'A'
+            ? 'a'
+            : 'b';
+
+
+        state.badmintonSets[
+            setIndex
+        ][key] = Math.max(
+
+            0,
+
+            state.badmintonSets[
+                setIndex
+            ][key] + val
+
+        );
+
+
+        const wins =
+            getBadmintonSetWins();
+
+
+        /*
+         * Score utama = JUMLAH SET MENANG
+         */
+
+        state.teamA.score =
+            wins.a;
+
+
+        state.teamB.score =
+            wins.b;
+
+
+        updateOperatorInputs();
+
+        updateVmixOutputFromState();
+
+        syncToFirebase();
+
+    }
+
+
+    /* =========================================================
+       SET SELESAI
+    ========================================================== */
+
+    function finishVollySet(
+        setIndex
+    ) {
+
+        ensureBadmintonSets();
+
+
+        if (
+            setIndex < 0 ||
+            setIndex > 2
+        ) {
+
+            return;
+
+        }
+
+
+        const set =
+            state.badmintonSets[
+                setIndex
+            ];
+
+
+        /*
+         * Tidak boleh menyelesaikan
+         * set jika skor sama.
+         */
+
+        if (
+            Number(set.a) ===
+            Number(set.b)
+        ) {
+
+            alert(
+                `SET ${setIndex + 1} belum dapat diselesaikan karena skor Tim A dan Tim B masih sama.`
+            );
+
+            return;
+
+        }
+
+
+        const winnerSet =
+            set.a > set.b
+            ? state.teamA.name
+            : state.teamB.name;
+
+
+        if (
+            !confirm(
+                `Selesaikan SET ${setIndex + 1}?\n\n` +
+                `${state.teamA.name}: ${set.a}\n` +
+                `${state.teamB.name}: ${set.b}\n\n` +
+                `Pemenang set: ${winnerSet}`
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        state.setStatus[
+            setIndex
+        ] = true;
+
+
+        /*
+         * Tentukan status dan
+         * periode berikutnya.
+         */
+
+        if (setIndex === 0) {
+
+            state.status =
+                "SET 1 SELESAI";
+
+
+            state.periodNumber = 2;
+
+            state.period = "SET 2";
+
+        }
+
+        else if (setIndex === 1) {
+
+            state.status =
+                "SET 2 SELESAI";
+
+
+            state.periodNumber = 3;
+
+            state.period = "SET 3";
+
+        }
+
+        else {
+
+            state.status =
+                "SET 3 SELESAI";
+
+        }
+
+
+        /*
+         * Hitung jumlah set menang.
+         */
+
+        const wins =
+            getBadmintonSetWins();
+
+
+        state.teamA.score =
+            wins.a;
+
+        state.teamB.score =
+            wins.b;
+
+
+        updateOperatorInputs();
+
+        updateVmixOutputFromState();
+
+        syncToFirebase();
+
+
+        alert(
+            `SET ${setIndex + 1} SELESAI.\n\n` +
+            `${state.teamA.name}: ${set.a}\n` +
+            `${state.teamB.name}: ${set.b}`
+        );
+
+    }
+
+
+    /* =========================================================
+       PEMENANG MANUAL
+    ========================================================== */
+
+    function changeWinner() {
+
+        const select =
+            document.getElementById(
+                'select-winner'
+            );
+
+
+        state.winner =
+            select.value;
+
+
+        if (
+            state.winner === "A"
+        ) {
+
+            state.winnerName =
+                state.teamA.name;
+
+        }
+
+        else if (
+            state.winner === "B"
+        ) {
+
+            state.winnerName =
+                state.teamB.name;
+
+        }
+
+        else {
+
+            state.winnerName = "";
+
+        }
+
+
+        updateWinnerUI();
+
+        syncToFirebase();
+
+    }
+
+
+    /* =========================================================
+       UPDATE PEMENANG UI
+    ========================================================== */
+
+    function updateWinnerUI() {
+
+        const select =
+            document.getElementById(
+                'select-winner'
+            );
+
+
+        const preview =
+            document.getElementById(
+                'winner-preview'
+            );
+
+
+        if (!select) return;
+
+
+        select.value =
+            state.winner || "";
+
+
+        if (
+            state.winner === "A"
+        ) {
+
+            select.options[
+                select.selectedIndex
+            ].text =
+                state.teamA.name;
+
+
+            if (preview) {
+
+                preview.textContent =
+                    "🏆 PEMENANG: " +
+                    state.teamA.name;
+
+                preview.className =
+                    "text-[10px] text-center text-red-400 font-black mt-2";
+
+            }
+
+        }
+
+        else if (
+            state.winner === "B"
+        ) {
+
+            select.options[
+                select.selectedIndex
+            ].text =
+                state.teamB.name;
+
+
+            if (preview) {
+
+                preview.textContent =
+                    "🏆 PEMENANG: " +
+                    state.teamB.name;
+
+                preview.className =
+                    "text-[10px] text-center text-blue-400 font-black mt-2";
+
+            }
+
+        }
+
+        else {
+
+            if (preview) {
+
+                preview.textContent =
+                    "Pemenang belum dipilih";
+
+                preview.className =
+                    "text-[10px] text-center text-gray-500 mt-2";
+
+            }
+
+        }
+
+    }
+
+
+    /* =========================================================
+       PERTANDINGAN VOLLY SELESAI
+    ========================================================== */
+
+    function finishVollyMatch() {
+
+        ensureBadmintonSets();
+
+
+        if (
+            !state.winner
+        ) {
+
+            alert(
+                "Silakan pilih PEMENANG PERTANDINGAN terlebih dahulu."
+            );
+
+            return;
+
+        }
+
+
+        const finishedSets =
+            state.setStatus.filter(
+                Boolean
+            ).length;
+
+
+        if (
+            finishedSets < 2
+        ) {
+
+            if (
+                !confirm(
+                    "Belum ada 2 set yang selesai. Yakin ingin mengakhiri pertandingan sekarang?"
+                )
+            ) {
+
+                return;
+
+            }
+
+        }
+
+
+        const winnerName =
+            state.winner === "A"
+            ? state.teamA.name
+            : state.teamB.name;
+
+
+        if (
+            !confirm(
+                "PERTANDINGAN VOLLY SELESAI?\n\n" +
+                "Pemenang: " +
+                winnerName +
+                "\n\n" +
+                "Skor set:\n" +
+                state.teamA.name +
+                ": " +
+                state.badmintonSets
+                    .map(s => s.a)
+                    .join(" - ") +
+                "\n" +
+                state.teamB.name +
+                ": " +
+                state.badmintonSets
+                    .map(s => s.b)
+                    .join(" - ")
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        state.status =
+            "PERTANDINGAN SELESAI";
+
+
+        state.timerRunning = false;
+
+        state.winnerName =
+            winnerName;
+
+
+        /*
+         * Simpan skor total SET
+         */
+
+        const wins =
+            getBadmintonSetWins();
+
+
+        state.teamA.score =
+            wins.a;
+
+        state.teamB.score =
+            wins.b;
+
+
+        updateOperatorInputs();
+
+        updateVmixOutputFromState();
+
+        syncToFirebase();
+
+
+        /*
+         * Simpan ke HISTORY
+         */
+
+        firebase
+            .database()
+            .ref(
+                "vipt_scoreboard/history"
+            )
+            .push(state);
+
+
+        alert(
+            "Pertandingan VOLLY berhasil diselesaikan.\n\n" +
+            "Pemenang: " +
+            winnerName
+        );
+
+    }
+
+
+    /* =========================================================
+       SCORE NORMAL
+    ========================================================== */
+
+    function changeScore(
+        team,
+        val
+    ) {
+
+        /*
+         * Untuk VOLLY,
+         * skor utama adalah jumlah
+         * SET yang dimenangkan.
+         *
+         * Jadi operator diarahkan
+         * menggunakan kontrol skor SET.
+         */
+
+        if (
+            normalizeSport(
+                state.sport
+            ).includes("VOLLY")
+        ) {
+
+            alert(
+                "Untuk VOLLY, gunakan tombol skor pada SET 1, SET 2, atau SET 3."
+            );
+
+            return;
+
+        }
+
+
+        if (team === 'A') {
+
+            state.teamA.score =
+                Math.max(
+                    0,
+                    state.teamA.score + val
+                );
+
+
+            document.getElementById(
+                'op-score-a'
+            ).textContent =
+                state.teamA.score;
+
+        }
+
+        else {
+
+            state.teamB.score =
+                Math.max(
+                    0,
+                    state.teamB.score + val
+                );
+
+
+            document.getElementById(
+                'op-score-b'
+            ).textContent =
+                state.teamB.score;
+
+        }
+
+
+        updateVmixOutputFromState();
+
+        syncToFirebase();
+
+    }
+
+
+    /* =========================================================
+       UPDATE OUTPUT
+    ========================================================== */
+
+    function updateVmixOutputFromState() {
+
+        const sportText =
+            normalizeSport(
+                state.sport
+            );
+
+
+        document.getElementById(
+            'ui-sport'
+        ).textContent =
+            sportText;
+
+
+        document.getElementById(
+            'ui-period'
+        ).textContent =
+            state.period ||
+            getDefaultPeriod(
+                sportText
+            );
+
+
+        document.getElementById(
+            'ui-score-a'
+        ).textContent =
+            Number(
+                state.teamA?.score || 0
+            );
+
+
+        document.getElementById(
+            'ui-score-b'
+        ).textContent =
+            Number(
+                state.teamB?.score || 0
+            );
+
+
+        document.getElementById(
+            'ui-team-a'
+        ).textContent =
+            state.teamA?.name ||
+            "TIM A";
+
+
+        document.getElementById(
+            'ui-team-b'
+        ).textContent =
+            state.teamB?.name ||
+            "TIM B";
+
+
+        updateLogoOutput();
+
+        updateBadmintonLayoutVisibility();
+
+
+        const timerEl =
+            document.getElementById(
+                'ui-timer'
+            );
+
+
+        if (timerEl) {
+
+            const isCountdownSport =
+                sportText === "SEPAK BOLA" ||
+                sportText === "FUTSAL";
+
+
+            timerEl.style.display =
+                "block";
+
+
+            timerEl.textContent =
+                isCountdownSport
+                ? formatTimer(
+                    state.timer
+                )
+                : formatLocalClock();
+
+        }
+
+    }
+
+
+    /* =========================================================
+       UPDATE INPUT OPERATOR
+    ========================================================== */
+
+    function updateOperatorInputs() {
+
+        document.getElementById(
+            'inp-name-a'
+        ).value =
+            state.teamA.name;
+
+
+        document.getElementById(
+            'inp-name-b'
+        ).value =
+            state.teamB.name;
+
+
+        document.getElementById(
+            'inp-period'
+        ).value =
+            state.period;
+
+
+        document.getElementById(
+            'select-status'
+        ).value =
+            state.status ||
+            "LIVE SEKARANG";
+
+
+        document.getElementById(
+            'op-score-a'
+        ).textContent =
+            state.teamA.score;
+
+
+        document.getElementById(
+            'op-score-b'
+        ).textContent =
+            state.teamB.score;
+
+
+        updateSportUI();
+
+        updateLogoOutput();
+
+
+        const sport =
+            normalizeSport(
+                state.sport
+            );
+
+
+        const bdOp =
+            document.getElementById(
+                'badminton-operator'
+            );
+
+
+        const vollyControl =
+            document.getElementById(
+                'volly-set-control'
+            );
+
+
+        const badmintonControl =
+            document.getElementById(
+                'badminton-set-control'
+            );
+
+
+        if (bdOp) {
+
+            bdOp.style.display =
+                (
+                    sport === 'BADMINTON' ||
+                    sport.includes('VOLLY')
+                )
+                ? 'block'
+                : 'none';
+
+        }
+
+
+        if (vollyControl) {
+
+            vollyControl.style.display =
+                sport.includes("VOLLY")
+                ? "block"
+                : "none";
+
+        }
+
+
+        if (badmintonControl) {
+
+            badmintonControl.style.display =
+                sport === "BADMINTON"
+                ? "block"
+                : "none";
+
+        }
+
+
+        ensureBadmintonSets();
+
+        updateBadmintonOutput();
+
+        updateVollyOperatorSetUI();
+
+    }
+
+
+    /* =========================================================
+       FIREBASE SYNC
+    ========================================================== */
+
+    function syncToFirebase() {
+
+        const nameA =
+            document.getElementById(
+                'inp-name-a'
+            );
+
+
+        const nameB =
+            document.getElementById(
+                'inp-name-b'
+            );
+
+
+        const period =
+            document.getElementById(
+                'inp-period'
+            );
+
+
+        const status =
+            document.getElementById(
+                'select-status'
+            );
+
+
+        if (nameA) {
+
+            state.teamA.name =
+                nameA.value;
+
+        }
+
+
+        if (nameB) {
+
+            state.teamB.name =
+                nameB.value;
+
+        }
+
+
+        if (period) {
+
+            state.period =
+                period.value;
+
+        }
+
+
+        if (status) {
+
+            state.status =
+                status.value;
+
+        }
+
+
+        state.sport =
+            normalizeSport(
+                state.sport
+            );
+
+
+        ensureBadmintonSets();
+
+
+        /*
+         * Firebase menyimpan:
+         *
+         * badmintonSets
+         * setStatus
+         * winner
+         * winnerName
+         * teamA
+         * teamB
+         * status
+         * period
+         */
+
+        dbRef.set(state);
+
+    }
+
+
+    /* =========================================================
+       TIMER
+    ========================================================== */
+
+    function formatTimer(sec) {
+
+        const m =
+            Math.floor(
+                sec / 60
+            );
+
+
+        const s =
+            sec % 60;
+
+
+        return (
+            String(m).padStart(2,'0') +
+            ":" +
+            String(s).padStart(2,'0')
+        );
+
+    }
+
+
+    function formatLocalClock() {
+
+        return new Intl.DateTimeFormat(
+            'id-ID',
+            {
+                hour:'2-digit',
+                minute:'2-digit',
+                second:'2-digit',
+                hour12:false
+            }
+        ).format(
+            new Date()
+        );
+
+    }
+
+
+    function updateTimerDisplay() {
+
+        const el =
+            document.getElementById(
+                'op-timer-display'
+            );
+
+
+        if (el) {
+
+            el.textContent =
+                formatTimer(
+                    state.timer
+                );
+
+        }
+
+    }
+
+
+    function toggleTimer() {
+
+        state.timerRunning =
+            !state.timerRunning;
+
+
+        const btn =
+            document.getElementById(
+                'btn-timer-toggle'
+            );
+
+
+        if (
+            state.timerRunning
+        ) {
+
+            btn.textContent =
+                "BERHENTI";
+
+
+            btn.className =
+                "bg-rose-600 hover:bg-rose-500 py-2 rounded-xl font-bold text-xs";
+
+
+            startInterval();
+
+        }
+
+        else {
+
+            btn.textContent =
+                "MULAI";
+
+
+            btn.className =
+                "bg-emerald-600 hover:bg-emerald-500 py-2 rounded-xl font-bold text-xs";
+
+
+            stopInterval();
+
+        }
+
+
+        syncToFirebase();
+
+    }
+
+
+    function startInterval() {
+
+        if (timerInterval) {
+
+            clearInterval(
+                timerInterval
+            );
+
+        }
+
+
+        timerInterval =
+            setInterval(
+                () => {
+
+                    if (
+                        state.timerRunning &&
+                        state.timer > 0
+                    ) {
+
+                        state.timer--;
+
+                        updateTimerDisplay();
+
+                        syncToFirebase();
+
+                    }
+
+                    else if (
+                        state.timer <= 0 &&
+                        state.timerRunning
+                    ) {
+
+                        state.timerRunning =
+                            false;
+
+
+                        toggleTimer();
+
+                    }
+
+                },
+                1000
+            );
+
+    }
+
+
+    function stopInterval() {
+
+        if (timerInterval) {
+
+            clearInterval(
+                timerInterval
+            );
+
+        }
+
+    }
+
+
+    function resetTimer() {
+
+        state.timer = 600;
+
+        state.timerRunning = false;
+
+        updateTimerDisplay();
+
+        syncToFirebase();
+
+    }
+
+
+    function adjustTimer(sec) {
+
+        state.timer =
+            Math.max(
+                0,
+                state.timer + sec
+            );
+
+
+        updateTimerDisplay();
+
+        syncToFirebase();
+
+    }
+
+
+    /* =========================================================
+       SELESAI UMUM
+    ========================================================== */
+
+    function finishAndSaveMatch() {
+
+        if (
+            normalizeSport(
+                state.sport
+            ).includes("VOLLY")
+        ) {
+
+            finishVollyMatch();
+
+            return;
+
+        }
+
+
+        if (
+            !confirm(
+                "Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke history?"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        state.status =
+            "PERTANDINGAN SELESAI";
+
+
+        state.timerRunning =
+            false;
+
+
+        syncToFirebase();
+
+
+        firebase
+            .database()
+            .ref(
+                "vipt_scoreboard/history"
+            )
+            .push(state);
+
+
+        alert(
+            "Pertandingan berhasil diselesaikan dan disimpan ke History Match Center!"
+        );
+
+    }
+
+
+    /* =========================================================
+       OUTPUT
+    ========================================================== */
+
+    function openOutputTab() {
+
+        window.open(
+            window.location.href +
+            '?mode=output',
+            '_blank'
+        );
+
+    }
+
+
+    function exitTestOutput() {
+
+        location.reload();
+
+    }
+
+
+    /* =========================================================
+       FIREBASE LISTENER
+    ========================================================== */
+
+    dbRef.on(
+        'value',
+        (snapshot) => {
+
+            const raw =
+                snapshot.val();
+
+
+            if (raw) {
+
+                state = raw;
+
+
+                /*
+                 * Pastikan data lama yang belum
+                 * memiliki field baru tetap aman.
+                 */
+
+                ensureBadmintonSets();
+
+
+                updateTimerDisplay();
+
+                updateVmixOutputFromState();
+
+                updateSportUI();
+
+                updateLogoOutput();
+
+                updateOperatorInputs();
+
+            }
+
+        }
+    );
+
+
+    /* =========================================================
+       MODE OUTPUT
+    ========================================================== */
+
+    const urlParams =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    if (
+        urlParams.get('mode') ===
+        'output'
+    ) {
+
+        document
+            .getElementById(
+                'operator-view'
+            )
+            .classList
+            .add('hidden');
+
+
+        document
+            .getElementById(
+                'output-view'
+            )
+            .classList
+            .remove('hidden');
+
+
+        document
+            .getElementById(
+                'btn-back-operator'
+            )
+            .style.display =
+                'block';
+
+    }
+
+
+    /* =========================================================
+       INITIAL
+    ========================================================== */
+
+    populateMatchDropdown();
+
+    ensureBadmintonSets();
+
+    updateOperatorInputs();
+
+    updateTimerDisplay();
+
+    updateVmixOutputFromState();
+
+</script>
+
 </body>
 </html>
