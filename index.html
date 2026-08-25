@@ -2,77 +2,605 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match Controller</title>
-    <!-- Firebase SDK (Gunakan versi yang sesuai dengan proyek Anda) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VIPT CUP IV 2026 - Controller & vMix</title>
+    
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #0b111e;
+            color: #ffffff;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .header-title {
+            text-align: center;
+            color: #f3b232;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .header-subtitle {
+            text-align: center;
+            color: #6c7a91;
+            font-size: 11px;
+            margin-top: 3px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .card {
+            background-color: #121a29;
+            border: 1px solid #1c2738;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #8c9ba5;
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        select, input {
+            width: 100%;
+            background-color: #0d1522;
+            border: 1px solid #233044;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .btn-blue {
+            background-color: #2563eb;
+            color: white;
+            padding: 0 20px;
+        }
+
+        .btn-dark {
+            background-color: #1a2436;
+            color: white;
+            border: 1px solid #28374d;
+        }
+
+        .btn-red {
+            background-color: #dc2626;
+            color: white;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .logo-box {
+            background-color: #0d1522;
+            border: 1px solid #1c2738;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .logo-box .title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #6c7a91;
+        }
+
+        .logo-box .subtitle {
+            font-size: 10px;
+            color: #435061;
+            margin-top: 2px;
+        }
+
+        .period-control {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .period-badge {
+            background-color: #0b111e;
+            border: 1px solid #f3b232;
+            color: #f3b232;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 8px;
+        }
+
+        .team-title-a {
+            color: #ef4444;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .team-title-b {
+            color: #3b82f6;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .team-name-box {
+            background-color: #1a2436;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .score-display {
+            background-color: #0d1522;
+            border: 1px solid #1c2738;
+            border-radius: 8px;
+            font-size: 42px;
+            font-weight: 800;
+            text-align: center;
+            padding: 10px 0;
+            margin-bottom: 8px;
+        }
+
+        .score-display.red { color: #ef4444; }
+        .score-display.blue { color: #3b82f6; }
+
+        .btn-score-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-score {
+            padding: 10px 0;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .timer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .timer-val {
+            color: #f3b232;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .timer-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-green {
+            background-color: #10b981;
+            color: white;
+            padding: 10px 0;
+            font-size: 12px;
+        }
+
+        .action-vmix {
+            background-color: #dc2626;
+            color: white;
+            padding: 14px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        .action-finish {
+            background-color: #10b981;
+            color: white;
+            padding: 14px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        /* --- STYLES TAMPILAN vMIX OUTPUT (DALAM 1 INDEX) --- */
+        #vmix-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .vmix-scoreboard {
+            background: #111827;
+            border: 2px solid #374151;
+            border-radius: 12px;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .vmix-team {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .vmix-score {
+            font-size: 36px;
+            font-weight: 900;
+            background: #1f2937;
+            padding: 5px 15px;
+            border-radius: 8px;
+        }
+
+        .btn-close-vmix {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
-    <h2>MATCH CONTROLLER</h2>
-
-    <!-- Form Data Pertandingan -->
+<div class="container">
     <div>
-        <label for="inp-name-a">Nama Tim A: </label>
-        <input type="text" id="inp-name-a" value="TIM A" onchange="syncToFirebase()"><br><br>
+        <div class="header-title">VIPT CUP IV 2026</div>
+        <div class="header-subtitle">PANEL KONTROL OPERATOR & SYNC REAL-TIME</div>
+    </div>
 
-        <label for="inp-name-b">Nama Tim B: </label>
-        <input type="text" id="inp-name-b" value="TIM B" onchange="syncToFirebase()"><br><br>
+    <!-- PILIH JADWAL & STATUS -->
+    <div class="card">
+        <label class="label">PILIH PERTANDINGAN DARI JADWAL</label>
+        <div class="input-group">
+            <select id="select-jadwal">
+                <option value="">-- PILIH PERTANDINGAN --</option>
+            </select>
+            <button class="btn btn-blue" onclick="loadJadwal()">LOAD</button>
+        </div>
 
-        <label for="select-sport">Cabang Olahraga: </label>
-        <select id="select-sport" onchange="syncToFirebase()">
-            <option value="BADMINTON">Badminton</option>
-            <option value="VOLLY">Voli</option>
-            <option value="TENIS MEJA">Tenis Meja</option>
-        </select><br><br>
+        <div class="grid-2" style="margin-top: 12px;">
+            <div>
+                <label class="label">BABAK / PERIODE</label>
+                <input type="text" id="inp-period" value="BABAK 1" onchange="syncToFirebase()">
+            </div>
+            <div>
+                <label class="label">STATUS MATCH</label>
+                <select id="select-status" onchange="syncToFirebase()">
+                    <option value="BELUM MULAI">BELUM MULAI</option>
+                    <option value="BERJALAN">BERJALAN</option>
+                    <option value="PAUSE">PAUSE</option>
+                    <option value="PERTANDINGAN SELESAI">SELESAI</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
-        <label for="inp-period">Babak/Period: </label>
-        <input type="text" id="inp-period" value="Set 1" onchange="syncToFirebase()"><br><br>
-
-        <label for="select-status">Status: </label>
-        <select id="select-status" onchange="syncToFirebase()">
-            <option value="BERJALAN">BERJALAN</option>
-            <option value="PAUSE">PAUSE</option>
-            <option value="PERTANDINGAN SELESAI">PERTANDINGAN SELESAI</option>
+    <!-- CABANG OLAHRAGA & LOGO -->
+    <div class="card">
+        <label class="label">CABANG OLAHRAGA / MEKANISME SKOR</label>
+        <select id="select-sport" onchange="syncToFirebase()" style="margin-bottom: 12px;">
+            <option value="BADMINTON">BADMINTON — BEST OF 3</option>
+            <option value="VOLLY">VOLLI — BEST OF 3</option>
+            <option value="TENIS MEJA">TENIS MEJA — BEST OF 3</option>
+            <option value="SEPAK BOLA">SEPAK BOLA — GOAL / 2 BABAK</option>
         </select>
-    </div>
 
-    <hr>
-
-    <!-- Kontrol Set Aktif -->
-    <div>
-        <h3>Pilih Set Aktif</h3>
-        <button onclick="selectSet(1)">Set 1</button>
-        <button onclick="selectSet(2)">Set 2</button>
-        <button onclick="selectSet(3)">Set 3</button>
-    </div>
-
-    <br>
-
-    <!-- Kontrol Skor Pertandingan -->
-    <div>
-        <h3>Skor Pertandingan (<span id="current-set-label">Set 1</span>)</h3>
-        <div>
-            <strong>TIM A: </strong>
-            <button onclick="changeScore('A', -1)">-</button>
-            <span id="score-a">0</span>
-            <button onclick="changeScore('A', 1)">+</button>
-            <button onclick="setSetWinner('A')">Menang Set Ini</button>
+        <div class="grid-2">
+            <div class="logo-box">
+                <div class="title">LOGO TIM A</div>
+                <div class="subtitle">Logo otomatis</div>
+            </div>
+            <div class="logo-box">
+                <div class="title">LOGO TIM B</div>
+                <div class="subtitle">Logo otomatis</div>
+            </div>
         </div>
-        <br>
-        <div>
-            <strong>TIM B: </strong>
-            <button onclick="changeScore('B', -1)">-</button>
-            <span id="score-b">0</span>
-            <button onclick="changeScore('B', 1)">+</button>
-            <button onclick="setSetWinner('B')">Menang Set Ini</button>
+
+        <div class="period-control">
+            <button class="btn btn-dark" onclick="changePeriod(-1)">PERIODE -</button>
+            <div class="period-badge" id="display-period-badge">BABAK 1</div>
+            <button class="btn btn-dark" onclick="changePeriod(1)">PERIODE +</button>
         </div>
     </div>
 
-    <!-- Modul JavaScript di bawah ini -->
-    <script>
-        // Masukkan JavaScript dari langkah 2 di bawah
-    </script>
+    <!-- KONTROL SKOR TIM A & B -->
+    <div class="grid-2">
+        <!-- TIM A -->
+        <div class="card">
+            <div class="team-title-a">TIM A (KIRI)</div>
+            <div class="team-name-box" id="display-name-a">BELUM ADA JADWAL</div>
+            <div class="score-display red" id="display-score-a">0</div>
+            <div class="btn-score-group">
+                <button class="btn btn-dark btn-score" onclick="changeScore('A', -1)">-1</button>
+                <button class="btn btn-red btn-score" onclick="changeScore('A', 1)">+1</button>
+            </div>
+        </div>
+
+        <!-- TIM B -->
+        <div class="card">
+            <div class="team-title-b">TIM B (KANAN)</div>
+            <div class="team-name-box" id="display-name-b">BELUM ADA JADWAL</div>
+            <div class="score-display blue" id="display-score-b">0</div>
+            <div class="btn-score-group">
+                <button class="btn btn-dark btn-score" onclick="changeScore('B', -1)">-1</button>
+                <button class="btn btn-blue btn-score" onclick="changeScore('B', 1)">+1</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TIMER -->
+    <div class="card">
+        <div class="timer-header">
+            <span class="label" style="margin:0;">PENGATUR WAKTU (TIMER)</span>
+            <span class="timer-val" id="display-timer">00:00</span>
+        </div>
+        <div class="timer-controls">
+            <button class="btn btn-green" onclick="toggleTimer()">MULAI</button>
+            <button class="btn btn-dark" onclick="resetTimer()">RESET 10M</button>
+            <button class="btn btn-dark" onclick="addTimerMinute()">+1 Menit</button>
+        </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <button class="btn action-vmix" onclick="toggleVMixOverlay()">BUKA TAMPILAN vMIX OUTPUT</button>
+    <button class="btn action-finish" onclick="finishMatch()">SELESAI & SIMPAN KE HISTORY</button>
+</div>
+
+<!-- ================= TAMPILAN OVERLAY VMIX OUTPUT ================= -->
+<div id="vmix-overlay">
+    <div class="btn-close-vmix" onclick="toggleVMixOverlay()">TUTUP vMIX</div>
+    <div class="vmix-scoreboard">
+        <span class="vmix-team" id="vmix-team-a" style="color: #ef4444;">TIM A</span>
+        <span class="vmix-score" id="vmix-score-a" style="color: #ef4444;">0</span>
+        <span style="color: #6c7a91; font-weight: bold;">VS</span>
+        <span class="vmix-score" id="vmix-score-b" style="color: #3b82f6;">0</span>
+        <span class="vmix-team" id="vmix-team-b" style="color: #3b82f6;">TIM B</span>
+    </div>
+    <div style="margin-top: 15px; color: #f3b232; font-weight: bold;" id="vmix-period-timer">
+        BABAK 1 | <span id="vmix-timer">00:00</span>
+    </div>
+</div>
+
+<script>
+    // 1. KONFIGURASI FIREBASE
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+        projectId: "YOUR_PROJECT",
+        storageBucket: "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const dbRef = firebase.database().ref("match_data");
+
+    // 2. STATE UTAMA
+    let state = {
+        sport: "BADMINTON",
+        period: "BABAK 1",
+        status: "BELUM MULAI",
+        winner: "",
+        winnerName: "",
+        timer: 600,
+        timerRunning: false,
+        teamA: { name: "BELUM ADA JADWAL", score: 0 },
+        teamB: { name: "BELUM ADA JADWAL", score: 0 },
+        sets: {
+            set1: { scoreA: 0, scoreB: 0, winner: "" },
+            set2: { scoreA: 0, scoreB: 0, winner: "" },
+            set3: { scoreA: 0, scoreB: 0, winner: "" }
+        }
+    };
+
+    let currentSetIndex = 1;
+    let timerInterval = null;
+
+    // 3. FUNGSI LOAD JADWAL
+    function loadJadwal() {
+        const nameA = prompt("Masukkan Nama Tim A:", "TIM A");
+        const nameB = prompt("Masukkan Nama Tim B:", "TIM B");
+
+        if (nameA && nameB) {
+            state.teamA.name = nameA;
+            state.teamB.name = nameB;
+            state.teamA.score = 0;
+            state.teamB.score = 0;
+            state.status = "BERJALAN";
+            
+            state.sets = {
+                set1: { scoreA: 0, scoreB: 0, winner: "" },
+                set2: { scoreA: 0, scoreB: 0, winner: "" },
+                set3: { scoreA: 0, scoreB: 0, winner: "" }
+            };
+
+            updateUI();
+            syncToFirebase();
+        }
+    }
+
+    // 4. KONTROL SKOR PER SET
+    function changeScore(team, val) {
+        if (team === 'A') {
+            state.teamA.score = Math.max(0, state.teamA.score + val);
+        } else if (team === 'B') {
+            state.teamB.score = Math.max(0, state.teamB.score + val);
+        }
+
+        // Catat skor game aktif ke set saat ini
+        state.sets[`set${currentSetIndex}`].scoreA = state.teamA.score;
+        state.sets[`set${currentSetIndex}`].scoreB = state.teamB.score;
+
+        updateUI();
+        syncToFirebase();
+    }
+
+    // 5. KONTROL PERIODE / SET
+    function changePeriod(dir) {
+        currentSetIndex = Math.min(3, Math.max(1, currentSetIndex + dir));
+        state.period = `BABAK ${currentSetIndex}`;
+        document.getElementById('inp-period').value = state.period;
+
+        state.teamA.score = state.sets[`set${currentSetIndex}`].scoreA || 0;
+        state.teamB.score = state.sets[`set${currentSetIndex}`].scoreB || 0;
+
+        updateUI();
+        syncToFirebase();
+    }
+
+    // 6. KONTROL TIMER
+    function toggleTimer() {
+        state.timerRunning = !state.timerRunning;
+        if (state.timerRunning) {
+            timerInterval = setInterval(() => {
+                if (state.timer > 0) {
+                    state.timer--;
+                    updateTimerUI();
+                } else {
+                    state.timerRunning = false;
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        } else {
+            clearInterval(timerInterval);
+        }
+        syncToFirebase();
+    }
+
+    function resetTimer() {
+        state.timer = 600;
+        updateTimerUI();
+        syncToFirebase();
+    }
+
+    function addTimerMinute() {
+        state.timer += 60;
+        updateTimerUI();
+        syncToFirebase();
+    }
+
+    function updateTimerUI() {
+        const m = Math.floor(state.timer / 60).toString().padStart(2, '0');
+        const s = (state.timer % 60).toString().padStart(2, '0');
+        document.getElementById('display-timer').innerText = `${m}:${s}`;
+        document.getElementById('vmix-timer').innerText = `${m}:${s}`;
+    }
+
+    // 7. UPDATE TAMPILAN MOBILE & vMIX OVERLAY
+    function updateUI() {
+        // Update Panel Mobile
+        document.getElementById('display-name-a').innerText = state.teamA.name;
+        document.getElementById('display-name-b').innerText = state.teamB.name;
+        document.getElementById('display-score-a').innerText = state.teamA.score;
+        document.getElementById('display-score-b').innerText = state.teamB.score;
+        document.getElementById('display-period-badge').innerText = state.period;
+
+        // Update Overlay vMix Output
+        document.getElementById('vmix-team-a').innerText = state.teamA.name;
+        document.getElementById('vmix-team-b').innerText = state.teamB.name;
+        document.getElementById('vmix-score-a').innerText = state.teamA.score;
+        document.getElementById('vmix-score-b').innerText = state.teamB.score;
+        document.getElementById('vmix-period-timer').innerHTML = `${state.period} | <span id="vmix-timer">${document.getElementById('display-timer').innerText}</span>`;
+
+        updateTimerUI();
+    }
+
+    // 8. SINKRONISASI REALTIME KE FIREBASE
+    function syncToFirebase() {
+        state.period = document.getElementById('inp-period').value;
+        state.status = document.getElementById('select-status').value;
+        state.sport = document.getElementById('select-sport').value;
+
+        dbRef.set(state);
+    }
+
+    // TOGGLE SHOW/HIDE vMIX OVERLAY
+    function toggleVMixOverlay() {
+        const overlay = document.getElementById('vmix-overlay');
+        if (overlay.style.display === 'flex') {
+            overlay.style.display = 'none';
+        } else {
+            overlay.style.display = 'flex';
+        }
+    }
+
+    function finishMatch() {
+        state.status = "PERTANDINGAN SELESAI";
+        document.getElementById('select-status').value = state.status;
+        syncToFirebase();
+        alert("Pertandingan Selesai & Tersimpan!");
+    }
+</script>
 </body>
 </html>
