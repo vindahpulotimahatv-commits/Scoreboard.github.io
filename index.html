@@ -2,8 +2,9 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Match Control & Scoreboard Admin</title>
-    <!-- Firebase SDK (Pastikan versi sesuai dengan yang Anda gunakan) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Controller</title>
+    <!-- Firebase SDK (Gunakan versi yang sesuai dengan proyek Anda) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
@@ -11,26 +12,26 @@
 
     <h2>MATCH CONTROLLER</h2>
 
-    <!-- Form Input Pertandingan -->
+    <!-- Form Data Pertandingan -->
     <div>
-        <label>Nama Tim A:</label>
-        <input type="text" id="inp-name-a" value="TIM A"><br><br>
-        
-        <label>Nama Tim B:</label>
-        <input type="text" id="inp-name-b" value="TIM B"><br><br>
+        <label for="inp-name-a">Nama Tim A: </label>
+        <input type="text" id="inp-name-a" value="TIM A" onchange="syncToFirebase()"><br><br>
 
-        <label>Cabang Olahraga:</label>
+        <label for="inp-name-b">Nama Tim B: </label>
+        <input type="text" id="inp-name-b" value="TIM B" onchange="syncToFirebase()"><br><br>
+
+        <label for="select-sport">Cabang Olahraga: </label>
         <select id="select-sport" onchange="syncToFirebase()">
             <option value="BADMINTON">Badminton</option>
             <option value="VOLLY">Voli</option>
             <option value="TENIS MEJA">Tenis Meja</option>
         </select><br><br>
 
-        <label>Babak/Period:</label>
-        <input type="text" id="inp-period" value="Set 1"><br><br>
+        <label for="inp-period">Babak/Period: </label>
+        <input type="text" id="inp-period" value="Set 1" onchange="syncToFirebase()"><br><br>
 
-        <label>Status:</label>
-        <select id="select-status">
+        <label for="select-status">Status: </label>
+        <select id="select-status" onchange="syncToFirebase()">
             <option value="BERJALAN">BERJALAN</option>
             <option value="PAUSE">PAUSE</option>
             <option value="PERTANDINGAN SELESAI">PERTANDINGAN SELESAI</option>
@@ -39,120 +40,39 @@
 
     <hr>
 
-    <!-- Kontrol Skor & Set -->
+    <!-- Kontrol Set Aktif -->
     <div>
-        <h3>Skor Pertandingan</h3>
+        <h3>Pilih Set Aktif</h3>
+        <button onclick="selectSet(1)">Set 1</button>
+        <button onclick="selectSet(2)">Set 2</button>
+        <button onclick="selectSet(3)">Set 3</button>
+    </div>
+
+    <br>
+
+    <!-- Kontrol Skor Pertandingan -->
+    <div>
+        <h3>Skor Pertandingan (<span id="current-set-label">Set 1</span>)</h3>
         <div>
-            <strong>TIM A:</strong> 
+            <strong>TIM A: </strong>
             <button onclick="changeScore('A', -1)">-</button>
             <span id="score-a">0</span>
             <button onclick="changeScore('A', 1)">+</button>
+            <button onclick="setSetWinner('A')">Menang Set Ini</button>
         </div>
         <br>
         <div>
-            <strong>TIM B:</strong> 
+            <strong>TIM B: </strong>
             <button onclick="changeScore('B', -1)">-</button>
             <span id="score-b">0</span>
             <button onclick="changeScore('B', 1)">+</button>
+            <button onclick="setSetWinner('B')">Menang Set Ini</button>
         </div>
     </div>
 
+    <!-- Modul JavaScript di bawah ini -->
     <script>
-        // 1. Konfigurasi Firebase Anda
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-            projectId: "YOUR_PROJECT",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-        
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const dbRef = firebase.database().ref("match_data");
-
-        // 2. State Utama
-        let state = {
-            sport: "BADMINTON",
-            period: "Set 1",
-            status: "BERJALAN",
-            winner: "",
-            winnerName: "",
-            timer: 0,
-            timerRunning: false,
-            teamA: { name: "TIM A", score: 0 },
-            teamB: { name: "TIM B", score: 0 },
-            // Menyiapkan struktur data rincian per set (Set 1 - Set 3)
-            sets: {
-                set1: { scoreA: 0, scoreB: 0, winner: "" },
-                set2: { scoreA: 0, scoreB: 0, winner: "" },
-                set3: { scoreA: 0, scoreB: 0, winner: "" }
-            }
-        };
-
-        let currentSetIndex = 1;
-
-        // 3. Fungsi Perubahan Skor & Sinkronisasi Set
-        function changeScore(team, val) {
-            if (team === 'A') {
-                state.teamA.score = Math.max(0, state.teamA.score + val);
-                document.getElementById('score-a').innerText = state.teamA.score;
-            } else if (team === 'B') {
-                state.teamB.score = Math.max(0, state.teamB.score + val);
-                document.getElementById('score-b').innerText = state.teamB.score;
-            }
-
-            // Simpan skor game aktif ke dalam objek set saat ini
-            state.sets[`set${currentSetIndex}`].scoreA = state.teamA.score;
-            state.sets[`set${currentSetIndex}`].scoreB = state.teamB.score;
-
-            syncToFirebase();
-        }
-
-        // 4. Logika Pemenang Otomatis (Best of 3)
-        function checkAutoWinner() {
-            let winsA = 0;
-            let winsB = 0;
-
-            for (let i = 1; i <= 3; i++) {
-                const s = state.sets[`set${i}`];
-                if (s.winner === "A") winsA++;
-                if (s.winner === "B") winsB++;
-            }
-
-            if (winsA >= 2) {
-                state.winner = "A";
-                state.winnerName = state.teamA.name;
-                state.status = "PERTANDINGAN SELESAI";
-            } else if (winsB >= 2) {
-                state.winner = "B";
-                state.winnerName = state.teamB.name;
-                state.status = "PERTANDINGAN SELESAI";
-            }
-        }
-
-        // 5. Kirim Seluruh Data ke Firebase Realtime Database
-        function syncToFirebase() {
-            const nameA = document.getElementById('inp-name-a');
-            const nameB = document.getElementById('inp-name-b');
-            const period = document.getElementById('inp-period');
-            const status = document.getElementById('select-status');
-            const sport = document.getElementById('select-sport');
-
-            if (nameA) state.teamA.name = nameA.value;
-            if (nameB) state.teamB.name = nameB.value;
-            if (period) state.period = period.value;
-            if (status) state.status = status.value;
-            if (sport) state.sport = sport.value;
-
-            checkAutoWinner();
-
-            // Mengirimkan seluruh payload state (termasuk rincian sets) ke Node Firebase
-            dbRef.set(state);
-        }
+        // Masukkan JavaScript dari langkah 2 di bawah
     </script>
 </body>
 </html>
