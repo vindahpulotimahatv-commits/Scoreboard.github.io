@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIPT CUP IV 2026 - Controller & vMix</title>
+    <title>VIPT CUP IV 2026 - Match Controller</title>
     
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -255,7 +255,6 @@
             width: 100%;
         }
 
-        /* --- STYLES TAMPILAN vMIX OUTPUT (DALAM 1 INDEX) --- */
         #vmix-overlay {
             display: none;
             position: fixed;
@@ -321,7 +320,7 @@
         <label class="label">PILIH PERTANDINGAN DARI JADWAL</label>
         <div class="input-group">
             <select id="select-jadwal">
-                <option value="">-- PILIH PERTANDINGAN --</option>
+                <option value="">-- MEMUAT JADWAL... --</option>
             </select>
             <button class="btn btn-blue" onclick="loadJadwal()">LOAD</button>
         </div>
@@ -414,7 +413,7 @@
     <button class="btn action-finish" onclick="finishMatch()">SELESAI & SIMPAN KE HISTORY</button>
 </div>
 
-<!-- ================= TAMPILAN OVERLAY VMIX OUTPUT ================= -->
+<!-- OVERLAY VMIX OUTPUT -->
 <div id="vmix-overlay">
     <div class="btn-close-vmix" onclick="toggleVMixOverlay()">TUTUP vMIX</div>
     <div class="vmix-scoreboard">
@@ -445,6 +444,10 @@
         firebase.initializeApp(firebaseConfig);
     }
     const dbRef = firebase.database().ref("match_data");
+    const jadwalRef = firebase.database().ref("jadwal");
+
+    // Cache Data Jadwal
+    let cachedJadwal = {};
 
     // 2. STATE UTAMA
     let state = {
@@ -467,30 +470,77 @@
     let currentSetIndex = 1;
     let timerInterval = null;
 
-    // 3. FUNGSI LOAD JADWAL
+    // 3. MEMBACA DAFTAR JADWAL DARI FIREBASE REALTIME
+    jadwalRef.on('value', (snapshot) => {
+        const select = document.getElementById('select-jadwal');
+        select.innerHTML = '<option value="">-- PILIH PERTANDINGAN --</option>';
+        cachedJadwal = snapshot.val() || {};
+
+        if (Object.keys(cachedJadwal).length === 0) {
+            select.innerHTML = '<option value="">-- JADWAL KOSONG --</option>';
+            return;
+        }
+
+        for (let key in cachedJadwal) {
+            const item = cachedJadwal[key];
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.innerText = `${item.teamA || 'TIM A'} VS ${item.teamB || 'TIM B'} (${item.sport || 'MATCH'})`;
+            select.appendChild(opt);
+        }
+    });
+
+    // 4. FUNGSI LOAD PERTANDINGAN TERPILIH
     function loadJadwal() {
-        const nameA = prompt("Masukkan Nama Tim A:", "TIM A");
-        const nameB = prompt("Masukkan Nama Tim B:", "TIM B");
+        const select = document.getElementById('select-jadwal');
+        const selectedKey = select.value;
 
-        if (nameA && nameB) {
-            state.teamA.name = nameA;
-            state.teamB.name = nameB;
-            state.teamA.score = 0;
-            state.teamB.score = 0;
-            state.status = "BERJALAN";
-            
-            state.sets = {
-                set1: { scoreA: 0, scoreB: 0, winner: "" },
-                set2: { scoreA: 0, scoreB: 0, winner: "" },
-                set3: { scoreA: 0, scoreB: 0, winner: "" }
-            };
+        if (!selectedKey) {
+            // Jika tidak ada data jadwal dari Firebase, gunakan input manual
+            const nameA = prompt("Masukkan Nama Tim A:", "TIM A");
+            const nameB = prompt("Masukkan Nama Tim B:", "TIM B");
+            if (nameA && nameB) {
+                state.teamA.name = nameA;
+                state.teamB.name = nameB;
+                resetMatchState();
+            }
+            return;
+        }
 
-            updateUI();
-            syncToFirebase();
+        const matchData = cachedJadwal[selectedKey];
+        if (matchData) {
+            state.teamA.name = matchData.teamA || "TIM A";
+            state.teamB.name = matchData.teamB || "TIM B";
+            if (matchData.sport) {
+                state.sport = matchData.sport;
+                document.getElementById('select-sport').value = matchData.sport;
+            }
+            resetMatchState();
         }
     }
 
-    // 4. KONTROL SKOR PER SET
+    function resetMatchState() {
+        state.teamA.score = 0;
+        state.teamB.score = 0;
+        state.status = "BERJALAN";
+        state.period = "BABAK 1";
+        currentSetIndex = 1;
+
+        state.sets = {
+            set1: { scoreA: 0, scoreB: 0, winner: "" },
+            set2: { scoreA: 0, scoreB: 0, winner: "" },
+            set3: { scoreA: 0, scoreB: 0, winner: "" }
+        };
+
+        document.getElementById('select-status').value = state.status;
+        document.getElementById('inp-period').value = state.period;
+
+        updateUI();
+        syncToFirebase();
+        alert("Pertandingan berhasil di-LOAD!");
+    }
+
+    // 5. KONTROL SKOR PER SET
     function changeScore(team, val) {
         if (team === 'A') {
             state.teamA.score = Math.max(0, state.teamA.score + val);
@@ -498,7 +548,6 @@
             state.teamB.score = Math.max(0, state.teamB.score + val);
         }
 
-        // Catat skor game aktif ke set saat ini
         state.sets[`set${currentSetIndex}`].scoreA = state.teamA.score;
         state.sets[`set${currentSetIndex}`].scoreB = state.teamB.score;
 
@@ -506,7 +555,7 @@
         syncToFirebase();
     }
 
-    // 5. KONTROL PERIODE / SET
+    // 6. KONTROL PERIODE / SET
     function changePeriod(dir) {
         currentSetIndex = Math.min(3, Math.max(1, currentSetIndex + dir));
         state.period = `BABAK ${currentSetIndex}`;
@@ -519,7 +568,7 @@
         syncToFirebase();
     }
 
-    // 6. KONTROL TIMER
+    // 7. KONTROL TIMER
     function toggleTimer() {
         state.timerRunning = !state.timerRunning;
         if (state.timerRunning) {
@@ -557,16 +606,14 @@
         document.getElementById('vmix-timer').innerText = `${m}:${s}`;
     }
 
-    // 7. UPDATE TAMPILAN MOBILE & vMIX OVERLAY
+    // 8. UPDATE TAMPILAN UI & OVERLAY
     function updateUI() {
-        // Update Panel Mobile
         document.getElementById('display-name-a').innerText = state.teamA.name;
         document.getElementById('display-name-b').innerText = state.teamB.name;
         document.getElementById('display-score-a').innerText = state.teamA.score;
         document.getElementById('display-score-b').innerText = state.teamB.score;
         document.getElementById('display-period-badge').innerText = state.period;
 
-        // Update Overlay vMix Output
         document.getElementById('vmix-team-a').innerText = state.teamA.name;
         document.getElementById('vmix-team-b').innerText = state.teamB.name;
         document.getElementById('vmix-score-a').innerText = state.teamA.score;
@@ -576,7 +623,7 @@
         updateTimerUI();
     }
 
-    // 8. SINKRONISASI REALTIME KE FIREBASE
+    // 9. SINKRONISASI REALTIME KE FIREBASE
     function syncToFirebase() {
         state.period = document.getElementById('inp-period').value;
         state.status = document.getElementById('select-status').value;
@@ -585,14 +632,9 @@
         dbRef.set(state);
     }
 
-    // TOGGLE SHOW/HIDE vMIX OVERLAY
     function toggleVMixOverlay() {
         const overlay = document.getElementById('vmix-overlay');
-        if (overlay.style.display === 'flex') {
-            overlay.style.display = 'none';
-        } else {
-            overlay.style.display = 'flex';
-        }
+        overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
     }
 
     function finishMatch() {
