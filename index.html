@@ -612,18 +612,26 @@
         const dbRef = firebase.database().ref("vipt_scoreboard/live");
 
         const VIPT_MATCHES = [
-            {id:"", sport:"PILIH", round:"-", a:"BELUM ADA", b:"PERTANDINGAN"},
-            {id:"VP-8B1", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
-            {id:"VP-8B2", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 02 / RW 021", b:"RT 04 / RW 021"},
-            {id:"VP-8B3", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 10 / RW 021", b:"RT 08 / RW 021"},
-            {id:"VP-8B4", sport:"VOLLY PUTRA", round:"BABAK 8 BESAR", a:"RT 06 / RW 021", b:"RT 07 / RW 021"},
-            {id:"VW-SF1", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 09 / RW 014", b:"RT 08 / RW 014"},
-            {id:"VW-SF2", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 06 / RW 021", b:"RT 08 / RW 021"},
-            {id:"FS-SF1", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 13 / RW 021", b:"RT 04 / RW 021"},
-            {id:"FS-SF2", sport:"FUTSAL", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 02 / RW 021"},
-            {id:"TM-1", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 08 / RW 014", b:"RT 10 / RW 014"},
-            {id:"TM-2", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 08 / RW 021"},
-            {id:"BD-1", sport:"BADMINTON", round:"BABAK SEMIFINAL", a:"RT 10 / RW 021", b:"RT 13 / RW 021"}
+            {id:"", sport:"PILIH", round:"-", a:"BELUM ADA", b:"PERTANDINGAN", date:"", time:""},
+
+            // 28 AGUSTUS 2026 — VOLLY PUTRA SEMIFINAL
+            {id:"VP-SF1", sport:"VOLLY PUTRA", round:"BABAK SEMIFINAL", a:"RT 09 / RW 014", b:"RT 04 / RW 021", date:"28 AGUSTUS 2026", time:"20:30 WIB"},
+            {id:"VP-SF2", sport:"VOLLY PUTRA", round:"BABAK SEMIFINAL", a:"RT 10 / RW 021", b:"RT 06 / RW 021", date:"28 AGUSTUS 2026", time:"21:30 WIB"},
+
+            // 29 AGUSTUS 2026 — BULUTANGKIS SEMIFINAL
+            {id:"BDW-SF1", sport:"BADMINTON PUTRI", round:"BABAK SEMIFINAL PUTRI", a:"RT 06 / RW 021", b:"RT 08 / RW 021", date:"29 AGUSTUS 2026", time:"20:00 WIB"},
+            {id:"BDM-SF1", sport:"BADMINTON PUTRA", round:"BABAK SEMIFINAL PUTRA", a:"RT 10 / RW 021", b:"RT 07 / RW 014", date:"29 AGUSTUS 2026", time:"21:30 WIB"},
+
+            // 30 AGUSTUS 2026 — VOLLY PUTRI
+            {id:"VW-SF1", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 06 / RW 021", b:"RT 08 / RW 014", date:"30 AGUSTUS 2026", time:"15:45 WIB"},
+
+            // 30 AGUSTUS 2026 — TENIS MEJA SEMIFINAL
+            {id:"TM-SF1", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 13 / RW 021", b:"RT 10 / RW 014", date:"30 AGUSTUS 2026", time:"19:30 WIB"},
+            {id:"TM-SF2", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 11 / RW 021", b:"RT 04 / RW 021", date:"30 AGUSTUS 2026", time:"20:15 WIB"},
+
+            // 30 AGUSTUS 2026 — BULUTANGKIS
+            {id:"BDW-SF2", sport:"BADMINTON PUTRI", round:"BABAK SEMIFINAL PUTRI", a:"RT 10 / RW 021", b:"RT 11 / RW 021", date:"30 AGUSTUS 2026", time:"21:00 WIB"},
+            {id:"BDM-SF2", sport:"BADMINTON PUTRA", round:"BABAK SEMIFINAL PUTRA", a:"RT 08 / RW 021", b:"RT 11 / RW 021", date:"30 AGUSTUS 2026", time:"22:15 WIB"}
         ];
 
         // LOGO TIM OTOMATIS
@@ -658,6 +666,10 @@
 
         let state = {
             matchId: "",
+            matchSportLabel: "",
+            matchRound: "",
+            matchDate: "",
+            matchTime: "",
             sport: "SEPAK BOLA",
             period: "BABAK 1",
             periodNumber: 1,
@@ -679,7 +691,8 @@
             select.innerHTML = '<option value="">-- PILIH PERTANDINGAN (KOSONG) --</option>';
             VIPT_MATCHES.forEach(m => {
                 if(!m.id) return;
-                select.innerHTML += `<option value="${m.id}">[${m.sport}] ${m.a} vs ${m.b}</option>`;
+                const scheduleInfo = [m.date, m.time].filter(Boolean).join(' • ');
+                select.innerHTML += `<option value="${m.id}">[${m.sport}] ${m.a} vs ${m.b}${scheduleInfo ? ' — ' + scheduleInfo : ''}</option>`;
             });
         }
 
@@ -694,6 +707,10 @@
 
             if (!id) {
                 state.matchId = "";
+                state.matchSportLabel = "";
+                state.matchRound = "";
+                state.matchDate = "";
+                state.matchTime = "";
                 state.sport = "SEPAK BOLA";
                 state.period = "BABAK 1";
                 state.periodNumber = 1;
@@ -710,6 +727,10 @@
                 const m = VIPT_MATCHES.find(x => x.id === id);
                 if (!m) return;
                 state.matchId = m.id;
+                state.matchSportLabel = m.sport;
+                state.matchRound = m.round || "";
+                state.matchDate = m.date || "";
+                state.matchTime = m.time || "";
                 state.sport = normalizeSport(m.sport);
                 state.periodNumber = 1;
                 state.period = getDefaultPeriod(state.sport);
