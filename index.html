@@ -683,8 +683,15 @@
             });
         }
 
-        function applySelectedMatch() {
-            const id = document.getElementById('select-match-list').value;
+        async function applySelectedMatch() {
+            const select = document.getElementById('select-match-list');
+            const id = select.value;
+
+            // LOAD pertandingan harus memulai state pertandingan yang benar-benar baru.
+            stopInterval();
+            state.timer = 600;
+            state.timerRunning = false;
+
             if (!id) {
                 state.matchId = "";
                 state.sport = "SEPAK BOLA";
@@ -701,6 +708,7 @@
                 state.futsalGoals = [];
             } else {
                 const m = VIPT_MATCHES.find(x => x.id === id);
+                if (!m) return;
                 state.matchId = m.id;
                 state.sport = normalizeSport(m.sport);
                 state.periodNumber = 1;
@@ -715,9 +723,15 @@
                 state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
                 state.futsalGoals = [];
             }
+
+            // Update lokal dulu agar operator dan output pada tab ini langsung sama.
             updateOperatorInputs();
+            updateTimerDisplay();
             updateVmixOutputFromState();
-            syncToFirebase();
+
+            // Kirim satu state utuh ke Firebase. Tab/perangkat lain akan menerima
+            // state yang sama lewat listener realtime di bawah.
+            await syncToFirebase();
         }
 
         function normalizeSport(sport) {
@@ -1265,10 +1279,18 @@
         }
 
         function syncToFirebase() {
-            state.teamA.name = document.getElementById('inp-name-a').value;
-            state.teamB.name = document.getElementById('inp-name-b').value;
-            state.period = document.getElementById('inp-period').value;
-            state.status = document.getElementById('select-status').value;
+            // Pada mode output tidak ada input operator. Jangan membaca elemen yang
+            // tidak diperlukan; cukup kirim state bila fungsi ini dipanggil operator.
+            const nameA = document.getElementById('inp-name-a');
+            const nameB = document.getElementById('inp-name-b');
+            const periodInput = document.getElementById('inp-period');
+            const statusInput = document.getElementById('select-status');
+
+            if (nameA) state.teamA.name = nameA.value;
+            if (nameB) state.teamB.name = nameB.value;
+            if (periodInput) state.period = periodInput.value;
+            if (statusInput) state.status = statusInput.value;
+
             state.sport = normalizeSport(state.sport);
             state.logos = {a:"", b:""};
             ensureVolleyballSets();
@@ -1276,7 +1298,10 @@
             updateLogoOutput();
             updateVolleyballUI();
 
-            dbRef.set(state);
+            return dbRef.set(state).catch((err) => {
+                console.error('Gagal sinkron ke Firebase:', err);
+                throw err;
+            });
         }
 
         function formatTimer(sec) {
@@ -1365,7 +1390,11 @@
             alert("Pertandingan berhasil disimpan ke Hasil Match Center!");
         }
 
-        function openOutputTab() { window.open(window.location.href + '?mode=output', '_blank'); }
+        function openOutputTab() {
+            const url = new URL(window.location.href);
+            url.searchParams.set('mode', 'output');
+            window.open(url.toString(), '_blank');
+        }
         function exitTestOutput() { location.reload(); }
 
         let correctingVP8B4 = false;
@@ -1413,16 +1442,26 @@
                 ensureVolleyballSets();
                 ensureBadmintonSets();
                 ensureFutsalGoals();
-                updateTimerDisplay();
-                document.getElementById('ui-team-a').textContent = state.teamA.name;
-                document.getElementById('ui-team-b').textContent = state.teamB.name;
-                document.getElementById('ui-score-a').textContent = state.teamA.score;
-                document.getElementById('ui-score-b').textContent = state.teamB.score;
                 state.sport = normalizeSport(state.sport);
                 state.logos = {a:"", b:""};
+
+                // Sinkronkan juga PANEL OPERATOR, bukan hanya output scoreboard.
+                // Ini membuat LOAD dari tab/perangkat mana pun langsung terlihat sama.
+                const matchSelect = document.getElementById('select-match-list');
+                if (matchSelect) matchSelect.value = state.matchId || '';
+                updateOperatorInputs();
+                updateTimerDisplay();
                 updateVmixOutputFromState();
                 updateSportUI();
                 updateLogoOutput();
+
+                // Jika timer sedang berjalan dari state Firebase dan tab ini adalah
+                // operator, lanjutkan interval lokal agar kontrol tetap konsisten.
+                const isOutputMode = new URLSearchParams(window.location.search).get('mode') === 'output';
+                if (!isOutputMode) {
+                    if (state.timerRunning) startInterval();
+                    else stopInterval();
+                }
             }
         });
 
