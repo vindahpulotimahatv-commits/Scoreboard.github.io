@@ -471,14 +471,52 @@
             </div>
         </div>
 
-        <!-- KONTROL KHUSUS BADMINTON: 3 SET, TARGET 21 POIN, MENANG 2 SET -->
+        <!-- KONTROL KHUSUS BADMINTON BEREGU: 3 PARTAI, MASING-MASING BEST OF 3 GAME -->
         <div id="badminton-operator" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl" style="display:none">
-            <div class="flex items-center justify-between mb-3"><span class="text-xs font-black text-amber-400">BADMINTON — BEREGU GANDA</span><span class="text-[10px] text-gray-400">3 pasangan • target 21 poin • menang 2 set</span></div>
-            <div class="grid grid-cols-3 gap-2">
-                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 1</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(0,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(0,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(0,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(0,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
-                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 2</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(1,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(1,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(1,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(1,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
-                <div class="bg-black/30 border border-gray-800 rounded-xl p-2"><div class="text-[10px] text-amber-400 font-black text-center mb-2">SET 3 / PENENTU</div><div class="grid grid-cols-2 gap-1"><button onclick="changeBadmintonSetScore(2,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(2,'A',1)" class="bg-red-600 py-2 rounded">A +</button><button onclick="changeBadmintonSetScore(2,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(2,'B',1)" class="bg-blue-600 py-2 rounded">B +</button></div></div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-black text-amber-400">BADMINTON — BEREGU GANDA</span>
+                <span class="text-[10px] text-gray-400">3 partai • tiap partai maksimal 3 game</span>
             </div>
+
+            <div class="grid grid-cols-3 gap-2 mb-3">
+                <button id="bd-partai-btn-1" onclick="selectBadmintonPartai(0)" class="bg-amber-600 py-2 rounded-xl text-[10px] font-black">PARTAI 1</button>
+                <button id="bd-partai-btn-2" onclick="selectBadmintonPartai(1)" class="bg-gray-800 py-2 rounded-xl text-[10px] font-black">PARTAI 2</button>
+                <button id="bd-partai-btn-3" onclick="selectBadmintonPartai(2)" class="bg-gray-800 py-2 rounded-xl text-[10px] font-black">PARTAI 3</button>
+            </div>
+
+            <div id="bd-partai-summary" class="text-center text-[10px] font-black text-emerald-400 mb-3">SKOR BEREGU 0 - 0</div>
+
+            <div class="grid grid-cols-3 gap-2">
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2">
+                    <div class="text-[10px] text-amber-400 font-black text-center mb-1">GAME 1</div>
+                    <div class="text-center text-lg font-black mb-2"><span id="bd-op-a1" class="text-red-400">0</span> - <span id="bd-op-b1" class="text-blue-400">0</span></div>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button onclick="changeBadmintonSetScore(0,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(0,'A',1)" class="bg-red-600 py-2 rounded">A +</button>
+                        <button onclick="changeBadmintonSetScore(0,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(0,'B',1)" class="bg-blue-600 py-2 rounded">B +</button>
+                    </div>
+                </div>
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2">
+                    <div class="text-[10px] text-amber-400 font-black text-center mb-1">GAME 2</div>
+                    <div class="text-center text-lg font-black mb-2"><span id="bd-op-a2" class="text-red-400">0</span> - <span id="bd-op-b2" class="text-blue-400">0</span></div>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button onclick="changeBadmintonSetScore(1,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(1,'A',1)" class="bg-red-600 py-2 rounded">A +</button>
+                        <button onclick="changeBadmintonSetScore(1,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(1,'B',1)" class="bg-blue-600 py-2 rounded">B +</button>
+                    </div>
+                </div>
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2">
+                    <div class="text-[10px] text-amber-400 font-black text-center mb-1">GAME 3 / PENENTU</div>
+                    <div class="text-center text-lg font-black mb-2"><span id="bd-op-a3" class="text-red-400">0</span> - <span id="bd-op-b3" class="text-blue-400">0</span></div>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button onclick="changeBadmintonSetScore(2,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(2,'A',1)" class="bg-red-600 py-2 rounded">A +</button>
+                        <button onclick="changeBadmintonSetScore(2,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(2,'B',1)" class="bg-blue-600 py-2 rounded">B +</button>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="finishBadmintonPartai()" class="w-full mt-3 bg-emerald-700 hover:bg-emerald-600 py-3 rounded-xl font-black text-xs">
+                SELESAI PARTAI INI
+            </button>
+            <p class="text-[9px] text-gray-500 text-center mt-2">Partai dinyatakan menang jika unggul 2 game. Setelah seluruh pertandingan selesai, gunakan tombol “SELESAI & SIMPAN KE HISTORY”.</p>
         </div>
 
         <!-- KONTROL TIMER / WAKTU -->
@@ -681,6 +719,12 @@
             teamB: { name: "BELUM ADA JADWAL", score: 0 },
             volleyballSets: [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}],
             badmintonSets: [{a:0,b:0},{a:0,b:0},{a:0,b:0}],
+            currentBadmintonPartai: 0,
+            badmintonMatches: [
+                {name:"PARTAI 1", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                {name:"PARTAI 2", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                {name:"PARTAI 3", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null}
+            ],
             futsalGoals: []
         };
 
@@ -722,6 +766,12 @@
                 state.teamB = { name: "BELUM ADA JADWAL", score: 0 };
                 state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
                 state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
+                state.currentBadmintonPartai = 0;
+                state.badmintonMatches = [
+                    {name:"PARTAI 1", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 2", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 3", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null}
+                ];
                 state.futsalGoals = [];
             } else {
                 const m = VIPT_MATCHES.find(x => x.id === id);
@@ -742,6 +792,12 @@
                 state.teamB = { name: m.b, score: 0 };
                 state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
                 state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
+                state.currentBadmintonPartai = 0;
+                state.badmintonMatches = [
+                    {name:"PARTAI 1", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 2", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 3", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null}
+                ];
                 state.futsalGoals = [];
             }
 
@@ -794,6 +850,12 @@
             state.teamB.score = 0;
             state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
             state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
+                state.currentBadmintonPartai = 0;
+                state.badmintonMatches = [
+                    {name:"PARTAI 1", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 2", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 3", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null}
+                ];
             state.futsalGoals = [];
             updateOperatorInputs();
             updateVmixOutputFromState();
@@ -1098,18 +1160,150 @@
             alert(`SET 1 selesai: ${a}-${b}. Sekarang lanjut ke SET 2.`);
         }
 
-        function ensureBadmintonSets() {
-            if (!Array.isArray(state.badmintonSets) || state.badmintonSets.length !== 3) {
-                state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
+        function ensureBadmintonMatches() {
+            if (!Array.isArray(state.badmintonMatches) || state.badmintonMatches.length !== 3) {
+                // Migrasi otomatis data lama: tiga badmintonSets lama dianggap Partai 1–3.
+                const legacy = Array.isArray(state.badmintonSets) ? state.badmintonSets : [];
+                state.badmintonMatches = [0,1,2].map(i => {
+                    const old = legacy[i] || {a:0,b:0};
+                    const a = Math.max(0, Number(old?.a) || 0);
+                    const b = Math.max(0, Number(old?.b) || 0);
+                    return {
+                        name: `PARTAI ${i+1}`,
+                        games: [{a,b},{a:0,b:0},{a:0,b:0}],
+                        winner: a>b ? 'A' : (b>a ? 'B' : null)
+                    };
+                });
             }
-            state.badmintonSets = state.badmintonSets.map(x => ({a:Math.max(0,Number(x?.a)||0), b:Math.max(0,Number(x?.b)||0)}));
+
+            state.badmintonMatches = state.badmintonMatches.map((p,i) => {
+                const games = Array.isArray(p?.games) ? p.games.slice(0,3) : [];
+                while (games.length < 3) games.push({a:0,b:0});
+                return {
+                    name: p?.name || `PARTAI ${i+1}`,
+                    games: games.map(g => ({
+                        a: Math.max(0, Number(g?.a) || 0),
+                        b: Math.max(0, Number(g?.b) || 0)
+                    })),
+                    winner: p?.winner === 'A' || p?.winner === 'B' ? p.winner : null
+                };
+            });
+
+            state.currentBadmintonPartai = Math.max(0, Math.min(2, Number(state.currentBadmintonPartai) || 0));
+
+            // Field lama tetap dipertahankan untuk kompatibilitas output/kode lama.
+            const current = state.badmintonMatches[state.currentBadmintonPartai];
+            state.badmintonSets = current.games.map(g => ({a:g.a,b:g.b}));
         }
 
-        function getBadmintonSetWins() {
-            ensureBadmintonSets();
+        function ensureBadmintonSets() {
+            ensureBadmintonMatches();
+        }
+
+        function getBadmintonGameWins(partaiIndex = state.currentBadmintonPartai) {
+            ensureBadmintonMatches();
+            const p = state.badmintonMatches[partaiIndex] || state.badmintonMatches[0];
             let a=0,b=0;
-            state.badmintonSets.forEach(s => { if(s.a>s.b) a++; else if(s.b>s.a) b++; });
+            p.games.forEach(g => {
+                if (g.a > g.b) a++;
+                else if (g.b > g.a) b++;
+            });
             return {a,b};
+        }
+
+        function getBadmintonTeamWins() {
+            ensureBadmintonMatches();
+            let a=0,b=0;
+            state.badmintonMatches.forEach(p => {
+                if (p.winner === 'A') a++;
+                else if (p.winner === 'B') b++;
+            });
+            return {a,b};
+        }
+
+        // Nama lama dipertahankan agar kode existing tetap kompatibel.
+        function getBadmintonSetWins() {
+            return getBadmintonTeamWins();
+        }
+
+        function selectBadmintonPartai(index) {
+            ensureBadmintonMatches();
+            state.currentBadmintonPartai = Math.max(0, Math.min(2, Number(index) || 0));
+            state.period = `PARTAI ${state.currentBadmintonPartai + 1}`;
+            state.badmintonSets = state.badmintonMatches[state.currentBadmintonPartai].games.map(g => ({a:g.a,b:g.b}));
+            updateBadmintonOperatorUI();
+            updateOperatorInputs();
+            updateVmixOutputFromState();
+            syncToFirebase();
+        }
+
+        function updateBadmintonOperatorUI() {
+            if (normalizeSport(state.sport) !== 'BADMINTON') return;
+            ensureBadmintonMatches();
+
+            const idx = state.currentBadmintonPartai;
+            const p = state.badmintonMatches[idx];
+
+            [0,1,2].forEach(i => {
+                const a = document.getElementById(`bd-op-a${i+1}`);
+                const b = document.getElementById(`bd-op-b${i+1}`);
+                if (a) a.textContent = p.games[i].a;
+                if (b) b.textContent = p.games[i].b;
+
+                const btn = document.getElementById(`bd-partai-btn-${i+1}`);
+                if (btn) {
+                    const won = state.badmintonMatches[i].winner;
+                    btn.className = i === idx
+                        ? "bg-amber-600 py-2 rounded-xl text-[10px] font-black"
+                        : (won ? "bg-emerald-700 py-2 rounded-xl text-[10px] font-black" : "bg-gray-800 py-2 rounded-xl text-[10px] font-black");
+                    btn.textContent = `PARTAI ${i+1}${won ? " ✓" : ""}`;
+                }
+            });
+
+            const total = getBadmintonTeamWins();
+            const summary = document.getElementById('bd-partai-summary');
+            if (summary) summary.textContent = `SKOR BEREGU ${total.a} - ${total.b} • PARTAI ${idx+1}`;
+        }
+
+        function finishBadmintonPartai() {
+            if (normalizeSport(state.sport) !== 'BADMINTON') return;
+            ensureBadmintonMatches();
+
+            const idx = state.currentBadmintonPartai;
+            const wins = getBadmintonGameWins(idx);
+
+            if (wins.a < 2 && wins.b < 2) {
+                alert('Partai belum selesai. Salah satu tim harus memenangkan 2 GAME terlebih dahulu.');
+                return;
+            }
+
+            state.badmintonMatches[idx].winner = wins.a > wins.b ? 'A' : 'B';
+
+            const teamWins = getBadmintonTeamWins();
+            state.teamA.score = teamWins.a;
+            state.teamB.score = teamWins.b;
+            state.period = `PARTAI ${idx+1} SELESAI`;
+
+            if (teamWins.a >= 2 || teamWins.b >= 2) {
+                state.status = 'SELESAI';
+                state.timerRunning = false;
+            } else {
+                const next = state.badmintonMatches.findIndex((p,i) => i > idx && !p.winner);
+                if (next >= 0) {
+                    state.currentBadmintonPartai = next;
+                    state.period = `PARTAI ${next+1}`;
+                }
+            }
+
+            ensureBadmintonMatches();
+            updateOperatorInputs();
+            updateBadmintonOperatorUI();
+            updateVmixOutputFromState();
+            syncToFirebase();
+
+            if (teamWins.a >= 2 || teamWins.b >= 2) {
+                alert(`Badminton beregu selesai ${teamWins.a}-${teamWins.b}. Tekan “SELESAI & SIMPAN KE HISTORY” untuk menyimpan hasil lengkap ke Match Center.`);
+            }
         }
 
         function getVolleyballDisplayName() {
@@ -1166,22 +1360,40 @@
         }
 
         function updateBadmintonOutput() {
-            ensureBadmintonSets();
-            const wins=getBadmintonSetWins();
+            ensureBadmintonMatches();
+            const idx = state.currentBadmintonPartai;
+            const current = state.badmintonMatches[idx];
+            const teamWins = getBadmintonTeamWins();
             const ids=['1','2','3'];
+
+            // Layout output vMix TIDAK diubah. Tiga kolom existing menampilkan
+            // Game 1, Game 2, Game 3 dari partai yang sedang aktif.
             ids.forEach((n,i)=>{
                 const a=document.getElementById('bd-a'+n), b=document.getElementById('bd-b'+n);
-                if(a) a.textContent=state.badmintonSets[i].a;
-                if(b) b.textContent=state.badmintonSets[i].b;
+                if(a) a.textContent=current.games[i].a;
+                if(b) b.textContent=current.games[i].b;
             });
-            const totalA=document.getElementById('bd-total-a'), totalB=document.getElementById('bd-total-b'); if(totalA) totalA.textContent=wins.a; if(totalB) totalB.textContent=wins.b;
+
+            const totalA=document.getElementById('bd-total-a'), totalB=document.getElementById('bd-total-b');
+            if(totalA) totalA.textContent=teamWins.a;
+            if(totalB) totalB.textContent=teamWins.b;
+
             const ta=document.getElementById('bd-team-a'), tb=document.getElementById('bd-team-b');
-            if(ta) ta.textContent=state.teamA?.name||'TIM A'; if(tb) tb.textContent=state.teamB?.name||'TIM B';
-            const per=document.getElementById('bd-period'); if(per) per.textContent=state.period||'GAME 1';
-            const st=document.getElementById('bd-status'); if(st) st.textContent=state.status==='LIVE'?'LIVE SEKARANG':(state.status||'LIVE');
+            if(ta) ta.textContent=state.teamA?.name||'TIM A';
+            if(tb) tb.textContent=state.teamB?.name||'TIM B';
+
+            const per=document.getElementById('bd-period');
+            if(per) per.textContent=`PARTAI ${idx+1}`;
+
+            const st=document.getElementById('bd-status');
+            if(st) st.textContent=state.status==='LIVE'?'LIVE SEKARANG':(state.status||'LIVE');
+
             const la=document.getElementById('bd-logo-a'), lb=document.getElementById('bd-logo-b');
             const logoA=getAutoLogoForTeam(state.teamA?.name), logoB=getAutoLogoForTeam(state.teamB?.name);
-            if(la){la.src=logoA; la.style.display=logoA?'block':'none';} if(lb){lb.src=logoB; lb.style.display=logoB?'block':'none';}
+            if(la){la.src=logoA; la.style.display=logoA?'block':'none';}
+            if(lb){lb.src=logoB; lb.style.display=logoB?'block':'none';}
+
+            updateBadmintonOperatorUI();
         }
 
         function updateBadmintonLayoutVisibility() {
@@ -1202,12 +1414,31 @@
             if(isFutsal) updateFutsalOutput();
         }
 
-        function changeBadmintonSetScore(setIndex, team, val) {
-            ensureBadmintonSets();
+        function changeBadmintonSetScore(gameIndex, team, val) {
+            ensureBadmintonMatches();
+            const idx = state.currentBadmintonPartai;
+            const p = state.badmintonMatches[idx];
+
+            // Partai yang sudah ditutup tetap bisa diedit; status winner akan
+            // dihitung ulang ketika operator menekan SELESAI PARTAI INI.
             const key=team==='A'?'a':'b';
-            state.badmintonSets[setIndex][key]=Math.max(0,state.badmintonSets[setIndex][key]+val);
-            state.teamA.score=getBadmintonSetWins().a; state.teamB.score=getBadmintonSetWins().b;
-            updateOperatorInputs(); updateVmixOutputFromState(); syncToFirebase();
+            p.games[gameIndex][key]=Math.max(0, Number(p.games[gameIndex][key]||0) + val);
+
+            // Bila skor diedit setelah partai pernah selesai, buka kembali winner
+            // supaya operator mengonfirmasi hasil partai lagi.
+            p.winner = null;
+
+            state.badmintonSets = p.games.map(g=>({a:g.a,b:g.b}));
+            const teamWins=getBadmintonTeamWins();
+            state.teamA.score=teamWins.a;
+            state.teamB.score=teamWins.b;
+            state.status='LIVE';
+            state.period=`PARTAI ${idx+1}`;
+
+            updateOperatorInputs();
+            updateBadmintonOperatorUI();
+            updateVmixOutputFromState();
+            syncToFirebase();
         }
 
         function updateVmixOutputFromState() {
@@ -1256,8 +1487,9 @@
             ensureFutsalGoals();
             ensureVolleyballSets();
             updateVolleyballUI();
-            ensureBadmintonSets();
+            ensureBadmintonMatches();
             updateBadmintonOutput();
+            updateBadmintonOperatorUI();
         }
 
         function changeScore(team, val) {
@@ -1315,6 +1547,7 @@
             state.sport = normalizeSport(state.sport);
             state.logos = {a:"", b:""};
             ensureVolleyballSets();
+            ensureBadmintonMatches();
             ensureFutsalGoals();
             updateLogoOutput();
             updateVolleyballUI();
@@ -1402,13 +1635,29 @@
             syncToFirebase();
         }
 
-        function finishAndSaveMatch() {
+        async function finishAndSaveMatch() {
             if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke hasil?")) return;
+
             state.status = "SELESAI";
             state.timerRunning = false;
-            syncToFirebase();
-            firebase.database().ref("vipt_scoreboard/history").push(state);
-            alert("Pertandingan berhasil disimpan ke Hasil Match Center!");
+            state.completedAt = Date.now();
+            state.updatedAt = Date.now();
+
+            if (normalizeSport(state.sport) === 'BADMINTON') {
+                ensureBadmintonMatches();
+                const teamWins = getBadmintonTeamWins();
+                state.teamA.score = teamWins.a;
+                state.teamB.score = teamWins.b;
+            }
+
+            try {
+                await syncToFirebase();
+                await firebase.database().ref("vipt_scoreboard/history").push({...state});
+                alert("Pertandingan berhasil disimpan lengkap ke Hasil Match Center!");
+            } catch (err) {
+                console.error(err);
+                alert("Gagal menyimpan hasil ke Firebase. Silakan coba lagi.");
+            }
         }
 
         function openOutputTab() {
