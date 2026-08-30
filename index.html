@@ -446,11 +446,11 @@
             <p class="text-[9px] text-gray-500 text-center mt-2">Setiap gol otomatis menambah skor, mencatat nama pencetak gol, waktu, dan mengirim data real-time ke vMix/Match Center.</p>
         </div>
 
-        <!-- KONTROL KHUSUS VOLLY: MAKSIMAL 3 SET, MENANG 2 SET -->
+        <!-- KONTROL KHUSUS VOLLY: MAKSIMAL 5 SET, MENANG 3 SET -->
         <div id="volly-operator" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl" style="display:none">
             <div class="flex items-center justify-between mb-3">
                 <span class="text-xs font-black text-amber-400">VOLLY — PENYELESAIAN SET</span>
-                <span id="volly-set-info" class="text-[10px] text-gray-400">SET 1 • MENANG 2 SET</span>
+                <span id="volly-set-info" class="text-[10px] text-gray-400">SET 1 • BEST OF 5 • MENANG 3 SET</span>
             </div>
             <div class="grid grid-cols-1 gap-2">
                 <div class="grid grid-cols-2 gap-2">
@@ -599,15 +599,15 @@
                 </div>
                 <div class="vl-grid">
                     <div class="vl-team vl-team-a"><img id="vl-logo-a" class="vl-logo" style="display:none"><span id="vl-team-a">TIM A</span></div>
-                    <div class="vl-set"><div class="vl-set-title">SET 1</div><div id="vl-a1" class="vl-point vl-point-a">0</div></div>
-                    <div class="vl-set"><div class="vl-set-title">SET 2</div><div id="vl-a2" class="vl-point vl-point-a">0</div></div>
-                    <div class="vl-set"><div class="vl-set-title">SET 3 /<br>PENENTU</div><div id="vl-a3" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-set"><div id="vl-label-a1" class="vl-set-title">SET 1</div><div id="vl-a1" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-set"><div id="vl-label-a2" class="vl-set-title">SET 2</div><div id="vl-a2" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-set"><div id="vl-label-a3" class="vl-set-title">SET 3</div><div id="vl-a3" class="vl-point vl-point-a">0</div></div>
                     <div class="vl-total"><div class="vl-total-label">SET MENANG</div><div id="vl-total-a" class="vl-total-score">0</div></div>
 
                     <div class="vl-team vl-team-b"><img id="vl-logo-b" class="vl-logo" style="display:none"><span id="vl-team-b">TIM B</span></div>
-                    <div class="vl-set"><div class="vl-set-title">SET 1</div><div id="vl-b1" class="vl-point vl-point-b">0</div></div>
-                    <div class="vl-set"><div class="vl-set-title">SET 2</div><div id="vl-b2" class="vl-point vl-point-b">0</div></div>
-                    <div class="vl-set"><div class="vl-set-title">SET 3 /<br>PENENTU</div><div id="vl-b3" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-set"><div id="vl-label-b1" class="vl-set-title">SET 1</div><div id="vl-b1" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-set"><div id="vl-label-b2" class="vl-set-title">SET 2</div><div id="vl-b2" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-set"><div id="vl-label-b3" class="vl-set-title">SET 3</div><div id="vl-b3" class="vl-point vl-point-b">0</div></div>
                     <div class="vl-total"><div class="vl-total-label">SET MENANG</div><div id="vl-total-b" class="vl-total-score">0</div></div>
                 </div>
             </div>
@@ -661,7 +661,7 @@
             {id:"BDM-SF1", sport:"BADMINTON PUTRA", round:"BABAK SEMIFINAL PUTRA", a:"RT 10 / RW 021", b:"RT 07 / RW 014", date:"29 AGUSTUS 2026", time:"21:30 WIB"},
 
             // 30 AGUSTUS 2026 — VOLLY PUTRI
-            {id:"VW-SF1", sport:"VOLLY PUTRI", round:"BABAK SEMIFINAL", a:"RT 06 / RW 021", b:"RT 08 / RW 014", date:"30 AGUSTUS 2026", time:"15:45 WIB"},
+            {id:"VW-3RD", sport:"VOLLY PUTRI", round:"PEREBUTAN JUARA 3 & 4", a:"RT 08 / RW 014", b:"RT 06 / RW 021", date:"30 AGUSTUS 2026", time:"15:45 WIB"},
 
             // 30 AGUSTUS 2026 — TENIS MEJA SEMIFINAL
             {id:"TM-SF1", sport:"TENIS MEJA", round:"BABAK SEMIFINAL", a:"RT 13 / RW 021", b:"RT 10 / RW 014", date:"30 AGUSTUS 2026", time:"19:30 WIB"},
@@ -717,7 +717,7 @@
             timerRunning: false,
             teamA: { name: "BELUM ADA JADWAL", score: 0 },
             teamB: { name: "BELUM ADA JADWAL", score: 0 },
-            volleyballSets: [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}],
+            volleyballSets: [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}],
             badmintonSets: [{a:0,b:0},{a:0,b:0},{a:0,b:0}],
             currentBadmintonPartai: 0,
             badmintonMatches: [
@@ -764,7 +764,7 @@
                 state.status = "JADWAL";
                 state.teamA = { name: "BELUM ADA JADWAL", score: 0 };
                 state.teamB = { name: "BELUM ADA JADWAL", score: 0 };
-                state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
+                state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
                 state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
                 state.currentBadmintonPartai = 0;
                 state.badmintonMatches = [
@@ -790,7 +790,7 @@
                 state.status = "LIVE";
                 state.teamA = { name: m.a, score: 0 };
                 state.teamB = { name: m.b, score: 0 };
-                state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
+                state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
                 state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
                 state.currentBadmintonPartai = 0;
                 state.badmintonMatches = [
@@ -848,7 +848,7 @@
             state.period = getDefaultPeriod(state.sport);
             state.teamA.score = 0;
             state.teamB.score = 0;
-            state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
+            state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
             state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
                 state.currentBadmintonPartai = 0;
                 state.badmintonMatches = [
@@ -865,7 +865,7 @@
 
         function changePeriod(delta) {
             const sport = normalizeSport(state.sport);
-            const max = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? 2 : (sport === "VOLLY" ? 3 : 3);
+            const max = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? 2 : (sport === "VOLLY" ? 5 : 3);
             state.periodNumber = Math.max(1, Math.min(max, (Number(state.periodNumber) || 1) + delta));
 
             if (sport === "SEPAK BOLA" || sport === "FUTSAL") {
@@ -1007,9 +1007,11 @@
         }
 
         function ensureVolleyballSets() {
-            if (!Array.isArray(state.volleyballSets) || state.volleyballSets.length !== 3) {
-                state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
-            }
+            const blank = () => ({a:0,b:0,winner:null});
+            if (!Array.isArray(state.volleyballSets)) state.volleyballSets = [];
+            state.volleyballSets = state.volleyballSets.slice(0,5);
+            while (state.volleyballSets.length < 5) state.volleyballSets.push(blank());
+
             state.volleyballSets = state.volleyballSets.map(x => ({
                 a: Math.max(0, Number(x?.a) || 0),
                 b: Math.max(0, Number(x?.b) || 0),
@@ -1028,17 +1030,17 @@
         }
 
         function getVolleyballTarget() {
-            return Number(state.periodNumber) === 3 ? 15 : 25;
+            // Best of 5: SET 1-4 target 25, SET 5 target 15.
+            return Number(state.periodNumber) === 5 ? 15 : 25;
         }
 
         function isVolleyballSetReady() {
-            const setNo = Number(state.periodNumber) || 1;
-            if (setNo > 3) return false;
-            // Set 3 hanya boleh dimainkan bila skor kemenangan set adalah 1-1 (rubber).
-            if (setNo === 3) {
-                const wins = getVolleyballSetWins();
-                if (!(wins.a === 1 && wins.b === 1)) return false;
-            }
+            const setNo = Math.max(1, Number(state.periodNumber) || 1);
+            if (setNo > 5) return false;
+
+            const wins = getVolleyballSetWins();
+            if (wins.a >= 3 || wins.b >= 3) return false;
+
             const a = Number(state.teamA?.score || 0);
             const b = Number(state.teamB?.score || 0);
             const target = getVolleyballTarget();
@@ -1054,7 +1056,7 @@
 
             ensureVolleyballSets();
             const wins = getVolleyballSetWins();
-            const setNo = Math.max(1, Number(state.periodNumber) || 1);
+            const setNo = Math.max(1, Math.min(5, Number(state.periodNumber) || 1));
             const target = getVolleyballTarget();
             const info = document.getElementById('volly-set-info');
             const ca = document.getElementById('volly-current-a');
@@ -1062,15 +1064,12 @@
             const btn = document.getElementById('btn-finish-volly-set');
             const history = document.getElementById('volly-set-history');
 
-            if (info) info.textContent = `SET ${setNo} • TARGET ${target} • MENANG 2 SET (A ${wins.a} - B ${wins.b})`;
+            if (info) info.textContent = `SET ${setNo} • TARGET ${target} • BEST OF 5 / MENANG 3 SET (A ${wins.a} - B ${wins.b})`;
             if (ca) ca.textContent = Number(state.teamA?.score || 0);
             if (cb) cb.textContent = Number(state.teamB?.score || 0);
 
             if (btn) {
                 btn.textContent = `SELESAI SET ${setNo}`;
-                if (setNo === 3 && !(wins.a === 1 && wins.b === 1)) {
-                    btn.textContent = 'SET 3 HANYA UNTUK RUBBER';
-                }
                 btn.disabled = !isVolleyballSetReady();
                 btn.className = btn.disabled
                     ? "w-full bg-gray-700 text-gray-500 py-3 rounded-xl font-black text-xs shadow-lg cursor-not-allowed"
@@ -1092,19 +1091,16 @@
 
         function finishVollySet() {
             if (normalizeSport(state.sport) !== 'VOLLY') return;
-            const setNo = Math.max(1, Number(state.periodNumber) || 1);
-            const winsBefore = getVolleyballSetWins();
-            if (setNo === 3 && !(winsBefore.a === 1 && winsBefore.b === 1)) {
-                alert('SET 3 hanya digunakan jika hasil SET 1 dan SET 2 adalah 1-1 (RUBBER).');
-                return;
-            }
+
+            ensureVolleyballSets();
+            const setNo = Math.max(1, Math.min(5, Number(state.periodNumber) || 1));
+
             if (!isVolleyballSetReady()) {
                 const target = getVolleyballTarget();
                 alert(`Set belum memenuhi syarat. SET ${setNo} harus mencapai ${target} poin dan unggul minimal 2 poin.`);
                 return;
             }
 
-            ensureVolleyballSets();
             const idx = setNo - 1;
             const a = Number(state.teamA.score || 0);
             const b = Number(state.teamB.score || 0);
@@ -1112,52 +1108,45 @@
             state.volleyballSets[idx] = {a, b, winner};
 
             const wins = getVolleyballSetWins();
+
+            // Reset poin untuk set berikutnya.
             state.teamA.score = 0;
             state.teamB.score = 0;
 
-            // Best of 3: pertandingan selesai bila salah satu tim menang 2 set.
-            if (wins.a >= 2 || wins.b >= 2) {
+            // Best of 5: selesai saat salah satu tim menang 3 set.
+            if (wins.a >= 3 || wins.b >= 3) {
                 state.status = 'SELESAI';
                 state.timerRunning = false;
                 state.period = `SET ${setNo} SELESAI`;
+                state.completedAt = Date.now();
+                state.updatedAt = Date.now();
+
                 syncToFirebase();
-                firebase.database().ref('vipt_scoreboard/history').push(state);
+                firebase.database().ref('vipt_scoreboard/history').push({...state});
+
                 updateOperatorInputs();
+                updateVolleyballUI();
                 updateVmixOutputFromState();
-                alert(`Pertandingan selesai. Tim ${winner === 'A' ? 'A' : 'B'} memenangkan SET ${setNo} (${a}-${b}). Hasil sudah dikirim ke Match Center.`);
+
+                alert(`Pertandingan selesai ${wins.a}-${wins.b}. SET ${setNo}: ${a}-${b}. Hasil sudah dikirim ke Match Center.`);
                 return;
             }
 
-            // Setelah SET 2, hanya lanjut ke SET 3 bila skor set 1-1.
-            if (setNo === 2) {
-                if (wins.a === 1 && wins.b === 1) {
-                    state.periodNumber = 3;
-                    state.period = 'SET 3';
-                    state.status = 'LIVE';
-                    syncToFirebase();
-                    updateOperatorInputs();
-                    updateVmixOutputFromState();
-                    alert(`SET 2 selesai: ${a}-${b}. Skor set 1-1, lanjut ke SET 3 (RUBBER), target 15 poin.`);
-                } else {
-                    // Seharusnya sudah selesai di atas; pengaman tambahan.
-                    state.status = 'SELESAI';
-                    state.period = 'PERTANDINGAN SELESAI';
-                    syncToFirebase();
-                    firebase.database().ref('vipt_scoreboard/history').push(state);
-                    updateOperatorInputs();
-                    updateVmixOutputFromState();
-                }
-                return;
-            }
+            // Lanjut ke set berikutnya sampai maksimal SET 5.
+            if (setNo < 5) {
+                state.periodNumber = setNo + 1;
+                state.period = `SET ${setNo + 1}`;
+                state.status = 'LIVE';
+                state.updatedAt = Date.now();
 
-            // Setelah SET 1, lanjut SET 2.
-            state.periodNumber = 2;
-            state.period = 'SET 2';
-            state.status = 'LIVE';
-            syncToFirebase();
-            updateOperatorInputs();
-            updateVmixOutputFromState();
-            alert(`SET 1 selesai: ${a}-${b}. Sekarang lanjut ke SET 2.`);
+                syncToFirebase();
+                updateOperatorInputs();
+                updateVolleyballUI();
+                updateVmixOutputFromState();
+
+                const nextTarget = (setNo + 1) === 5 ? 15 : 25;
+                alert(`SET ${setNo} selesai: ${a}-${b}. Lanjut SET ${setNo + 1}, target ${nextTarget} poin.`);
+            }
         }
 
         function ensureBadmintonMatches() {
@@ -1316,13 +1305,27 @@
         function updateVolleyballOutput() {
             ensureVolleyballSets();
             const wins = getVolleyballSetWins();
-            const ids = ['1','2','3'];
-            ids.forEach((n,i) => {
+
+            // Layout vMix tetap 3 kolom. Saat masuk SET 4/5, kolom bergeser
+            // agar set yang sedang dimainkan tetap terlihat tanpa mengubah layout.
+            const currentSet = Math.max(1, Math.min(5, Number(state.periodNumber) || 1));
+            const startIndex = currentSet <= 3 ? 0 : (currentSet - 3);
+            const displayIndexes = [startIndex, startIndex + 1, startIndex + 2];
+
+            ['1','2','3'].forEach((n,i) => {
+                const setIdx = displayIndexes[i];
+                const s = state.volleyballSets[setIdx] || {a:0,b:0};
                 const a = document.getElementById('vl-a'+n);
                 const b = document.getElementById('vl-b'+n);
-                if (a) a.textContent = Number(state.volleyballSets[i]?.a || 0);
-                if (b) b.textContent = Number(state.volleyballSets[i]?.b || 0);
+                const la = document.getElementById('vl-label-a'+n);
+                const lb = document.getElementById('vl-label-b'+n);
+
+                if (a) a.textContent = Number(s.a || 0);
+                if (b) b.textContent = Number(s.b || 0);
+                if (la) la.textContent = `SET ${setIdx + 1}`;
+                if (lb) lb.textContent = `SET ${setIdx + 1}`;
             });
+
             const totalA = document.getElementById('vl-total-a');
             const totalB = document.getElementById('vl-total-b');
             if (totalA) totalA.textContent = wins.a;
