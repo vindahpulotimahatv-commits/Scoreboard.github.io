@@ -133,7 +133,7 @@
         .vl-header-right { justify-self:end; font-size:30px; color:#f8fafc; }
         .vl-grid {
             display:grid;
-            grid-template-columns:380px repeat(3,1fr) 180px;
+            grid-template-columns:340px repeat(5,1fr) 150px;
             grid-template-rows:1fr 1fr;
             min-height:300px;
         }
@@ -167,7 +167,7 @@
             justify-content:center;
             background:#111827;
             color:#fbbf24;
-            font-size:23px;
+            font-size:18px;
             font-weight:1000;
             text-align:center;
         }
@@ -175,7 +175,7 @@
             display:flex;
             align-items:center;
             justify-content:center;
-            font-size:72px;
+            font-size:58px;
             font-weight:1000;
             border-top:1px solid #334155;
         }
@@ -189,8 +189,8 @@
             background:#000;
             border-left:2px solid #333;
         }
-        .vl-total-label { font-size:20px; color:#94a3b8; font-weight:900; }
-        .vl-total-score { font-size:86px; line-height:1; font-weight:1000; color:#fff; }
+        .vl-total-label { font-size:16px; color:#94a3b8; font-weight:900; }
+        .vl-total-score { font-size:72px; line-height:1; font-weight:1000; color:#fff; }
         
 
         /* KONTROL & OUTPUT KHUSUS FUTSAL: PENCETAK GOL */
@@ -602,12 +602,16 @@
                     <div class="vl-set"><div id="vl-label-a1" class="vl-set-title">SET 1</div><div id="vl-a1" class="vl-point vl-point-a">0</div></div>
                     <div class="vl-set"><div id="vl-label-a2" class="vl-set-title">SET 2</div><div id="vl-a2" class="vl-point vl-point-a">0</div></div>
                     <div class="vl-set"><div id="vl-label-a3" class="vl-set-title">SET 3</div><div id="vl-a3" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-set"><div id="vl-label-a4" class="vl-set-title">SET 4</div><div id="vl-a4" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-set"><div id="vl-label-a5" class="vl-set-title">SET 5</div><div id="vl-a5" class="vl-point vl-point-a">0</div></div>
                     <div class="vl-total"><div class="vl-total-label">SET MENANG</div><div id="vl-total-a" class="vl-total-score">0</div></div>
 
                     <div class="vl-team vl-team-b"><img id="vl-logo-b" class="vl-logo" style="display:none"><span id="vl-team-b">TIM B</span></div>
                     <div class="vl-set"><div id="vl-label-b1" class="vl-set-title">SET 1</div><div id="vl-b1" class="vl-point vl-point-b">0</div></div>
                     <div class="vl-set"><div id="vl-label-b2" class="vl-set-title">SET 2</div><div id="vl-b2" class="vl-point vl-point-b">0</div></div>
                     <div class="vl-set"><div id="vl-label-b3" class="vl-set-title">SET 3</div><div id="vl-b3" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-set"><div id="vl-label-b4" class="vl-set-title">SET 4</div><div id="vl-b4" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-set"><div id="vl-label-b5" class="vl-set-title">SET 5</div><div id="vl-b5" class="vl-point vl-point-b">0</div></div>
                     <div class="vl-total"><div class="vl-total-label">SET MENANG</div><div id="vl-total-b" class="vl-total-score">0</div></div>
                 </div>
             </div>
@@ -1306,15 +1310,9 @@
             ensureVolleyballSets();
             const wins = getVolleyballSetWins();
 
-            // Layout vMix tetap 3 kolom. Saat masuk SET 4/5, kolom bergeser
-            // agar set yang sedang dimainkan tetap terlihat tanpa mengubah layout.
-            const currentSet = Math.max(1, Math.min(5, Number(state.periodNumber) || 1));
-            const startIndex = currentSet <= 3 ? 0 : (currentSet - 3);
-            const displayIndexes = [startIndex, startIndex + 1, startIndex + 2];
-
-            ['1','2','3'].forEach((n,i) => {
-                const setIdx = displayIndexes[i];
-                const s = state.volleyballSets[setIdx] || {a:0,b:0};
+            // Output vMix menampilkan SET 1 sampai SET 5 sekaligus.
+            ['1','2','3','4','5'].forEach((n,i) => {
+                const s = state.volleyballSets[i] || {a:0,b:0};
                 const a = document.getElementById('vl-a'+n);
                 const b = document.getElementById('vl-b'+n);
                 const la = document.getElementById('vl-label-a'+n);
@@ -1322,8 +1320,8 @@
 
                 if (a) a.textContent = Number(s.a || 0);
                 if (b) b.textContent = Number(s.b || 0);
-                if (la) la.textContent = `SET ${setIdx + 1}`;
-                if (lb) lb.textContent = `SET ${setIdx + 1}`;
+                if (la) la.textContent = `SET ${i+1}`;
+                if (lb) lb.textContent = `SET ${i+1}`;
             });
 
             const totalA = document.getElementById('vl-total-a');
@@ -1345,10 +1343,10 @@
 
             const logoA = getAutoLogoForTeam(state.teamA?.name);
             const logoB = getAutoLogoForTeam(state.teamB?.name);
-            const la = document.getElementById('vl-logo-a');
-            const lb = document.getElementById('vl-logo-b');
-            if (la) { la.src = logoA; la.style.display = logoA ? 'block' : 'none'; }
-            if (lb) { lb.src = logoB; lb.style.display = logoB ? 'block' : 'none'; }
+            const logoElA = document.getElementById('vl-logo-a');
+            const logoElB = document.getElementById('vl-logo-b');
+            if (logoElA) { logoElA.src = logoA; logoElA.style.display = logoA ? 'block' : 'none'; }
+            if (logoElB) { logoElB.src = logoB; logoElB.style.display = logoB ? 'block' : 'none'; }
         }
 
         function updateVolleyballLayoutVisibility() {
