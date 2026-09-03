@@ -364,7 +364,6 @@
                 <div>
                     <label class="block text-[10px] text-gray-400 font-bold mb-1">CABANG OLAHRAGA / MEKANISME SKOR</label>
                     <select id="select-sport" onchange="changeSport()" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-xl text-xs font-bold">
-                        <option value="SEPAK BOLA">SEPAK BOLA — GOAL / 2 BABAK</option>
                         <option value="FUTSAL">FUTSAL — GOAL / 2 BABAK</option>
                         <option value="VOLLY">VOLLY — POIN / SET</option>
                         <option value="BADMINTON">BADMINTON — POIN / GAME</option>
@@ -576,6 +575,7 @@
         <div class="space-y-2">
             <button onclick="openOutputTab()" class="w-full bg-gradient-to-r from-red-600 to-rose-700 hover:opacity-90 py-3 rounded-2xl font-black text-xs shadow-lg">BUKA TAMPILAN vMIX OUTPUT</button>
             <button onclick="finishAndSaveMatch()" class="w-full bg-emerald-700 hover:bg-emerald-600 py-3 rounded-2xl font-black text-xs shadow-lg">SELESAI & SIMPAN KE HISTORY</button>
+            <button onclick="resetLiveScore()" class="w-full bg-gray-800 hover:bg-red-900 border border-red-800 py-3 rounded-2xl font-black text-xs shadow-lg text-red-300">🗑️ HAPUS LIVE SCORE (KOSONGKAN MATCH CENTER)</button>
         </div>
     </div>
 
@@ -591,7 +591,7 @@
                 <div id="ui-score-a" class="sb-score-box">0</div>
 
                 <div class="sb-center">
-                    <div id="ui-sport" class="sport-badge">SEPAK BOLA</div>
+                    <div id="ui-sport" class="sport-badge">FUTSAL</div>
                     <div id="ui-timer" class="sb-timer">10:00</div>
                     <div id="ui-period" class="sb-period">BABAK 1</div>
                     <div class="sb-vs">VS</div>
@@ -754,7 +754,7 @@
             matchRound: "",
             matchDate: "",
             matchTime: "",
-            sport: "SEPAK BOLA",
+            sport: "FUTSAL",
             period: "BABAK 1",
             periodNumber: 1,
             logos: { a: "", b: "" },
@@ -802,7 +802,7 @@
                 state.matchRound = "";
                 state.matchDate = "";
                 state.matchTime = "";
-                state.sport = "SEPAK BOLA";
+                state.sport = "FUTSAL";
                 state.period = "BABAK 1";
                 state.periodNumber = 1;
                 state.logos = { a: "", b: "" };
@@ -864,7 +864,7 @@
             if (s.includes("BADMINTON")) return "BADMINTON";
             if (s.includes("TENIS MEJA") || s.includes("PINGPONG") || s.includes("PINGPONG")) return "TENIS MEJA";
             if (s.includes("FUTSAL")) return "FUTSAL";
-            return "SEPAK BOLA";
+            return "FUTSAL";
         }
 
         function getDefaultPeriod(sport) {
@@ -988,8 +988,7 @@
             if (s.includes("BADMINTON")) return "BADMINTON";
             if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
             if (s.includes("FUTSAL")) return "FUTSAL";
-            if (s.includes("SEPAK BOLA") || s.includes("SEPAKBOLA")) return "SEPAK BOLA";
-            return s || "SEPAK BOLA";
+            return s || "FUTSAL";
         }
 
         function ensureFutsalGoals() {
@@ -1883,6 +1882,17 @@
             return dbRef.set(state).catch((err) => {
                 console.error('Gagal sinkron ke Firebase:', err);
                 throw err;
+            });
+        }
+
+        function resetLiveScore() {
+            const ok = confirm("Hapus Live Score sekarang?\n\nBadge/skor live di Match Center & Scoreboard output akan kosong sampai pertandingan berikutnya dimulai lagi. Data pertandingan yang sudah tersimpan di History TIDAK akan terhapus.");
+            if (!ok) return;
+            dbRef.remove().then(() => {
+                alert("Live Score berhasil dihapus. Match Center akan otomatis kembali ke status 'Menunggu Pertandingan'.");
+            }).catch((err) => {
+                console.error('Gagal menghapus live score:', err);
+                alert("Gagal menghapus Live Score. Cek koneksi internet lalu coba lagi.");
             });
         }
 
