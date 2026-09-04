@@ -195,7 +195,7 @@
         
 
         /* KONTROL & OUTPUT KHUSUS FUTSAL: PENCETAK GOL */
-        /* Template FUTSAL sengaja dibuat SAMA PANJANG dan PROPORSINYA dengan scoreboard SEPAK BOLA.
+        /* Template FUTSAL sengaja dibuat SAMA PANJANG dan PROPORSINYA dengan scoreboard FUTSAL.
            Jangan dibuat responsive/mobile agar output vMix tetap 1920x1080 dan tidak mengecil. */
         .futsal-operator { display:none; }
         .futsal-goal-card { background:rgba(15,23,42,.72); border:1px solid #334155; border-radius:14px; padding:12px; }
@@ -215,7 +215,7 @@
         .futsal-event-row { display:flex; align-items:center; justify-content:center; gap:10px; font-size:14px; font-weight:900; color:#cbd5e1; padding:4px 0; }
         .futsal-event-team-a { color:#fca5a5; } .futsal-event-team-b { color:#93c5fd; }
 
-        /* FUTSAL vMix: PAKAI UKURAN SCOREBOARD SEPAK BOLA, TETAP PANJANG */
+        /* FUTSAL vMix: PAKAI UKURAN SCOREBOARD FUTSAL, TETAP PANJANG */
         .futsal-output {
             width:1760px !important;
             min-width:1760px !important;
@@ -575,7 +575,6 @@
         <div class="space-y-2">
             <button onclick="openOutputTab()" class="w-full bg-gradient-to-r from-red-600 to-rose-700 hover:opacity-90 py-3 rounded-2xl font-black text-xs shadow-lg">BUKA TAMPILAN vMIX OUTPUT</button>
             <button onclick="finishAndSaveMatch()" class="w-full bg-emerald-700 hover:bg-emerald-600 py-3 rounded-2xl font-black text-xs shadow-lg">SELESAI & SIMPAN KE HISTORY</button>
-            <button onclick="resetLiveScore()" class="w-full bg-gray-800 hover:bg-red-900 border border-red-800 py-3 rounded-2xl font-black text-xs shadow-lg text-red-300">🗑️ HAPUS LIVE SCORE (KOSONGKAN MATCH CENTER)</button>
         </div>
     </div>
 
@@ -591,7 +590,7 @@
                 <div id="ui-score-a" class="sb-score-box">0</div>
 
                 <div class="sb-center">
-                    <div id="ui-sport" class="sport-badge">FUTSAL</div>
+                    <div id="ui-sport" class="sport-badge">PERTANDINGAN</div>
                     <div id="ui-timer" class="sb-timer">10:00</div>
                     <div id="ui-period" class="sb-period">BABAK 1</div>
                     <div class="sb-vs">VS</div>
@@ -693,7 +692,7 @@
         if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
         const dbRef = firebase.database().ref("vipt_scoreboard/live");
 
-        const VIPT_MATCHES = [
+                const VIPT_MATCHES = [
             {id:"", sport:"PILIH", round:"-", a:"BELUM ADA", b:"PERTANDINGAN", date:"", time:""},
 
             // 04 SEPTEMBER 2026 — BADMINTON PUTRI (3/4 & FINAL)
@@ -704,13 +703,13 @@
             {id:"VP-3RD", sport:"VOLLY PUTRA", round:"PEREBUTAN JUARA 3", a:"RT 06 / RW 021", b:"RT 04 / RW 021", date:"05 SEPTEMBER 2026", time:"19:30 WIB"},
             {id:"VP-FINAL", sport:"VOLLY PUTRA", round:"FINAL", a:"RT 09 / RW 014", b:"RT 10 / RW 021", date:"05 SEPTEMBER 2026", time:"21:00 WIB"},
 
-            // 06 SEPTEMBER 2026 — VOLLY PUTRI, TENIS MEJA & BADMINTON PUTRA
+            // 06 SEPTEMBER 2026 — VOLLY PUTRI (FINAL), TENIS MEJA (3/4) & BADMINTON PUTRA (3/4 & FINAL)
             {id:"VW-FINAL", sport:"VOLLY PUTRI", round:"FINAL", a:"RT 09 / RW 014", b:"RT 08 / RW 021", date:"06 SEPTEMBER 2026", time:"16:00 WIB"},
             {id:"TM-3RD", sport:"TENIS MEJA", round:"PEREBUTAN JUARA 3", a:"RT 13 / RW 021", b:"RT 04 / RW 021", date:"06 SEPTEMBER 2026", time:"19:30 WIB"},
-            {id:"BDM-3RD", sport:"BADMINTON PUTRA", round:"PEREBUTAN JUARA 3", a:"RT 08 / RW 021", b:"RT 04 / RW 021", date:"06 SEPTEMBER 2026", time:"20:30 WIB"},
+            {id:"BDM-3RD", sport:"BADMINTON PUTRA", round:"PEREBUTAN JUARA 3", a:"RT 10 / RW 021", b:"RT 08 / RW 021", date:"06 SEPTEMBER 2026", time:"20:30 WIB"},
             {id:"BDM-FINAL", sport:"BADMINTON PUTRA", round:"FINAL", a:"RT 07 / RW 014", b:"RT 11 / RW 021", date:"06 SEPTEMBER 2026", time:"21:30 WIB"},
 
-            // 12 SEPTEMBER 2026 — TENIS MEJA FINAL, FUTSAL & CLOSING CEREMONY
+            // 12 SEPTEMBER 2026 — TENIS MEJA (FINAL), FUTSAL (3/4 & FINAL) + CLOSING CEREMONY
             {id:"TM-FINAL", sport:"TENIS MEJA", round:"FINAL", a:"RT 13 / RW 021", b:"RT 04 / RW 021", date:"12 SEPTEMBER 2026", time:"20:00 WIB"},
             {id:"FS-3RD", sport:"FUTSAL", round:"PEREBUTAN JUARA 3", a:"RT 04 / RW 021", b:"RT 02 / RW 021", date:"12 SEPTEMBER 2026", time:"20:45 WIB"},
             {id:"FS-FINAL", sport:"FUTSAL", round:"FINAL", a:"RT 13 / RW 021", b:"RT 11 / RW 021", date:"12 SEPTEMBER 2026", time:"21:15 WIB"}
@@ -867,14 +866,14 @@
 
         function getDefaultPeriod(sport) {
             sport = normalizeSport(sport);
-            if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "BABAK 1";
+            if (sport === "FUTSAL") return "BABAK 1";
             if (sport === "VOLLY") return "SET 1";
             return "GAME 1";
         }
 
         function getScoreUnit() {
             const sport = normalizeSport(state.sport);
-            if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "GOAL";
+            if (sport === "FUTSAL") return "GOAL";
             return "POIN";
         }
 
@@ -911,10 +910,10 @@
 
         function changePeriod(delta) {
             const sport = normalizeSport(state.sport);
-            const max = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? 2 : (sport === "VOLLY" ? 5 : 3);
+            const max = (sport === "FUTSAL") ? 2 : (sport === "VOLLY" ? 5 : 3);
             state.periodNumber = Math.max(1, Math.min(max, (Number(state.periodNumber) || 1) + delta));
 
-            if (sport === "SEPAK BOLA" || sport === "FUTSAL") {
+            if (sport === "FUTSAL") {
                 state.period = "BABAK " + state.periodNumber;
             } else if (sport === "VOLLY") {
                 ensureVolleyballSets();
@@ -1770,7 +1769,7 @@
             updateBadmintonLayoutVisibility();
 
             if (timerEl) {
-                const isCountdownSport = sportText === "SEPAK BOLA" || sportText === "FUTSAL";
+                const isCountdownSport = sportText === "FUTSAL";
                 timerEl.style.display = "block";
                 timerEl.textContent = isCountdownSport ? formatTimer(state.timer) : formatLocalClock();
             }
@@ -1883,17 +1882,6 @@
             });
         }
 
-        function resetLiveScore() {
-            const ok = confirm("Hapus Live Score sekarang?\n\nBadge/skor live di Match Center & Scoreboard output akan kosong sampai pertandingan berikutnya dimulai lagi. Data pertandingan yang sudah tersimpan di History TIDAK akan terhapus.");
-            if (!ok) return;
-            dbRef.remove().then(() => {
-                alert("Live Score berhasil dihapus. Match Center akan otomatis kembali ke status 'Menunggu Pertandingan'.");
-            }).catch((err) => {
-                console.error('Gagal menghapus live score:', err);
-                alert("Gagal menghapus Live Score. Cek koneksi internet lalu coba lagi.");
-            });
-        }
-
         function formatTimer(sec) {
             const m = Math.floor(sec / 60);
             const s = sec % 60;
@@ -1913,13 +1901,13 @@
             const timeStr = formatTimer(state.timer);
             const sport = normalizeSport(state.sport);
             document.getElementById('op-timer-display').textContent = timeStr;
-            document.getElementById('ui-timer').textContent = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? timeStr : formatLocalClock();
+            document.getElementById('ui-timer').textContent = (sport === "FUTSAL") ? timeStr : formatLocalClock();
             if (sport === 'FUTSAL') { const ft = document.getElementById('futsal-timer'); if (ft) ft.textContent = timeStr; }
         }
 
         setInterval(() => {
             const sport = normalizeSport(state.sport);
-            if (sport !== "SEPAK BOLA" && sport !== "FUTSAL") {
+            if (sport !== "FUTSAL") {
                 const timerEl = document.getElementById('ui-timer');
                 if (timerEl) timerEl.textContent = formatLocalClock();
             }
