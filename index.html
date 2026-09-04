@@ -1,0 +1,2091 @@
+<!-- VIPT FINAL WEEK SYNC v5 | verified 2026-08-31 -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VIPT CUP IV 2026 - Panel Kontrol Operator & Scoreboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+    <style>
+        html, body { margin:0; padding:0; width:100%; min-height:100%; background:#0f172a; color:white; font-family:Arial,sans-serif; }
+        body.output-mode { overflow:hidden !important; }
+        body.output-mode #operator-view { display:none !important; }
+        body.output-mode #output-view { display:block !important; visibility:visible !important; opacity:1 !important; }
+        body { background-color: #0f172a; color: white; font-family: Arial, sans-serif; }
+        .mode-output { background: transparent !important; overflow: hidden; }
+        .scoreboard-root { width: 1920px; height: 1080px; min-width: 1920px; min-height: 1080px; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; pointer-events: none; overflow: hidden; }
+        .sb-main-bar {
+            margin-top: 0;
+            width: 1760px;
+            min-height: 270px;
+            display: flex;
+            align-items: stretch;
+            background: rgba(8, 15, 30, 0.97);
+            border: 2px solid rgba(255,255,255,0.16);
+            border-radius: 26px;
+            overflow: hidden;
+            box-shadow: 0 16px 45px rgba(0,0,0,0.65);
+        }
+        .sb-team {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            padding: 24px 34px;
+            width: 540px;
+            min-width: 540px;
+            font-size: 42px;
+            line-height: 1.05;
+            font-weight: 900;
+            text-transform: uppercase;
+            white-space: normal;
+            text-align: center;
+        }
+        .sb-team span { max-width: 285px; }
+        .sb-score-box {
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 190px;
+            min-width: 190px;
+            font-size: 116px;
+            line-height: 1;
+            font-weight: 1000;
+            color: #fff;
+            text-shadow: 0 3px 12px rgba(255,255,255,0.2);
+        }
+        .sb-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 260px;
+            min-width: 260px;
+            background: #020617;
+            border-left: 2px solid #333;
+            border-right: 2px solid #333;
+            padding: 18px;
+        }
+        .sb-timer { font-size: 52px; font-weight: 1000; color: #fbbf24; }
+        .sb-logo {
+            image-rendering: auto;
+            width: 180px;
+            height: 180px;
+            object-fit: contain;
+            background: rgba(255,255,255,0.04);
+            border-radius: 22px;
+            padding: 0;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,.45);
+        }
+        .sport-badge {
+            font-size: 22px;
+            font-weight: 1000;
+            color: #fbbf24;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .sb-period {
+            font-size: 19px;
+            font-weight: 900;
+            color: #cbd5e1;
+            margin-top: 6px;
+            text-align: center;
+        }
+        .sb-vs {
+            font-size: 26px;
+            font-weight: 1000;
+            color: #64748b;
+            margin-top: 2px;
+        }
+        
+        /* LAYOUT KHUSUS VOLLY - sesuai layout vMix yang diminta */
+        .vl-layout {
+            display:none;
+            width:1860px;
+            min-height:340px;
+            margin-top:0;
+            background:rgba(8,15,30,.97);
+            border:2px solid rgba(255,255,255,.16);
+            border-radius:24px;
+            overflow:hidden;
+            box-shadow:0 16px 45px rgba(0,0,0,.65);
+            flex-direction:column;
+        }
+        .vl-header {
+            min-height:72px;
+            display:grid;
+            grid-template-columns:1fr auto 1fr;
+            align-items:center;
+            background:#020617;
+            border-bottom:2px solid #333;
+            font-weight:1000;
+            letter-spacing:1px;
+            text-transform:uppercase;
+            padding:0 28px;
+        }
+        .vl-header-left { justify-self:start; font-size:30px; color:#f8fafc; }
+        .vl-header-center { justify-self:center; font-size:30px; color:#f8fafc; }
+        .vl-header-right { justify-self:end; font-size:30px; color:#f8fafc; }
+        .vl-grid {
+            display:grid;
+            grid-template-columns:340px repeat(5,1fr) 150px;
+            grid-template-rows:1fr 1fr;
+            min-height:300px;
+        }
+        .vl-team {
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:12px;
+            padding:12px 16px;
+            font-size:28px;
+            font-weight:1000;
+            text-transform:uppercase;
+            text-align:center;
+        }
+        .vl-team-a { background:#c51b1b; }
+        .vl-team-b { background:#2453d4; }
+        .vl-team span { max-width:100%; line-height:1.1; overflow-wrap:break-word; }
+        .vl-logo { width:105px; height:105px; object-fit:contain; background:#fff; border-radius:18px; padding:5px; flex-shrink:0; }
+        .vl-set {
+            display:grid;
+            grid-template-rows:70px 1fr;
+            border:2px solid #334155;
+            border-radius:16px;
+            overflow:hidden;
+            background:#020617;
+        }
+        .vl-set-title {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#111827;
+            color:#fbbf24;
+            font-size:18px;
+            font-weight:1000;
+            text-align:center;
+        }
+        .vl-point {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:58px;
+            font-weight:1000;
+            border-top:1px solid #334155;
+        }
+        .vl-point-a { color:#fca5a5; }
+        .vl-point-b { color:#93c5fd; }
+        .vl-total {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex-direction:column;
+            background:#000;
+            border-left:2px solid #333;
+        }
+        .vl-total-label { font-size:16px; color:#94a3b8; font-weight:900; }
+        .vl-total-score { font-size:72px; line-height:1; font-weight:1000; color:#fff; }
+        
+
+        /* KONTROL & OUTPUT KHUSUS FUTSAL: PENCETAK GOL */
+        /* Template FUTSAL sengaja dibuat SAMA PANJANG dan PROPORSINYA dengan scoreboard SEPAK BOLA.
+           Jangan dibuat responsive/mobile agar output vMix tetap 1920x1080 dan tidak mengecil. */
+        .futsal-operator { display:none; }
+        .futsal-goal-card { background:rgba(15,23,42,.72); border:1px solid #334155; border-radius:14px; padding:12px; }
+        .futsal-goal-title { font-size:11px; font-weight:1000; color:#fbbf24; margin-bottom:8px; text-transform:uppercase; }
+        .futsal-goal-input { width:100%; background:#020617; border:1px solid #334155; padding:9px 10px; border-radius:10px; color:#fff; font-size:11px; font-weight:800; }
+        .futsal-goal-btn { width:100%; margin-top:8px; padding:9px; border-radius:10px; font-size:11px; font-weight:1000; }
+        .futsal-output { display:none; width:1760px; min-height:270px; margin-top:20px; background:rgba(8,15,30,.97); border:2px solid rgba(255,255,255,.16); border-radius:26px; overflow:hidden; box-shadow:0 16px 45px rgba(0,0,0,.65); }
+        .futsal-output-main { display:grid; grid-template-columns:540px 190px 260px 190px 540px; min-height:270px; }
+        .futsal-team { display:flex; align-items:center; justify-content:center; gap:24px; padding:24px 34px; width:540px; min-width:540px; font-size:42px; line-height:1.05; font-weight:900; text-transform:uppercase; white-space:normal; text-align:center; }
+        .futsal-team span { max-width:285px; }
+        .futsal-score { background:#000; display:flex; align-items:center; justify-content:center; width:190px; min-width:190px; font-size:116px; line-height:1; font-weight:1000; color:#fff; text-shadow:0 3px 12px rgba(255,255,255,.2); }
+        .futsal-center { display:flex; flex-direction:column; align-items:center; justify-content:center; width:260px; min-width:260px; background:#020617; border-left:2px solid #333; border-right:2px solid #333; padding:18px; }
+        .futsal-goal-banner { width:100%; margin-top:8px; padding:5px 6px; border-radius:8px; background:#111827; border:1px solid #334155; text-align:center; }
+        .futsal-goal-banner-label { font-size:9px; color:#fbbf24; font-weight:1000; }
+        .futsal-goal-banner-name { font-size:13px; color:#fff; font-weight:1000; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+        .futsal-events { display:none; padding:10px 14px; background:#020617; border-top:2px solid #333; }
+        .futsal-event-row { display:flex; align-items:center; justify-content:center; gap:10px; font-size:14px; font-weight:900; color:#cbd5e1; padding:4px 0; }
+        .futsal-event-team-a { color:#fca5a5; } .futsal-event-team-b { color:#93c5fd; }
+
+        /* FUTSAL vMix: PAKAI UKURAN SCOREBOARD SEPAK BOLA, TETAP PANJANG */
+        .futsal-output {
+            width:1760px !important;
+            min-width:1760px !important;
+            height:270px !important;
+            min-height:270px !important;
+            margin-top:0 !important;
+        }
+        .futsal-output-main {
+            width:1760px !important;
+            min-width:1760px !important;
+            height:270px !important;
+            min-height:270px !important;
+            grid-template-columns:540px 190px 260px 190px 540px !important;
+        }
+        .futsal-team {
+            width:540px !important;
+            min-width:540px !important;
+            height:270px !important;
+            min-height:270px !important;
+            font-size:42px !important;
+            padding:24px 34px !important;
+        }
+        .futsal-score {
+            width:190px !important;
+            min-width:190px !important;
+            height:270px !important;
+            min-height:270px !important;
+            font-size:116px !important;
+        }
+        .futsal-center {
+            width:260px !important;
+            min-width:260px !important;
+            height:270px !important;
+            min-height:270px !important;
+            padding:18px !important;
+        }
+
+        /* LAYOUT KHUSUS BADMINTON: teks di bawah logo, lebih panjang, lebih rapi */
+        .bd-layout {
+            display: none;
+            width: 1860px; /* DIPANJANGKAN */
+            min-height: 280px;
+            margin-top: 70px;
+            background: rgba(8,15,30,.97);
+            border: 2px solid rgba(255,255,255,.16);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 16px 45px rgba(0,0,0,.65);
+            flex-direction: column;
+        }
+        .bd-header {
+            height: 62px; display:flex; align-items:center; justify-content:center;
+            gap:24px; background:#020617; border-bottom:2px solid #333;
+            font-weight:1000; letter-spacing:1px;
+        }
+        .bd-grid { 
+            display:grid; 
+            grid-template-columns: 380px repeat(3,1fr) 180px; 
+            grid-template-rows:1fr 1fr; 
+            min-height:218px; 
+        }
+        .bd-team { 
+            display:flex; 
+            flex-direction: column; 
+            align-items:center; 
+            justify-content: center;
+            gap:12px; 
+            padding:12px 16px; 
+            font-size:26px; 
+            font-weight:1000; 
+            text-transform:uppercase; 
+            text-align: center;
+        }
+        .bd-team-a { background:#b91c1c; } .bd-team-b { background:#1d4ed8; }
+        .bd-team span { max-width:100%; line-height:1.1; word-break:normal; overflow-wrap:break-word; }
+        .bd-logo { width:95px; height:95px; object-fit:contain; background:#fff; border-radius:16px; padding:5px; flex-shrink:0; }
+        
+        .bd-sets { display:contents; }
+        .bd-set { display:grid; grid-template-rows:48px 1fr; border:2px solid #334155; border-radius:14px; overflow:hidden; background:#020617; }
+        .bd-set-title { display:flex; align-items:center; justify-content:center; background:#111827; color:#fbbf24; font-size:18px; font-weight:1000; }
+        .bd-point { display:flex; align-items:center; justify-content:center; font-size:58px; font-weight:1000; border-top:1px solid #334155; }
+        .bd-point-a { color:#fca5a5; } .bd-point-b { color:#93c5fd; }
+        .bd-total { display:flex; align-items:center; justify-content:center; flex-direction:column; background:#000; border-left:2px solid #333; }
+        .bd-total-label { font-size:18px; color:#94a3b8; font-weight:900; }
+        .bd-total-score { font-size:82px; line-height:1; font-weight:1000; color:#fff; }
+        .bd-sub { font-size:15px; color:#cbd5e1; margin-top:7px; font-weight:800; }
+        
+        @media (max-width:900px) { 
+            .bd-layout{width:98vw} 
+            .bd-grid{grid-template-columns: 28% repeat(3,1fr) 15%} 
+            .bd-team{font-size:14px; padding:8px; gap:6px} 
+            .bd-logo{width:50px; height:50px} 
+            .bd-point{font-size:32px} 
+            .bd-set-title{font-size:11px} 
+            .bd-total-score{font-size:40px} 
+            .bd-team span{max-width:100%} 
+        }
+    </style>
+</head>
+<body class="p-2 sm:p-6">
+    <script>
+        // Aktifkan mode output SEBELUM script Firebase/Tailwind agar halaman tidak blank
+        // walaupun library eksternal terlambat/gagal dimuat.
+        try {
+            if (new URLSearchParams(window.location.search).get("mode") === "output") {
+                document.body.classList.add("output-mode");
+            }
+        } catch (e) {}
+    </script>
+
+    <!-- TOMBOL KELUAR MODE VMIX OUTPUT -->
+    <button id="btn-back-operator" onclick="exitTestOutput()" style="display:none; position:fixed; top:10px; left:10px; z-index:9999; background:red; padding:10px; font-weight:bold; border-radius:8px;">KEMBALI KE PANEL</button>
+
+    <!-- ==================== PANEL KONTROL OPERATOR ==================== -->
+    <div id="operator-view" class="max-w-xl mx-auto space-y-4 pb-12">
+        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
+            <h1 class="text-lg font-black text-center text-amber-400 mb-1">VIPT CUP IV 2026</h1>
+            <p class="text-xs text-center text-gray-400 mb-4">PANEL KONTROL OPERATOR & SYNC REAL-TIME</p>
+            
+            <!-- PILIH PERTANDINGAN -->
+            <label class="block text-xs font-bold text-gray-300 mb-2">PILIH PERTANDINGAN DARI JADWAL</label>
+            <div class="flex gap-2 mb-3">
+                <select id="select-match-list" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-xl text-xs font-bold"></select>
+                <button onclick="applySelectedMatch()" class="bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg transition">LOAD</button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-[10px] text-gray-400 font-bold mb-1">BABAK / PERIODE</label>
+                    <input type="text" id="inp-period" oninput="syncToFirebase()" class="w-full bg-gray-800 border border-gray-700 p-2 rounded-xl text-xs font-bold" value="BABAK 1">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-gray-400 font-bold mb-1">STATUS MATCH</label>
+                    <select id="select-status" onchange="syncToFirebase()" class="w-full bg-gray-800 border border-gray-700 p-2 rounded-xl text-xs font-bold text-emerald-400">
+                        <option value="LIVE">LIVE SEKARANG</option>
+                        <option value="JADWAL">BELUM MULAI</option>
+                        <option value="SELESAI">SELESAI</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- CABOR & LOGO PESERTA -->
+        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
+            <div class="grid grid-cols-1 gap-3">
+                <div>
+                    <label class="block text-[10px] text-gray-400 font-bold mb-1">CABANG OLAHRAGA / MEKANISME SKOR</label>
+                    <select id="select-sport" onchange="changeSport()" class="w-full bg-gray-800 border border-gray-700 p-2.5 rounded-xl text-xs font-bold">
+                        <option value="FUTSAL">FUTSAL — GOAL / 2 BABAK</option>
+                        <option value="VOLLY">VOLLY — POIN / SET</option>
+                        <option value="BADMINTON">BADMINTON — POIN / GAME</option>
+                        <option value="TENIS MEJA">TENIS MEJA / PINGPONG — POIN / GAME</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+                        <label class="block text-[10px] text-gray-400 font-bold mb-2">LOGO TIM A — OTOMATIS</label>
+                        <img id="preview-logo-a" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
+                        <div id="preview-logo-a-empty" class="text-[10px] text-gray-500">Logo mengikuti nama Team A</div>
+                    </div>
+                    <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+                        <label class="block text-[10px] text-gray-400 font-bold mb-2">LOGO TIM B — OTOMATIS</label>
+                        <img id="preview-logo-b" class="hidden w-20 h-20 object-contain bg-white rounded-xl p-1 mx-auto shadow-lg">
+                        <div id="preview-logo-b-empty" class="text-[10px] text-gray-500">Logo mengikuti nama Team B</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="changePeriod(-1)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs">PERIODE -</button>
+                    <div id="period-label" class="bg-black/40 border border-gray-800 rounded-xl flex items-center justify-center text-[10px] font-black text-amber-400">BABAK 1</div>
+                    <button onclick="changePeriod(1)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs">PERIODE +</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KONTROL SKOR TIM A & B -->
+        <div class="grid grid-cols-2 gap-3">
+            <!-- TIM A -->
+            <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl flex flex-col justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-red-400 mb-1">TIM A (KIRI)</p>
+                    <input type="text" id="inp-name-a" oninput="syncToFirebase()" class="w-full bg-gray-800 border border-gray-700 p-2 mb-3 rounded-xl text-xs font-bold" placeholder="Nama Tim A">
+                </div>
+                <div class="text-center bg-black/40 py-3 rounded-xl border border-gray-800 mb-3">
+                    <span id="op-score-a" class="text-4xl font-black text-red-500">0</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="changeScore('A', -1)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-black text-sm">-1</button>
+                    <button onclick="changeScore('A', 1)" class="bg-red-600 hover:bg-red-500 py-2 rounded-xl font-black text-sm">+1</button>
+                </div>
+            </div>
+
+            <!-- TIM B -->
+            <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl flex flex-col justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-blue-400 mb-1">TIM B (KANAN)</p>
+                    <input type="text" id="inp-name-b" oninput="syncToFirebase()" class="w-full bg-gray-800 border border-gray-700 p-2 mb-3 rounded-xl text-xs font-bold" placeholder="Nama Tim B">
+                </div>
+                <div class="text-center bg-black/40 py-3 rounded-xl border border-gray-800 mb-3">
+                    <span id="op-score-b" class="text-4xl font-black text-blue-500">0</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="changeScore('B', -1)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-black text-sm">-1</button>
+                    <button onclick="changeScore('B', 1)" class="bg-blue-600 hover:bg-blue-500 py-2 rounded-xl font-black text-sm">+1</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KONTROL KHUSUS FUTSAL: PENCETAK GOL -->
+        <div id="futsal-operator" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl futsal-operator">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-black text-amber-400">FUTSAL — PENCETAK GOL</span>
+                <span class="text-[10px] text-gray-400">Nama pemain akan tampil di vMix</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="futsal-goal-card">
+                    <div class="futsal-goal-title text-red-400">TIM A — PENCETAK GOL</div>
+                    <input id="futsal-scorer-a" class="futsal-goal-input" placeholder="Nama pemain yang cetak gol">
+                    <button onclick="addFutsalGoal('A')" class="futsal-goal-btn bg-red-600 hover:bg-red-500">⚽ GOL TIM A</button>
+                </div>
+                <div class="futsal-goal-card">
+                    <div class="futsal-goal-title text-blue-400">TIM B — PENCETAK GOL</div>
+                    <input id="futsal-scorer-b" class="futsal-goal-input" placeholder="Nama pemain yang cetak gol">
+                    <button onclick="addFutsalGoal('B')" class="futsal-goal-btn bg-blue-600 hover:bg-blue-500">⚽ GOL TIM B</button>
+                </div>
+            </div>
+            <div class="mt-3 border-t border-gray-800 pt-3">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-black text-amber-400">STATUS BABAK</span>
+                    <span id="futsal-status-info" class="text-[10px] text-gray-400">BABAK 1 • LIVE</span>
+                </div>
+                <button id="btn-futsal-period" onclick="finishFutsalPeriod()" class="w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-black text-xs shadow-lg">
+                    SELESAI BABAK 1
+                </button>
+            </div>
+            <p class="text-[9px] text-gray-500 text-center mt-2">Gol dan status BABAK otomatis dikirim real-time ke vMix/Match Center.</p>
+        </div>
+
+        <!-- KONTROL KHUSUS VOLLY: MAKSIMAL 5 SET, MENANG 3 SET -->
+        <div id="volly-operator" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl" style="display:none">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-black text-amber-400">VOLLY — PENYELESAIAN SET</span>
+                <span id="volly-set-info" class="text-[10px] text-gray-400">SET 1 • BEST OF 5 • MENANG 3 SET</span>
+            </div>
+            <div class="grid grid-cols-1 gap-2">
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+                        <div class="text-[10px] text-red-400 font-black mb-1">TIM A — SET BERJALAN</div>
+                        <div id="volly-current-a" class="text-3xl font-black text-red-500">0</div>
+                    </div>
+                    <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+                        <div class="text-[10px] text-blue-400 font-black mb-1">TIM B — SET BERJALAN</div>
+                        <div id="volly-current-b" class="text-3xl font-black text-blue-500">0</div>
+                    </div>
+                </div>
+                <div id="volly-set-history" class="grid grid-cols-5 gap-1"></div>
+                <button id="btn-finish-volly-set" onclick="finishVollySet()" class="w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-black text-xs shadow-lg">
+                    SELESAI SET 1
+                </button>
+                <p class="text-[9px] text-gray-500 text-center">SET 1–4 target 25 poin (selisih 2). SET 5 target 15 poin (selisih 2). Setelah menekan SELESAI SET, status langsung dikirim ke Match Center.</p>
+            </div>
+        </div>
+
+        <!-- KONTROL KHUSUS BADMINTON BEREGU: 3 PARTAI, MASING-MASING BEST OF 3 GAME -->
+        <div id="badminton-operator" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl" style="display:none">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-black text-amber-400">BADMINTON — BEREGU GANDA</span>
+                <span class="text-[10px] text-gray-400">3 partai • tiap partai maksimal 3 game</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 mb-3">
+                <button id="bd-partai-btn-1" onclick="selectBadmintonPartai(0)" class="bg-amber-600 py-2 rounded-xl text-[10px] font-black">PARTAI 1</button>
+                <button id="bd-partai-btn-2" onclick="selectBadmintonPartai(1)" class="bg-gray-800 py-2 rounded-xl text-[10px] font-black">PARTAI 2</button>
+                <button id="bd-partai-btn-3" onclick="selectBadmintonPartai(2)" class="bg-gray-800 py-2 rounded-xl text-[10px] font-black">PARTAI 3</button>
+            </div>
+
+            <div id="bd-partai-summary" class="text-center text-[10px] font-black text-emerald-400 mb-3">SKOR BEREGU 0 - 0</div>
+
+            <div class="grid grid-cols-3 gap-2">
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2">
+                    <div class="text-[10px] text-amber-400 font-black text-center mb-1">GAME 1</div>
+                    <div class="text-center text-lg font-black mb-2"><span id="bd-op-a1" class="text-red-400">0</span> - <span id="bd-op-b1" class="text-blue-400">0</span></div>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button onclick="changeBadmintonSetScore(0,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(0,'A',1)" class="bg-red-600 py-2 rounded">A +</button>
+                        <button onclick="changeBadmintonSetScore(0,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(0,'B',1)" class="bg-blue-600 py-2 rounded">B +</button>
+                    </div>
+                </div>
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2">
+                    <div class="text-[10px] text-amber-400 font-black text-center mb-1">GAME 2</div>
+                    <div class="text-center text-lg font-black mb-2"><span id="bd-op-a2" class="text-red-400">0</span> - <span id="bd-op-b2" class="text-blue-400">0</span></div>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button onclick="changeBadmintonSetScore(1,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(1,'A',1)" class="bg-red-600 py-2 rounded">A +</button>
+                        <button onclick="changeBadmintonSetScore(1,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(1,'B',1)" class="bg-blue-600 py-2 rounded">B +</button>
+                    </div>
+                </div>
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-2">
+                    <div class="text-[10px] text-amber-400 font-black text-center mb-1">GAME 3 / PENENTU</div>
+                    <div class="text-center text-lg font-black mb-2"><span id="bd-op-a3" class="text-red-400">0</span> - <span id="bd-op-b3" class="text-blue-400">0</span></div>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button onclick="changeBadmintonSetScore(2,'A',-1)" class="bg-gray-800 py-2 rounded">A −</button><button onclick="changeBadmintonSetScore(2,'A',1)" class="bg-red-600 py-2 rounded">A +</button>
+                        <button onclick="changeBadmintonSetScore(2,'B',-1)" class="bg-gray-800 py-2 rounded">B −</button><button onclick="changeBadmintonSetScore(2,'B',1)" class="bg-blue-600 py-2 rounded">B +</button>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="finishBadmintonPartai()" class="w-full mt-3 bg-emerald-700 hover:bg-emerald-600 py-3 rounded-xl font-black text-xs">
+                SELESAI PARTAI INI
+            </button>
+            <p class="text-[9px] text-gray-500 text-center mt-2">Partai dinyatakan menang jika unggul 2 game. Setelah seluruh pertandingan selesai, gunakan tombol “SELESAI & SIMPAN KE HISTORY”.</p>
+        </div>
+
+
+        <!-- KONTROL KHUSUS TENIS MEJA: BEST OF 3 GAME -->
+        <div id="tenis-operator" class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl" style="display:none">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-black text-amber-400">TENIS MEJA — PENYELESAIAN GAME</span>
+                <span id="tenis-game-info" class="text-[10px] text-gray-400">GAME 1 • BEST OF 3 • MENANG 2 GAME</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+                    <div class="text-[10px] text-red-400 font-black mb-1">TIM A — GAME BERJALAN</div>
+                    <div id="tenis-current-a" class="text-3xl font-black text-red-500">0</div>
+                </div>
+                <div class="bg-black/30 border border-gray-800 rounded-xl p-3 text-center">
+                    <div class="text-[10px] text-blue-400 font-black mb-1">TIM B — GAME BERJALAN</div>
+                    <div id="tenis-current-b" class="text-3xl font-black text-blue-500">0</div>
+                </div>
+            </div>
+
+            <div id="tenis-game-history" class="grid grid-cols-3 gap-2 mb-3"></div>
+
+            <button id="btn-finish-tenis-game" onclick="finishTenisGame()" class="w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-black text-xs shadow-lg">
+                SELESAI GAME 1
+            </button>
+
+            <p class="text-[9px] text-gray-500 text-center mt-2">
+                GAME target 11 poin dan unggul minimal 2 poin. Setelah menekan SELESAI GAME, status langsung dikirim ke Match Center.
+            </p>
+        </div>
+
+        <!-- KONTROL TIMER / WAKTU -->
+        <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl shadow-xl">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-amber-400">PENGATUR WAKTU (TIMER)</span>
+                <span id="op-timer-display" class="text-lg font-black text-amber-300">10:00</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="toggleTimer()" id="btn-timer-toggle" class="bg-emerald-600 hover:bg-emerald-500 py-2 rounded-xl font-bold text-xs">MULAI</button>
+                <button onclick="resetTimer()" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs">RESET 10M</button>
+                <button onclick="adjustTimer(60)" class="bg-gray-800 hover:bg-gray-700 py-2 rounded-xl font-bold text-xs">+1 Menit</button>
+            </div>
+        </div>
+
+        <!-- TOMBOL AKSI UTAMA -->
+        <div class="space-y-2">
+            <button onclick="openOutputTab()" class="w-full bg-gradient-to-r from-red-600 to-rose-700 hover:opacity-90 py-3 rounded-2xl font-black text-xs shadow-lg">BUKA TAMPILAN vMIX OUTPUT</button>
+            <button onclick="finishAndSaveMatch()" class="w-full bg-emerald-700 hover:bg-emerald-600 py-3 rounded-2xl font-black text-xs shadow-lg">SELESAI & SIMPAN KE HISTORY</button>
+            <button onclick="resetLiveScore()" class="w-full bg-gray-800 hover:bg-red-900 border border-red-800 py-3 rounded-2xl font-black text-xs shadow-lg text-red-300">🗑️ HAPUS LIVE SCORE (KOSONGKAN MATCH CENTER)</button>
+        </div>
+    </div>
+
+    <!-- ==================== TAMPILAN vMIX OUTPUT (LAYAR SCOREBOARD) ==================== -->
+    <div id="output-view" class="hidden">
+        <div class="scoreboard-root">
+            <div class="sb-main-bar">
+                <div class="sb-team" style="background:#b91c1c">
+                    <img id="ui-logo-a" class="sb-logo" src="" style="display:none">
+                    <span id="ui-team-a">TIM A</span>
+                </div>
+
+                <div id="ui-score-a" class="sb-score-box">0</div>
+
+                <div class="sb-center">
+                    <div id="ui-sport" class="sport-badge">FUTSAL</div>
+                    <div id="ui-timer" class="sb-timer">10:00</div>
+                    <div id="ui-period" class="sb-period">BABAK 1</div>
+                    <div class="sb-vs">VS</div>
+                </div>
+
+                <div id="ui-score-b" class="sb-score-box">0</div>
+
+                <div class="sb-team" style="background:#1d4ed8">
+                    <span id="ui-team-b">TIM B</span>
+                    <img id="ui-logo-b" class="sb-logo" src="" style="display:none">
+                </div>
+            </div>
+
+            <div id="futsal-layout" class="futsal-output">
+                <div class="futsal-output-main">
+                    <div class="futsal-team" style="background:#b91c1c">
+                        <img id="futsal-logo-a" class="sb-logo" src="" style="display:none">
+                        <span id="futsal-team-a">TIM A</span>
+                    </div>
+                    <div id="futsal-score-a" class="futsal-score">0</div>
+                    <div class="futsal-center">
+                        <div id="futsal-sport" class="sport-badge">FUTSAL</div>
+                        <div id="futsal-timer" class="sb-timer">10:00</div>
+                        <div id="futsal-period" class="sb-period">BABAK 1</div>
+                        <div class="sb-vs">VS</div>
+                        <div class="futsal-goal-banner">
+                            <div class="futsal-goal-banner-label">PENCETAK GOL TERAKHIR</div>
+                            <div id="futsal-last-goal" class="futsal-goal-banner-name">—</div>
+                        </div>
+                    </div>
+                    <div id="futsal-score-b" class="futsal-score">0</div>
+                    <div class="futsal-team" style="background:#1d4ed8">
+                        <span id="futsal-team-b">TIM B</span>
+                        <img id="futsal-logo-b" class="sb-logo" src="" style="display:none">
+                    </div>
+                </div>
+                <div id="futsal-events" class="futsal-events"></div>
+            </div>
+            
+            <div id="volly-layout" class="vl-layout">
+                <div class="vl-header">
+                    <span id="vl-title" class="vl-header-left">VOLLY</span>
+                    <span id="vl-period" class="vl-header-center">SET 1</span>
+                    <span id="vl-status" class="vl-header-right">LIVE SEKARANG</span>
+                </div>
+                <div class="vl-grid">
+                    <div class="vl-team vl-team-a"><img id="vl-logo-a" class="vl-logo" style="display:none"><span id="vl-team-a">TIM A</span></div>
+                    <div class="vl-set"><div id="vl-label-a1" class="vl-set-title">SET 1</div><div id="vl-a1" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-set"><div id="vl-label-a2" class="vl-set-title">SET 2</div><div id="vl-a2" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-set"><div id="vl-label-a3" class="vl-set-title">SET 3</div><div id="vl-a3" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-set"><div id="vl-label-a4" class="vl-set-title">SET 4</div><div id="vl-a4" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-set"><div id="vl-label-a5" class="vl-set-title">SET 5</div><div id="vl-a5" class="vl-point vl-point-a">0</div></div>
+                    <div class="vl-total"><div class="vl-total-label">SET MENANG</div><div id="vl-total-a" class="vl-total-score">0</div></div>
+
+                    <div class="vl-team vl-team-b"><img id="vl-logo-b" class="vl-logo" style="display:none"><span id="vl-team-b">TIM B</span></div>
+                    <div class="vl-set"><div id="vl-label-b1" class="vl-set-title">SET 1</div><div id="vl-b1" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-set"><div id="vl-label-b2" class="vl-set-title">SET 2</div><div id="vl-b2" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-set"><div id="vl-label-b3" class="vl-set-title">SET 3</div><div id="vl-b3" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-set"><div id="vl-label-b4" class="vl-set-title">SET 4</div><div id="vl-b4" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-set"><div id="vl-label-b5" class="vl-set-title">SET 5</div><div id="vl-b5" class="vl-point vl-point-b">0</div></div>
+                    <div class="vl-total"><div class="vl-total-label">SET MENANG</div><div id="vl-total-b" class="vl-total-score">0</div></div>
+                </div>
+            </div>
+
+            <div id="badminton-layout" class="bd-layout">
+                <div class="bd-header"><span>BADMINTON</span><span id="bd-period">GAME 1</span><span id="bd-status">LIVE SEKARANG</span></div>
+                <div class="bd-grid">
+                    <div class="bd-team bd-team-a"><img id="bd-logo-a" class="bd-logo" style="display:none"><span id="bd-team-a">TIM A</span></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-a1" class="bd-point bd-point-a">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-a2" class="bd-point bd-point-a">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 3 / PENENTU</div><div id="bd-a3" class="bd-point bd-point-a">0</div></div>
+                    <div class="bd-total"><div class="bd-total-label">SCORE TEAM</div><div id="bd-total-a" class="bd-total-score">0</div></div>
+
+                    <div class="bd-team bd-team-b"><img id="bd-logo-b" class="bd-logo" style="display:none"><span id="bd-team-b">TIM B</span></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 1</div><div id="bd-b1" class="bd-point bd-point-b">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 2</div><div id="bd-b2" class="bd-point bd-point-b">0</div></div>
+                    <div class="bd-set"><div class="bd-set-title">SET 3 / PENENTU</div><div id="bd-b3" class="bd-point bd-point-b">0</div></div>
+                    <div class="bd-total"><div class="bd-total-label">SCORE TEAM</div><div id="bd-total-b" class="bd-total-score">0</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================================
+           KONFIGURASI FIREBASE & DATA JADWAL MATCH CENTER
+           ========================================================== */
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyBIww6sg-mRtUUx3rIylnu6qfYG6Ahfih8",
+            authDomain: "scorebordviptcup.firebaseapp.com",
+            databaseURL: "https://scorebordviptcup-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "scorebordviptcup",
+            storageBucket: "scorebordviptcup.firebasestorage.app",
+            messagingSenderId: "1001557073666",
+            appId: "1:1001557073666:web:10999e31e2b0c9add4ec1b",
+            measurementId: "G-WF9TT9MPNY"
+        };
+
+        if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        const dbRef = firebase.database().ref("vipt_scoreboard/live");
+
+        const VIPT_MATCHES = [
+            {id:"", sport:"PILIH", round:"-", a:"BELUM ADA", b:"PERTANDINGAN", date:"", time:""},
+
+            // 04 SEPTEMBER 2026 — BADMINTON PUTRI (3/4 & FINAL)
+            {id:"BDW-3RD", sport:"BADMINTON PUTRI", round:"PEREBUTAN JUARA 3", a:"RT 06 / RW 021", b:"RT 11 / RW 021", date:"04 SEPTEMBER 2026", time:"20:30 WIB"},
+            {id:"BDW-FINAL", sport:"BADMINTON PUTRI", round:"FINAL", a:"RT 08 / RW 021", b:"RT 10 / RW 021", date:"04 SEPTEMBER 2026", time:"21:30 WIB"},
+
+            // 05 SEPTEMBER 2026 — VOLLY PUTRA (3/4 & FINAL)
+            {id:"VP-3RD", sport:"VOLLY PUTRA", round:"PEREBUTAN JUARA 3", a:"RT 06 / RW 021", b:"RT 04 / RW 021", date:"05 SEPTEMBER 2026", time:"19:30 WIB"},
+            {id:"VP-FINAL", sport:"VOLLY PUTRA", round:"FINAL", a:"RT 09 / RW 014", b:"RT 10 / RW 021", date:"05 SEPTEMBER 2026", time:"21:00 WIB"},
+
+            // 06 SEPTEMBER 2026 — VOLLY PUTRI, TENIS MEJA & BADMINTON PUTRA
+            {id:"VW-FINAL", sport:"VOLLY PUTRI", round:"FINAL", a:"RT 09 / RW 014", b:"RT 08 / RW 021", date:"06 SEPTEMBER 2026", time:"16:00 WIB"},
+            {id:"TM-3RD", sport:"TENIS MEJA", round:"PEREBUTAN JUARA 3", a:"RT 13 / RW 021", b:"RT 04 / RW 021", date:"06 SEPTEMBER 2026", time:"19:30 WIB"},
+            {id:"BDM-3RD", sport:"BADMINTON PUTRA", round:"PEREBUTAN JUARA 3", a:"RT 08 / RW 021", b:"RT 04 / RW 021", date:"06 SEPTEMBER 2026", time:"20:30 WIB"},
+            {id:"BDM-FINAL", sport:"BADMINTON PUTRA", round:"FINAL", a:"RT 07 / RW 014", b:"RT 11 / RW 021", date:"06 SEPTEMBER 2026", time:"21:30 WIB"},
+
+            // 12 SEPTEMBER 2026 — TENIS MEJA FINAL, FUTSAL & CLOSING CEREMONY
+            {id:"TM-FINAL", sport:"TENIS MEJA", round:"FINAL", a:"RT 13 / RW 021", b:"RT 04 / RW 021", date:"12 SEPTEMBER 2026", time:"20:00 WIB"},
+            {id:"FS-3RD", sport:"FUTSAL", round:"PEREBUTAN JUARA 3", a:"RT 04 / RW 021", b:"RT 02 / RW 021", date:"12 SEPTEMBER 2026", time:"20:45 WIB"},
+            {id:"FS-FINAL", sport:"FUTSAL", round:"FINAL", a:"RT 13 / RW 021", b:"RT 11 / RW 021", date:"12 SEPTEMBER 2026", time:"21:15 WIB"}
+        ];
+
+        // LOGO TIM OTOMATIS
+        const TEAM_LOGOS = {
+            "RT 02/RW 021": "assets/logos/RT_02-RW_021.png",
+            "RT 04/RW 021": "assets/logos/RT_04-RW_021.png",
+            "RT 06/RW 021": "assets/logos/RT_06-RW_021.png",
+            "RT 07/RW 014": "assets/logos/RT_07-RW_014.png",
+            "RT 07/RW 021": "assets/logos/RT_07-RW_021.png",
+            "RT 08/RW 014": "assets/logos/RT_08-RW_014.png",
+            "RT 08/RW 021": "assets/logos/RT_08-RW_021.png",
+            "RT 09/RW 014": "assets/logos/RT_09-RW_014.png",
+            "RT 10/RW 014": "assets/logos/RT_10-RW_014.png",
+            "RT 10/RW 021": "assets/logos/RT_10-RW_021.png",
+            "RT 11/RW 021": "assets/logos/RT_11-RW_021.png",
+            "RT 13/RW 021": "assets/logos/RT_13-RW_021.png"
+        };
+
+        function normalizeTeamName(name) {
+            return String(name || "")
+                .toUpperCase()
+                .replace(/[.]/g, "")
+                .replace(/\s*\/\s*/g, "/")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+        function getAutoLogoForTeam(name) {
+            const key = normalizeTeamName(name);
+            return TEAM_LOGOS[key] || "";
+        }
+
+        let state = {
+            matchId: "",
+            matchSportLabel: "",
+            matchRound: "",
+            matchDate: "",
+            matchTime: "",
+            sport: "FUTSAL",
+            period: "BABAK 1",
+            periodNumber: 1,
+            logos: { a: "", b: "" },
+            status: "LIVE",
+            timer: 600,
+            timerRunning: false,
+            teamA: { name: "BELUM ADA JADWAL", score: 0 },
+            teamB: { name: "BELUM ADA JADWAL", score: 0 },
+            volleyballSets: [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}],
+            badmintonSets: [{a:0,b:0},{a:0,b:0},{a:0,b:0}],
+            currentBadmintonPartai: 0,
+            badmintonMatches: [
+                {name:"PARTAI 1", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                {name:"PARTAI 2", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                {name:"PARTAI 3", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null}
+            ],
+            futsalGoals: [],
+            tennisGames: [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}]
+        };
+
+        let timerInterval = null;
+
+        function populateMatchDropdown() {
+            const select = document.getElementById('select-match-list');
+            select.innerHTML = '<option value="">-- PILIH PERTANDINGAN (KOSONG) --</option>';
+            VIPT_MATCHES.forEach(m => {
+                if(!m.id) return;
+                const scheduleInfo = [m.date, m.time].filter(Boolean).join(' • ');
+                select.innerHTML += `<option value="${m.id}">[${m.sport}] ${m.a} vs ${m.b}${scheduleInfo ? ' — ' + scheduleInfo : ''}</option>`;
+            });
+        }
+
+        async function applySelectedMatch() {
+            const select = document.getElementById('select-match-list');
+            const id = select.value;
+
+            // LOAD pertandingan harus memulai state pertandingan yang benar-benar baru.
+            stopInterval();
+            state.timer = 600;
+            state.timerRunning = false;
+
+            if (!id) {
+                state.matchId = "";
+                state.matchSportLabel = "";
+                state.matchRound = "";
+                state.matchDate = "";
+                state.matchTime = "";
+                state.sport = "FUTSAL";
+                state.period = "BABAK 1";
+                state.periodNumber = 1;
+                state.logos = { a: "", b: "" };
+                localStorage.removeItem("VIPT_LOGO_A");
+                localStorage.removeItem("VIPT_LOGO_B");
+                state.status = "JADWAL";
+                state.teamA = { name: "BELUM ADA JADWAL", score: 0 };
+                state.teamB = { name: "BELUM ADA JADWAL", score: 0 };
+                state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
+                state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
+                state.currentBadmintonPartai = 0;
+                state.badmintonMatches = [
+                    {name:"PARTAI 1", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 2", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 3", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null}
+                ];
+                state.futsalGoals = [];
+            } else {
+                const m = VIPT_MATCHES.find(x => x.id === id);
+                if (!m) return;
+                state.matchId = m.id;
+                state.matchSportLabel = m.sport;
+                state.matchRound = m.round || "";
+                state.matchDate = m.date || "";
+                state.matchTime = m.time || "";
+                state.sport = normalizeSport(m.sport);
+                state.periodNumber = 1;
+                state.period = getDefaultPeriod(state.sport);
+                state.logos = { a: "", b: "" };
+                localStorage.removeItem("VIPT_LOGO_A");
+                localStorage.removeItem("VIPT_LOGO_B");
+                state.status = "LIVE";
+                state.teamA = { name: m.a, score: 0 };
+                state.teamB = { name: m.b, score: 0 };
+                state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
+                state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
+                state.currentBadmintonPartai = 0;
+                state.badmintonMatches = [
+                    {name:"PARTAI 1", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 2", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 3", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null}
+                ];
+                state.futsalGoals = [];
+            }
+
+            // Update lokal dulu agar operator dan output pada tab ini langsung sama.
+            updateOperatorInputs();
+            updateTimerDisplay();
+            updateVmixOutputFromState();
+
+            // Kirim satu state utuh ke Firebase. Tab/perangkat lain akan menerima
+            // state yang sama lewat listener realtime di bawah.
+            await syncToFirebase();
+        }
+
+        function normalizeSport(sport) {
+            const s = String(sport || "").toUpperCase();
+            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
+            if (s.includes("BADMINTON")) return "BADMINTON";
+            if (s.includes("TENIS MEJA") || s.includes("PINGPONG") || s.includes("PINGPONG")) return "TENIS MEJA";
+            if (s.includes("FUTSAL")) return "FUTSAL";
+            return "FUTSAL";
+        }
+
+        function getDefaultPeriod(sport) {
+            sport = normalizeSport(sport);
+            if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "BABAK 1";
+            if (sport === "VOLLY") return "SET 1";
+            return "GAME 1";
+        }
+
+        function getScoreUnit() {
+            const sport = normalizeSport(state.sport);
+            if (sport === "SEPAK BOLA" || sport === "FUTSAL") return "GOAL";
+            return "POIN";
+        }
+
+        function updateSportUI() {
+            const sport = normalizeSport(state.sport);
+            const unit = getScoreUnit();
+
+            document.getElementById('select-sport').value = sport;
+            document.getElementById('period-label').textContent = state.period;
+            document.getElementById('ui-sport').textContent = sport;
+        }
+
+        function changeSport() {
+            state.sport = normalizeSport(document.getElementById('select-sport').value);
+            state.periodNumber = 1;
+            state.period = getDefaultPeriod(state.sport);
+            state.teamA.score = 0;
+            state.teamB.score = 0;
+            state.volleyballSets = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
+            state.badmintonSets = [{a:0,b:0},{a:0,b:0},{a:0,b:0}];
+                state.currentBadmintonPartai = 0;
+                state.badmintonMatches = [
+                    {name:"PARTAI 1", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 2", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null},
+                    {name:"PARTAI 3", games:[{a:0,b:0},{a:0,b:0},{a:0,b:0}], winner:null}
+                ];
+            state.futsalGoals = [];
+            state.tennisGames = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
+            updateOperatorInputs();
+            updateVmixOutputFromState();
+            updateSportUI();
+            syncToFirebase();
+        }
+
+        function changePeriod(delta) {
+            const sport = normalizeSport(state.sport);
+            const max = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? 2 : (sport === "VOLLY" ? 5 : 3);
+            state.periodNumber = Math.max(1, Math.min(max, (Number(state.periodNumber) || 1) + delta));
+
+            if (sport === "SEPAK BOLA" || sport === "FUTSAL") {
+                state.period = "BABAK " + state.periodNumber;
+            } else if (sport === "VOLLY") {
+                ensureVolleyballSets();
+                state.period = "SET " + state.periodNumber;
+                const current = state.volleyballSets[state.periodNumber - 1] || {a:0,b:0};
+                state.teamA.score = current.winner ? 0 : current.a;
+                state.teamB.score = current.winner ? 0 : current.b;
+            } else {
+                state.period = "GAME " + state.periodNumber;
+                if (sport === "TENIS MEJA") {
+                    ensureTenisGames();
+                    const current = state.tennisGames[state.periodNumber - 1] || {a:0,b:0};
+                    state.teamA.score = current.winner ? 0 : current.a;
+                    state.teamB.score = current.winner ? 0 : current.b;
+                }
+            }
+
+            updateOperatorInputs();
+            updateVmixOutputFromState();
+            updateSportUI();
+            syncToFirebase();
+        }
+
+        function updateLogoOutput() {
+            const logoA = document.getElementById('ui-logo-a');
+            const logoB = document.getElementById('ui-logo-b');
+            const previewA = document.getElementById('preview-logo-a');
+            const previewB = document.getElementById('preview-logo-b');
+            const emptyA = document.getElementById('preview-logo-a-empty');
+            const emptyB = document.getElementById('preview-logo-b-empty');
+
+            const logoAData = getAutoLogoForTeam(state.teamA?.name);
+            const logoBData = getAutoLogoForTeam(state.teamB?.name);
+
+            if (logoA) {
+                if (logoAData) {
+                    logoA.src = logoAData;
+                    logoA.style.display = "block";
+                } else {
+                    logoA.removeAttribute("src");
+                    logoA.style.display = "none";
+                }
+            }
+            if (logoB) {
+                if (logoBData) {
+                    logoB.src = logoBData;
+                    logoB.style.display = "block";
+                } else {
+                    logoB.removeAttribute("src");
+                    logoB.style.display = "none";
+                }
+            }
+
+            if (previewA) {
+                previewA.src = logoAData;
+                previewA.classList.toggle('hidden', !logoAData);
+            }
+            if (previewB) {
+                previewB.src = logoBData;
+                previewB.classList.toggle('hidden', !logoBData);
+            }
+            if (emptyA) emptyA.style.display = logoAData ? 'none' : 'block';
+            if (emptyB) emptyB.style.display = logoBData ? 'none' : 'block';
+        }
+
+        function getSportDisplayName(sport) {
+            const s = String(sport || "").toUpperCase();
+            if (s.includes("VOLLY") || s.includes("VOLLEY")) return "VOLLY";
+            if (s.includes("BADMINTON")) return "BADMINTON";
+            if (s.includes("TENIS MEJA") || s.includes("PINGPONG")) return "TENIS MEJA";
+            if (s.includes("FUTSAL")) return "FUTSAL";
+            return s || "FUTSAL";
+        }
+
+        function ensureFutsalGoals() {
+            if (!Array.isArray(state.futsalGoals)) state.futsalGoals = [];
+            state.futsalGoals = state.futsalGoals.filter(g => g && (g.team === 'A' || g.team === 'B')).map(g => ({
+                team: g.team,
+                scorer: String(g.scorer || 'PEMAIN').trim() || 'PEMAIN',
+                time: String(g.time || ''),
+                scoreA: Number(g.scoreA || 0),
+                scoreB: Number(g.scoreB || 0)
+            }));
+        }
+
+        function updateFutsalOutput() {
+            if (normalizeSport(state.sport) !== 'FUTSAL') return;
+            ensureFutsalGoals();
+            const scoreA = document.getElementById('futsal-score-a');
+            const scoreB = document.getElementById('futsal-score-b');
+            const teamA = document.getElementById('futsal-team-a');
+            const teamB = document.getElementById('futsal-team-b');
+            const period = document.getElementById('futsal-period');
+            const timer = document.getElementById('futsal-timer');
+            const last = document.getElementById('futsal-last-goal');
+            if (scoreA) scoreA.textContent = Number(state.teamA?.score || 0);
+            if (scoreB) scoreB.textContent = Number(state.teamB?.score || 0);
+            if (teamA) teamA.textContent = state.teamA?.name || 'TIM A';
+            if (teamB) teamB.textContent = state.teamB?.name || 'TIM B';
+            if (period) period.textContent = state.period || 'BABAK 1';
+            if (timer) timer.textContent = formatTimer(state.timer);
+            const logoA = getAutoLogoForTeam(state.teamA?.name);
+            const logoB = getAutoLogoForTeam(state.teamB?.name);
+            const la = document.getElementById('futsal-logo-a');
+            const lb = document.getElementById('futsal-logo-b');
+            if (la) { la.src = logoA; la.style.display = logoA ? 'block' : 'none'; }
+            if (lb) { lb.src = logoB; lb.style.display = logoB ? 'block' : 'none'; }
+            const latest = state.futsalGoals[state.futsalGoals.length - 1];
+            if (last) last.textContent = latest ? `${latest.scorer} • TIM ${latest.team}` : '—';
+            const events = document.getElementById('futsal-events');
+            if (events) {
+                const recent = state.futsalGoals.slice(-5).reverse();
+                events.innerHTML = recent.length ? recent.map(g => `<div class="futsal-event-row"><span>${g.time || ''}</span><span class="${g.team === 'A' ? 'futsal-event-team-a' : 'futsal-event-team-b'}">⚽ ${g.scorer}</span><span>• ${g.team === 'A' ? state.teamA?.name : state.teamB?.name}</span></div>`).join('') : '';
+                events.style.display = recent.length ? 'block' : 'none';
+            }
+
+            const btn = document.getElementById('btn-futsal-period');
+            const info = document.getElementById('futsal-status-info');
+            const n = Math.max(1, Math.min(2, Number(state.periodNumber) || 1));
+            const st = String(state.status || 'LIVE').toUpperCase();
+
+            if (info) info.textContent = `${state.period || `BABAK ${n}`} • ${st}`;
+
+            if (btn) {
+                if (st === 'SELESAI') {
+                    btn.textContent = 'PERTANDINGAN SELESAI';
+                    btn.disabled = true;
+                    btn.className = "w-full bg-emerald-800 text-emerald-200 py-3 rounded-xl font-black text-xs shadow-lg cursor-not-allowed";
+                } else if (st === 'BABAK 1 SELESAI') {
+                    btn.textContent = 'MULAI BABAK 2';
+                    btn.disabled = false;
+                    btn.className = "w-full bg-emerald-700 hover:bg-emerald-600 py-3 rounded-xl font-black text-xs shadow-lg";
+                } else if (n === 2) {
+                    btn.textContent = 'SELESAI PERTANDINGAN';
+                    btn.disabled = false;
+                    btn.className = "w-full bg-red-700 hover:bg-red-600 py-3 rounded-xl font-black text-xs shadow-lg";
+                } else {
+                    btn.textContent = 'SELESAI BABAK 1';
+                    btn.disabled = false;
+                    btn.className = "w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-black text-xs shadow-lg";
+                }
+            }
+        }
+
+        function finishFutsalPeriod() {
+            if (normalizeSport(state.sport) !== 'FUTSAL') return;
+
+            const n = Math.max(1, Math.min(2, Number(state.periodNumber) || 1));
+            const st = String(state.status || 'LIVE').toUpperCase();
+
+            // Setelah BABAK 1 selesai, tombol yang sama memulai BABAK 2.
+            if (st === 'BABAK 1 SELESAI') {
+                state.periodNumber = 2;
+                state.period = 'BABAK 2';
+                state.status = 'LIVE';
+                state.timerRunning = false;
+                state.updatedAt = Date.now();
+                syncToFirebase();
+                updateOperatorInputs();
+                updateFutsalOutput();
+                updateVmixOutputFromState();
+                return;
+            }
+
+            // Akhiri BABAK 1 dan laporkan ke Match Center.
+            if (n === 1) {
+                state.status = 'BABAK 1 SELESAI';
+                state.period = 'BABAK 1 SELESAI';
+                state.timerRunning = false;
+                state.updatedAt = Date.now();
+                syncToFirebase();
+                updateOperatorInputs();
+                updateFutsalOutput();
+                updateVmixOutputFromState();
+                alert(`BABAK 1 selesai. Skor ${Number(state.teamA?.score||0)}-${Number(state.teamB?.score||0)} sudah dikirim ke Match Center.`);
+                return;
+            }
+
+            // BABAK 2 selesai = pertandingan selesai.
+            state.status = 'SELESAI';
+            state.period = 'PERTANDINGAN SELESAI';
+            state.timerRunning = false;
+            state.completedAt = Date.now();
+            state.updatedAt = Date.now();
+
+            syncToFirebase();
+            firebase.database().ref('vipt_scoreboard/history').push({...state});
+            updateOperatorInputs();
+            updateFutsalOutput();
+            updateVmixOutputFromState();
+
+            alert(`Pertandingan Futsal selesai. Skor akhir ${Number(state.teamA?.score||0)}-${Number(state.teamB?.score||0)} sudah dikirim ke Match Center.`);
+        }
+
+        function addFutsalGoal(team) {
+            if (normalizeSport(state.sport) !== 'FUTSAL') return;
+            const input = document.getElementById(team === 'A' ? 'futsal-scorer-a' : 'futsal-scorer-b');
+            const scorer = String(input?.value || '').trim();
+            if (!scorer) {
+                alert(`Masukkan nama pencetak gol Tim ${team} terlebih dahulu.`);
+                input?.focus();
+                return;
+            }
+            if (team === 'A') state.teamA.score = Math.max(0, Number(state.teamA.score || 0) + 1);
+            else state.teamB.score = Math.max(0, Number(state.teamB.score || 0) + 1);
+            ensureFutsalGoals();
+            state.futsalGoals.push({
+                team,
+                scorer,
+                time: formatTimer(state.timer),
+                scoreA: Number(state.teamA.score || 0),
+                scoreB: Number(state.teamB.score || 0)
+            });
+            if (input) input.value = '';
+            updateOperatorInputs();
+            updateVmixOutputFromState();
+            syncToFirebase();
+        }
+
+        function ensureVolleyballSets() {
+            const blank = () => ({a:0,b:0,winner:null});
+            if (!Array.isArray(state.volleyballSets)) state.volleyballSets = [];
+            state.volleyballSets = state.volleyballSets.slice(0,5);
+            while (state.volleyballSets.length < 5) state.volleyballSets.push(blank());
+
+            state.volleyballSets = state.volleyballSets.map(x => ({
+                a: Math.max(0, Number(x?.a) || 0),
+                b: Math.max(0, Number(x?.b) || 0),
+                winner: x?.winner === 'A' || x?.winner === 'B' ? x.winner : null
+            }));
+        }
+
+        function getVolleyballSetWins() {
+            ensureVolleyballSets();
+            let a = 0, b = 0;
+            state.volleyballSets.forEach(s => {
+                if (s.winner === 'A') a++;
+                if (s.winner === 'B') b++;
+            });
+            return {a, b};
+        }
+
+        function getVolleyballTarget() {
+            // Best of 5: SET 1-4 target 25, SET 5 target 15.
+            return Number(state.periodNumber) === 5 ? 15 : 25;
+        }
+
+        function isVolleyballSetReady() {
+            const setNo = Math.max(1, Number(state.periodNumber) || 1);
+            if (setNo > 5) return false;
+
+            const wins = getVolleyballSetWins();
+            if (wins.a >= 3 || wins.b >= 3) return false;
+
+            const a = Number(state.teamA?.score || 0);
+            const b = Number(state.teamB?.score || 0);
+            const target = getVolleyballTarget();
+            return Math.max(a,b) >= target && Math.abs(a-b) >= 2;
+        }
+
+        function updateVolleyballUI() {
+            const box = document.getElementById('volly-operator');
+            if (!box) return;
+            const isVolly = normalizeSport(state.sport) === 'VOLLY';
+            box.style.display = isVolly ? 'block' : 'none';
+            if (!isVolly) return;
+
+            ensureVolleyballSets();
+            const wins = getVolleyballSetWins();
+            const setNo = Math.max(1, Math.min(5, Number(state.periodNumber) || 1));
+            const target = getVolleyballTarget();
+            const info = document.getElementById('volly-set-info');
+            const ca = document.getElementById('volly-current-a');
+            const cb = document.getElementById('volly-current-b');
+            const btn = document.getElementById('btn-finish-volly-set');
+            const history = document.getElementById('volly-set-history');
+
+            if (info) info.textContent = `SET ${setNo} • TARGET ${target} • BEST OF 5 / MENANG 3 SET (A ${wins.a} - B ${wins.b})`;
+            if (ca) ca.textContent = Number(state.teamA?.score || 0);
+            if (cb) cb.textContent = Number(state.teamB?.score || 0);
+
+            if (btn) {
+                const setDoneStatus = String(state.status || '').toUpperCase() === `SET ${setNo} SELESAI`;
+                const matchDone = String(state.status || '').toUpperCase() === 'SELESAI';
+
+                if (matchDone) {
+                    btn.textContent = 'PERTANDINGAN SELESAI';
+                    btn.disabled = true;
+                    btn.className = "w-full bg-emerald-800 text-emerald-200 py-3 rounded-xl font-black text-xs shadow-lg cursor-not-allowed";
+                } else if (setDoneStatus && setNo < 5) {
+                    btn.textContent = `MULAI SET ${setNo + 1}`;
+                    btn.disabled = false;
+                    btn.className = "w-full bg-emerald-700 hover:bg-emerald-600 py-3 rounded-xl font-black text-xs shadow-lg";
+                } else {
+                    btn.textContent = `SELESAI SET ${setNo}`;
+                    btn.disabled = !isVolleyballSetReady();
+                    btn.className = btn.disabled
+                        ? "w-full bg-gray-700 text-gray-500 py-3 rounded-xl font-black text-xs shadow-lg cursor-not-allowed"
+                        : "w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-black text-xs shadow-lg";
+                }
+            }
+
+            if (history) {
+                history.innerHTML = state.volleyballSets.map((s, i) => {
+                    const done = s.winner === 'A' || s.winner === 'B';
+                    const label = done ? `${s.a}-${s.b}` : '—';
+                    const cls = done ? (s.winner === 'A' ? 'text-red-400' : 'text-blue-400') : 'text-gray-600';
+                    return `<div class="bg-black/30 border border-gray-800 rounded-lg p-1 text-center">
+                        <div class="text-[8px] text-gray-500 font-bold">SET ${i+1}</div>
+                        <div class="text-[11px] ${cls} font-black">${label}</div>
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        function finishVollySet() {
+            if (normalizeSport(state.sport) !== 'VOLLY') return;
+
+            ensureVolleyballSets();
+            const setNo = Math.max(1, Math.min(5, Number(state.periodNumber) || 1));
+
+            // Jika SET sebelumnya sudah ditutup, tombol yang sama dipakai untuk MULAI SET berikutnya.
+            if (String(state.status || '').toUpperCase() === `SET ${setNo} SELESAI`) {
+                startNextVollySet();
+                return;
+            }
+
+            if (!isVolleyballSetReady()) {
+                const target = getVolleyballTarget();
+                alert(`Set belum memenuhi syarat. SET ${setNo} harus mencapai ${target} poin dan unggul minimal 2 poin.`);
+                return;
+            }
+
+            const idx = setNo - 1;
+            const a = Number(state.teamA.score || 0);
+            const b = Number(state.teamB.score || 0);
+            const winner = a > b ? 'A' : 'B';
+            state.volleyballSets[idx] = {a, b, winner};
+
+            const wins = getVolleyballSetWins();
+
+            // Status SET selesai dikirim dulu ke Firebase agar Match Center menampilkannya.
+            state.status = `SET ${setNo} SELESAI`;
+            state.period = `SET ${setNo} SELESAI`;
+            state.timerRunning = false;
+            state.updatedAt = Date.now();
+
+            syncToFirebase();
+            updateOperatorInputs();
+            updateVolleyballUI();
+            updateVmixOutputFromState();
+
+            // Pertandingan selesai saat salah satu tim menang 3 set.
+            if (wins.a >= 3 || wins.b >= 3) {
+                state.status = 'SELESAI';
+                state.period = `SET ${setNo} SELESAI`;
+                state.completedAt = Date.now();
+                state.updatedAt = Date.now();
+
+                syncToFirebase();
+                firebase.database().ref('vipt_scoreboard/history').push({...state});
+
+                updateOperatorInputs();
+                updateVolleyballUI();
+                updateVmixOutputFromState();
+
+                alert(`Pertandingan selesai ${wins.a}-${wins.b}. SET ${setNo}: ${a}-${b}. Hasil sudah dikirim ke Match Center.`);
+                return;
+            }
+
+            // Poin tetap terlihat pada history SET, tetapi skor set aktif direset untuk SET berikutnya.
+            state.teamA.score = 0;
+            state.teamB.score = 0;
+
+            alert(`SET ${setNo} selesai: ${a}-${b}. Status “SET ${setNo} SELESAI” sudah dikirim ke Match Center. Tekan “MULAI SET ${setNo+1}” saat siap melanjutkan.`);
+        }
+
+        function startNextVollySet() {
+            if (normalizeSport(state.sport) !== 'VOLLY') return;
+
+            ensureVolleyballSets();
+            const setNo = Math.max(1, Math.min(5, Number(state.periodNumber) || 1));
+            const wins = getVolleyballSetWins();
+
+            if (wins.a >= 3 || wins.b >= 3) return;
+            if (setNo >= 5) return;
+
+            state.periodNumber = setNo + 1;
+            state.period = `SET ${setNo + 1}`;
+            state.status = 'LIVE';
+            state.teamA.score = 0;
+            state.teamB.score = 0;
+            state.timerRunning = false;
+            state.updatedAt = Date.now();
+
+            syncToFirebase();
+            updateOperatorInputs();
+            updateVolleyballUI();
+            updateVmixOutputFromState();
+        }
+
+
+        function ensureTenisGames() {
+            if (!Array.isArray(state.tennisGames) || state.tennisGames.length !== 3) {
+                state.tennisGames = [{a:0,b:0,winner:null},{a:0,b:0,winner:null},{a:0,b:0,winner:null}];
+            }
+            state.tennisGames = state.tennisGames.map(g => ({
+                a: Math.max(0, Number(g?.a) || 0),
+                b: Math.max(0, Number(g?.b) || 0),
+                winner: g?.winner === 'A' || g?.winner === 'B' ? g.winner : null
+            }));
+        }
+
+        function getTenisGameWins() {
+            ensureTenisGames();
+            let a=0,b=0;
+            state.tennisGames.forEach(g => {
+                if (g.winner === 'A') a++;
+                else if (g.winner === 'B') b++;
+            });
+            return {a,b};
+        }
+
+        function isTenisGameReady() {
+            if (normalizeSport(state.sport) !== 'TENIS MEJA') return false;
+            const a = Number(state.teamA?.score || 0);
+            const b = Number(state.teamB?.score || 0);
+            const hi = Math.max(a,b), lo = Math.min(a,b);
+            return hi >= 11 && (hi-lo) >= 2;
+        }
+
+        function updateTenisUI() {
+            const op = document.getElementById('tenis-operator');
+            if (op) op.style.display = normalizeSport(state.sport) === 'TENIS MEJA' ? 'block' : 'none';
+            if (normalizeSport(state.sport) !== 'TENIS MEJA') return;
+
+            ensureTenisGames();
+            const n = Math.max(1, Math.min(3, Number(state.periodNumber) || 1));
+            const st = String(state.status || 'LIVE').toUpperCase();
+            const wins = getTenisGameWins();
+
+            const aEl = document.getElementById('tenis-current-a');
+            const bEl = document.getElementById('tenis-current-b');
+            const info = document.getElementById('tenis-game-info');
+            const hist = document.getElementById('tenis-game-history');
+            const btn = document.getElementById('btn-finish-tenis-game');
+
+            if (aEl) aEl.textContent = Number(state.teamA?.score || 0);
+            if (bEl) bEl.textContent = Number(state.teamB?.score || 0);
+            if (info) info.textContent = `GAME ${n} • SKOR GAME ${wins.a}-${wins.b} • BEST OF 3`;
+
+            if (hist) {
+                hist.innerHTML = state.tennisGames.map((g,i)=>{
+                    const done = g.winner === 'A' || g.winner === 'B';
+                    return `<div class="bg-black/30 border border-gray-800 rounded-lg p-2 text-center">
+                        <div class="text-[8px] text-gray-500 font-bold">GAME ${i+1}</div>
+                        <div class="text-[11px] ${done ? 'text-amber-300' : 'text-gray-600'} font-black">${done ? `${g.a}-${g.b}` : '—'}</div>
+                    </div>`;
+                }).join('');
+            }
+
+            if (btn) {
+                const gameDoneStatus = st === `GAME ${n} SELESAI`;
+                if (st === 'SELESAI') {
+                    btn.textContent = 'PERTANDINGAN SELESAI';
+                    btn.disabled = true;
+                    btn.className = "w-full bg-emerald-800 text-emerald-200 py-3 rounded-xl font-black text-xs shadow-lg cursor-not-allowed";
+                } else if (gameDoneStatus && n < 3) {
+                    btn.textContent = `MULAI GAME ${n+1}`;
+                    btn.disabled = false;
+                    btn.className = "w-full bg-emerald-700 hover:bg-emerald-600 py-3 rounded-xl font-black text-xs shadow-lg";
+                } else {
+                    btn.textContent = `SELESAI GAME ${n}`;
+                    btn.disabled = !isTenisGameReady();
+                    btn.className = btn.disabled
+                        ? "w-full bg-gray-700 text-gray-500 py-3 rounded-xl font-black text-xs shadow-lg cursor-not-allowed"
+                        : "w-full bg-amber-600 hover:bg-amber-500 py-3 rounded-xl font-black text-xs shadow-lg";
+                }
+            }
+        }
+
+        function finishTenisGame() {
+            if (normalizeSport(state.sport) !== 'TENIS MEJA') return;
+
+            ensureTenisGames();
+            const n = Math.max(1, Math.min(3, Number(state.periodNumber) || 1));
+            const st = String(state.status || 'LIVE').toUpperCase();
+
+            // Setelah GAME selesai, tombol yang sama memulai GAME berikutnya.
+            if (st === `GAME ${n} SELESAI`) {
+                if (n >= 3) return;
+                state.periodNumber = n + 1;
+                state.period = `GAME ${n+1}`;
+                state.status = 'LIVE';
+                state.teamA.score = 0;
+                state.teamB.score = 0;
+                state.updatedAt = Date.now();
+                syncToFirebase();
+                updateOperatorInputs();
+                updateTenisUI();
+                updateVmixOutputFromState();
+                return;
+            }
+
+            if (!isTenisGameReady()) {
+                alert(`GAME ${n} belum memenuhi syarat: minimal 11 poin dan unggul 2 poin.`);
+                return;
+            }
+
+            const a = Number(state.teamA?.score || 0);
+            const b = Number(state.teamB?.score || 0);
+            const winner = a > b ? 'A' : 'B';
+            state.tennisGames[n-1] = {a,b,winner};
+
+            const wins = getTenisGameWins();
+
+            // Laporkan GAME selesai ke Match Center sebelum lanjut.
+            state.status = `GAME ${n} SELESAI`;
+            state.period = `GAME ${n} SELESAI`;
+            state.updatedAt = Date.now();
+            syncToFirebase();
+            updateOperatorInputs();
+            updateTenisUI();
+            updateVmixOutputFromState();
+
+            if (wins.a >= 2 || wins.b >= 2) {
+                state.status = 'SELESAI';
+                state.period = `GAME ${n} SELESAI`;
+                state.completedAt = Date.now();
+                state.updatedAt = Date.now();
+                syncToFirebase();
+                firebase.database().ref('vipt_scoreboard/history').push({...state});
+                updateOperatorInputs();
+                updateTenisUI();
+                updateVmixOutputFromState();
+                alert(`Pertandingan Tenis Meja selesai ${wins.a}-${wins.b}. Hasil sudah dikirim ke Match Center.`);
+                return;
+            }
+
+            state.teamA.score = 0;
+            state.teamB.score = 0;
+            alert(`GAME ${n} selesai: ${a}-${b}. Status sudah dikirim ke Match Center. Tekan “MULAI GAME ${n+1}” saat siap.`);
+        }
+
+        function ensureBadmintonMatches() {
+            if (!Array.isArray(state.badmintonMatches) || state.badmintonMatches.length !== 3) {
+                // Migrasi otomatis data lama: tiga badmintonSets lama dianggap Partai 1–3.
+                const legacy = Array.isArray(state.badmintonSets) ? state.badmintonSets : [];
+                state.badmintonMatches = [0,1,2].map(i => {
+                    const old = legacy[i] || {a:0,b:0};
+                    const a = Math.max(0, Number(old?.a) || 0);
+                    const b = Math.max(0, Number(old?.b) || 0);
+                    return {
+                        name: `PARTAI ${i+1}`,
+                        games: [{a,b},{a:0,b:0},{a:0,b:0}],
+                        winner: a>b ? 'A' : (b>a ? 'B' : null)
+                    };
+                });
+            }
+
+            state.badmintonMatches = state.badmintonMatches.map((p,i) => {
+                const games = Array.isArray(p?.games) ? p.games.slice(0,3) : [];
+                while (games.length < 3) games.push({a:0,b:0});
+                return {
+                    name: p?.name || `PARTAI ${i+1}`,
+                    games: games.map(g => ({
+                        a: Math.max(0, Number(g?.a) || 0),
+                        b: Math.max(0, Number(g?.b) || 0)
+                    })),
+                    winner: p?.winner === 'A' || p?.winner === 'B' ? p.winner : null
+                };
+            });
+
+            state.currentBadmintonPartai = Math.max(0, Math.min(2, Number(state.currentBadmintonPartai) || 0));
+
+            // Field lama tetap dipertahankan untuk kompatibilitas output/kode lama.
+            const current = state.badmintonMatches[state.currentBadmintonPartai];
+            state.badmintonSets = current.games.map(g => ({a:g.a,b:g.b}));
+        }
+
+        function ensureBadmintonSets() {
+            ensureBadmintonMatches();
+        }
+
+        function getBadmintonGameWins(partaiIndex = state.currentBadmintonPartai) {
+            ensureBadmintonMatches();
+            const p = state.badmintonMatches[partaiIndex] || state.badmintonMatches[0];
+            let a=0,b=0;
+            p.games.forEach(g => {
+                if (g.a > g.b) a++;
+                else if (g.b > g.a) b++;
+            });
+            return {a,b};
+        }
+
+        function getBadmintonTeamWins() {
+            ensureBadmintonMatches();
+            let a=0,b=0;
+            state.badmintonMatches.forEach(p => {
+                if (p.winner === 'A') a++;
+                else if (p.winner === 'B') b++;
+            });
+            return {a,b};
+        }
+
+        // Nama lama dipertahankan agar kode existing tetap kompatibel.
+        function getBadmintonSetWins() {
+            return getBadmintonTeamWins();
+        }
+
+        function selectBadmintonPartai(index) {
+            ensureBadmintonMatches();
+            state.currentBadmintonPartai = Math.max(0, Math.min(2, Number(index) || 0));
+            state.period = `PARTAI ${state.currentBadmintonPartai + 1}`;
+            state.badmintonSets = state.badmintonMatches[state.currentBadmintonPartai].games.map(g => ({a:g.a,b:g.b}));
+            updateBadmintonOperatorUI();
+            updateOperatorInputs();
+            updateVmixOutputFromState();
+            syncToFirebase();
+        }
+
+        function updateBadmintonOperatorUI() {
+            if (normalizeSport(state.sport) !== 'BADMINTON') return;
+            ensureBadmintonMatches();
+
+            const idx = state.currentBadmintonPartai;
+            const p = state.badmintonMatches[idx];
+
+            [0,1,2].forEach(i => {
+                const a = document.getElementById(`bd-op-a${i+1}`);
+                const b = document.getElementById(`bd-op-b${i+1}`);
+                if (a) a.textContent = p.games[i].a;
+                if (b) b.textContent = p.games[i].b;
+
+                const btn = document.getElementById(`bd-partai-btn-${i+1}`);
+                if (btn) {
+                    const won = state.badmintonMatches[i].winner;
+                    btn.className = i === idx
+                        ? "bg-amber-600 py-2 rounded-xl text-[10px] font-black"
+                        : (won ? "bg-emerald-700 py-2 rounded-xl text-[10px] font-black" : "bg-gray-800 py-2 rounded-xl text-[10px] font-black");
+                    btn.textContent = `PARTAI ${i+1}${won ? " ✓" : ""}`;
+                }
+            });
+
+            const total = getBadmintonTeamWins();
+            const summary = document.getElementById('bd-partai-summary');
+            if (summary) summary.textContent = `SKOR BEREGU ${total.a} - ${total.b} • PARTAI ${idx+1}`;
+        }
+
+        function finishBadmintonPartai() {
+            if (normalizeSport(state.sport) !== 'BADMINTON') return;
+            ensureBadmintonMatches();
+
+            const idx = state.currentBadmintonPartai;
+            const wins = getBadmintonGameWins(idx);
+
+            if (wins.a < 2 && wins.b < 2) {
+                alert('Partai belum selesai. Salah satu tim harus memenangkan 2 GAME terlebih dahulu.');
+                return;
+            }
+
+            state.badmintonMatches[idx].winner = wins.a > wins.b ? 'A' : 'B';
+
+            const teamWins = getBadmintonTeamWins();
+            state.teamA.score = teamWins.a;
+            state.teamB.score = teamWins.b;
+            state.period = `PARTAI ${idx+1} SELESAI`;
+
+            if (teamWins.a >= 2 || teamWins.b >= 2) {
+                state.status = 'SELESAI';
+                state.timerRunning = false;
+            } else {
+                const next = state.badmintonMatches.findIndex((p,i) => i > idx && !p.winner);
+                if (next >= 0) {
+                    state.currentBadmintonPartai = next;
+                    state.period = `PARTAI ${next+1}`;
+                }
+            }
+
+            ensureBadmintonMatches();
+            updateOperatorInputs();
+            updateBadmintonOperatorUI();
+            updateVmixOutputFromState();
+            syncToFirebase();
+
+            if (teamWins.a >= 2 || teamWins.b >= 2) {
+                alert(`Badminton beregu selesai ${teamWins.a}-${teamWins.b}. Tekan “SELESAI & SIMPAN KE HISTORY” untuk menyimpan hasil lengkap ke Match Center.`);
+            }
+        }
+
+        function getVolleyballDisplayName() {
+            const id = String(state.matchId || '').toUpperCase();
+            if (id.startsWith('VP-')) return 'VOLLY PUTRA';
+            if (id.startsWith('VW-')) return 'VOLLY PUTRI';
+            return 'VOLLY';
+        }
+
+        function updateVolleyballOutput() {
+            ensureVolleyballSets();
+            const wins = getVolleyballSetWins();
+
+            // Output vMix menampilkan SET 1 sampai SET 5 sekaligus.
+            ['1','2','3','4','5'].forEach((n,i) => {
+                const s = state.volleyballSets[i] || {a:0,b:0};
+                const a = document.getElementById('vl-a'+n);
+                const b = document.getElementById('vl-b'+n);
+                const la = document.getElementById('vl-label-a'+n);
+                const lb = document.getElementById('vl-label-b'+n);
+
+                if (a) a.textContent = Number(s.a || 0);
+                if (b) b.textContent = Number(s.b || 0);
+                if (la) la.textContent = `SET ${i+1}`;
+                if (lb) lb.textContent = `SET ${i+1}`;
+            });
+
+            const totalA = document.getElementById('vl-total-a');
+            const totalB = document.getElementById('vl-total-b');
+            if (totalA) totalA.textContent = wins.a;
+            if (totalB) totalB.textContent = wins.b;
+
+            const ta = document.getElementById('vl-team-a');
+            const tb = document.getElementById('vl-team-b');
+            if (ta) ta.textContent = state.teamA?.name || 'TIM A';
+            if (tb) tb.textContent = state.teamB?.name || 'TIM B';
+
+            const title = document.getElementById('vl-title');
+            const period = document.getElementById('vl-period');
+            const status = document.getElementById('vl-status');
+            if (title) title.textContent = getVolleyballDisplayName();
+            if (period) period.textContent = state.period || 'SET 1';
+            if (status) status.textContent = state.status === 'LIVE' ? 'LIVE SEKARANG' : (state.status || 'LIVE');
+
+            const logoA = getAutoLogoForTeam(state.teamA?.name);
+            const logoB = getAutoLogoForTeam(state.teamB?.name);
+            const logoElA = document.getElementById('vl-logo-a');
+            const logoElB = document.getElementById('vl-logo-b');
+            if (logoElA) { logoElA.src = logoA; logoElA.style.display = logoA ? 'block' : 'none'; }
+            if (logoElB) { logoElB.src = logoB; logoElB.style.display = logoB ? 'block' : 'none'; }
+        }
+
+        function updateVolleyballLayoutVisibility() {
+            const isVolly = normalizeSport(state.sport) === 'VOLLY';
+            const old = document.querySelector('.sb-main-bar');
+            const bd = document.getElementById('badminton-layout');
+            const vl = document.getElementById('volly-layout');
+            if (old) old.style.display = isVolly ? 'none' : 'flex';
+            if (bd) bd.style.display = (!isVolly && normalizeSport(state.sport) === 'BADMINTON') ? 'flex' : 'none';
+            if (vl) vl.style.display = isVolly ? 'flex' : 'none';
+            if (isVolly) updateVolleyballOutput();
+        }
+
+        function updateBadmintonOutput() {
+            ensureBadmintonMatches();
+            const idx = state.currentBadmintonPartai;
+            const current = state.badmintonMatches[idx];
+            const teamWins = getBadmintonTeamWins();
+            const ids=['1','2','3'];
+
+            // Layout output vMix TIDAK diubah. Tiga kolom existing menampilkan
+            // Game 1, Game 2, Game 3 dari partai yang sedang aktif.
+            ids.forEach((n,i)=>{
+                const a=document.getElementById('bd-a'+n), b=document.getElementById('bd-b'+n);
+                if(a) a.textContent=current.games[i].a;
+                if(b) b.textContent=current.games[i].b;
+            });
+
+            const totalA=document.getElementById('bd-total-a'), totalB=document.getElementById('bd-total-b');
+            if(totalA) totalA.textContent=teamWins.a;
+            if(totalB) totalB.textContent=teamWins.b;
+
+            const ta=document.getElementById('bd-team-a'), tb=document.getElementById('bd-team-b');
+            if(ta) ta.textContent=state.teamA?.name||'TIM A';
+            if(tb) tb.textContent=state.teamB?.name||'TIM B';
+
+            const per=document.getElementById('bd-period');
+            if(per) per.textContent=`PARTAI ${idx+1}`;
+
+            const st=document.getElementById('bd-status');
+            if(st) st.textContent=state.status==='LIVE'?'LIVE SEKARANG':(state.status||'LIVE');
+
+            const la=document.getElementById('bd-logo-a'), lb=document.getElementById('bd-logo-b');
+            const logoA=getAutoLogoForTeam(state.teamA?.name), logoB=getAutoLogoForTeam(state.teamB?.name);
+            if(la){la.src=logoA; la.style.display=logoA?'block':'none';}
+            if(lb){lb.src=logoB; lb.style.display=logoB?'block':'none';}
+
+            updateBadmintonOperatorUI();
+        }
+
+        function updateBadmintonLayoutVisibility() {
+            const sport = normalizeSport(state.sport);
+            const isBd = sport === 'BADMINTON';
+            const isVolly = sport === 'VOLLY';
+            const isFutsal = sport === 'FUTSAL';
+            const old = document.querySelector('.sb-main-bar');
+            const bd = document.getElementById('badminton-layout');
+            const vl = document.getElementById('volly-layout');
+            const fs = document.getElementById('futsal-layout');
+            if(old) old.style.display=(isBd || isVolly || isFutsal)?'none':'flex';
+            if(bd) bd.style.display=isBd?'flex':'none';
+            if(vl) vl.style.display=isVolly?'flex':'none';
+            if(fs) fs.style.display=isFutsal?'block':'none';
+            if(isBd) updateBadmintonOutput();
+            if(isVolly) updateVolleyballOutput();
+            if(isFutsal) updateFutsalOutput();
+        }
+
+        function changeBadmintonSetScore(gameIndex, team, val) {
+            ensureBadmintonMatches();
+            const idx = state.currentBadmintonPartai;
+            const p = state.badmintonMatches[idx];
+
+            // Partai yang sudah ditutup tetap bisa diedit; status winner akan
+            // dihitung ulang ketika operator menekan SELESAI PARTAI INI.
+            const key=team==='A'?'a':'b';
+            p.games[gameIndex][key]=Math.max(0, Number(p.games[gameIndex][key]||0) + val);
+
+            // Bila skor diedit setelah partai pernah selesai, buka kembali winner
+            // supaya operator mengonfirmasi hasil partai lagi.
+            p.winner = null;
+
+            state.badmintonSets = p.games.map(g=>({a:g.a,b:g.b}));
+            const teamWins=getBadmintonTeamWins();
+            state.teamA.score=teamWins.a;
+            state.teamB.score=teamWins.b;
+            state.status='LIVE';
+            state.period=`PARTAI ${idx+1}`;
+
+            updateOperatorInputs();
+            updateBadmintonOperatorUI();
+            updateVmixOutputFromState();
+            syncToFirebase();
+        }
+
+        function updateVmixOutputFromState() {
+            const sportText = getSportDisplayName(state.sport);
+            const sportEl = document.getElementById('ui-sport');
+            const periodEl = document.getElementById('ui-period');
+            const timerEl = document.getElementById('ui-timer');
+            const scoreAEl = document.getElementById('ui-score-a');
+            const scoreBEl = document.getElementById('ui-score-b');
+            const teamAEl = document.getElementById('ui-team-a');
+            const teamBEl = document.getElementById('ui-team-b');
+
+            if (sportEl) sportEl.textContent = sportText;
+            if (periodEl) periodEl.textContent = state.period || getDefaultPeriod(sportText);
+
+            if (scoreAEl) scoreAEl.textContent = Number(state.teamA?.score || 0);
+            if (scoreBEl) scoreBEl.textContent = Number(state.teamB?.score || 0);
+            if (teamAEl) teamAEl.textContent = state.teamA?.name || "TIM A";
+            if (teamBEl) teamBEl.textContent = state.teamB?.name || "TIM B";
+
+            updateLogoOutput();
+            updateBadmintonLayoutVisibility();
+
+            if (timerEl) {
+                const isCountdownSport = sportText === "SEPAK BOLA" || sportText === "FUTSAL";
+                timerEl.style.display = "block";
+                timerEl.textContent = isCountdownSport ? formatTimer(state.timer) : formatLocalClock();
+            }
+        }
+
+        function updateOperatorInputs() {
+            document.getElementById('inp-name-a').value = state.teamA.name;
+            document.getElementById('inp-name-b').value = state.teamB.name;
+            document.getElementById('inp-period').value = state.period;
+            document.getElementById('select-status').value = state.status;
+            document.getElementById('op-score-a').textContent = state.teamA.score;
+            document.getElementById('op-score-b').textContent = state.teamB.score;
+            state.sport = normalizeSport(state.sport);
+            state.logos = state.logos || {a:"", b:""};
+            updateSportUI();
+            updateLogoOutput();
+            const bdOp=document.getElementById('badminton-operator');
+            const fsOp=document.getElementById('futsal-operator');
+            const tmOp=document.getElementById('tenis-operator');
+            if(bdOp) bdOp.style.display=normalizeSport(state.sport)==='BADMINTON'?'block':'none';
+            if(fsOp) fsOp.style.display=normalizeSport(state.sport)==='FUTSAL'?'block':'none';
+            if(tmOp) tmOp.style.display=normalizeSport(state.sport)==='TENIS MEJA'?'block':'none';
+            ensureFutsalGoals();
+            ensureVolleyballSets();
+            updateVolleyballUI();
+            ensureTenisGames();
+            updateTenisUI();
+            ensureBadmintonMatches();
+            updateBadmintonOutput();
+            updateBadmintonOperatorUI();
+        }
+
+        function changeScore(team, val) {
+            if (normalizeSport(state.sport) === 'FUTSAL') {
+                if (val > 0) { addFutsalGoal(team); return; }
+                ensureFutsalGoals();
+                if (team === 'A') state.teamA.score = Math.max(0, Number(state.teamA.score || 0) - 1);
+                else state.teamB.score = Math.max(0, Number(state.teamB.score || 0) - 1);
+                for (let i = state.futsalGoals.length - 1; i >= 0; i--) {
+                    if (state.futsalGoals[i].team === team) { state.futsalGoals.splice(i,1); break; }
+                }
+                updateOperatorInputs();
+                updateVmixOutputFromState();
+                syncToFirebase();
+                return;
+            }
+
+            if (normalizeSport(state.sport) === 'TENIS MEJA') {
+                ensureTenisGames();
+                const idx = Math.max(0, Math.min(2, Number(state.periodNumber) - 1));
+                if (state.tennisGames[idx]?.winner) return;
+                const key = team === 'A' ? 'a' : 'b';
+                state.tennisGames[idx][key] = Math.max(0, Number(state.tennisGames[idx][key] || 0) + val);
+                state.teamA.score = state.tennisGames[idx].a;
+                state.teamB.score = state.tennisGames[idx].b;
+                updateOperatorInputs();
+                updateVmixOutputFromState();
+                syncToFirebase();
+                return;
+            }
+
+            if (normalizeSport(state.sport) === 'VOLLY') {
+                ensureVolleyballSets();
+                const idx = Math.max(0, Number(state.periodNumber) - 1);
+                if (state.volleyballSets[idx]?.winner) return;
+                const key = team === 'A' ? 'a' : 'b';
+                state.volleyballSets[idx][key] = Math.max(0, Number(state.volleyballSets[idx][key] || 0) + val);
+                state.teamA.score = state.volleyballSets[idx].a;
+                state.teamB.score = state.volleyballSets[idx].b;
+                updateOperatorInputs();
+                updateVmixOutputFromState();
+                syncToFirebase();
+                return;
+            }
+
+            if (team === 'A') {
+                state.teamA.score = Math.max(0, state.teamA.score + val);
+                document.getElementById('op-score-a').textContent = state.teamA.score;
+            } else {
+                state.teamB.score = Math.max(0, state.teamB.score + val);
+                document.getElementById('op-score-b').textContent = state.teamB.score;
+            }
+            syncToFirebase();
+        }
+
+        function syncToFirebase() {
+            // Pada mode output tidak ada input operator. Jangan membaca elemen yang
+            // tidak diperlukan; cukup kirim state bila fungsi ini dipanggil operator.
+            const nameA = document.getElementById('inp-name-a');
+            const nameB = document.getElementById('inp-name-b');
+            const periodInput = document.getElementById('inp-period');
+            const statusInput = document.getElementById('select-status');
+
+            if (nameA) state.teamA.name = nameA.value;
+            if (nameB) state.teamB.name = nameB.value;
+            if (periodInput) state.period = periodInput.value;
+            if (statusInput) state.status = statusInput.value;
+
+            state.sport = normalizeSport(state.sport);
+            state.logos = {a:"", b:""};
+            ensureVolleyballSets();
+            ensureBadmintonMatches();
+            ensureFutsalGoals();
+            updateLogoOutput();
+            updateVolleyballUI();
+
+            return dbRef.set(state).catch((err) => {
+                console.error('Gagal sinkron ke Firebase:', err);
+                throw err;
+            });
+        }
+
+        function resetLiveScore() {
+            const ok = confirm("Hapus Live Score sekarang?\n\nBadge/skor live di Match Center & Scoreboard output akan kosong sampai pertandingan berikutnya dimulai lagi. Data pertandingan yang sudah tersimpan di History TIDAK akan terhapus.");
+            if (!ok) return;
+            dbRef.remove().then(() => {
+                alert("Live Score berhasil dihapus. Match Center akan otomatis kembali ke status 'Menunggu Pertandingan'.");
+            }).catch((err) => {
+                console.error('Gagal menghapus live score:', err);
+                alert("Gagal menghapus Live Score. Cek koneksi internet lalu coba lagi.");
+            });
+        }
+
+        function formatTimer(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return String(m).padStart(2, '0') + ":" + String(s).padStart(2, '0');
+        }
+
+        function formatLocalClock() {
+            return new Intl.DateTimeFormat('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).format(new Date());
+        }
+
+        function updateTimerDisplay() {
+            const timeStr = formatTimer(state.timer);
+            const sport = normalizeSport(state.sport);
+            document.getElementById('op-timer-display').textContent = timeStr;
+            document.getElementById('ui-timer').textContent = (sport === "SEPAK BOLA" || sport === "FUTSAL") ? timeStr : formatLocalClock();
+            if (sport === 'FUTSAL') { const ft = document.getElementById('futsal-timer'); if (ft) ft.textContent = timeStr; }
+        }
+
+        setInterval(() => {
+            const sport = normalizeSport(state.sport);
+            if (sport !== "SEPAK BOLA" && sport !== "FUTSAL") {
+                const timerEl = document.getElementById('ui-timer');
+                if (timerEl) timerEl.textContent = formatLocalClock();
+            }
+        }, 1000);
+
+        function toggleTimer() {
+            state.timerRunning = !state.timerRunning;
+            const btn = document.getElementById('btn-timer-toggle');
+            if (state.timerRunning) {
+                btn.textContent = "BERHENTI";
+                btn.className = "bg-rose-600 hover:bg-rose-500 py-2 rounded-xl font-bold text-xs";
+                startInterval();
+            } else {
+                btn.textContent = "MULAI";
+                btn.className = "bg-emerald-600 hover:bg-emerald-500 py-2 rounded-xl font-bold text-xs";
+                stopInterval();
+            }
+            syncToFirebase();
+        }
+
+        function startInterval() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (state.timerRunning && state.timer > 0) {
+                    state.timer--;
+                    updateTimerDisplay();
+                    syncToFirebase();
+                } else if (state.timer <= 0 && state.timerRunning) {
+                    state.timerRunning = false;
+                    toggleTimer();
+                }
+            }, 1000);
+        }
+
+        function stopInterval() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        function resetTimer() {
+            state.timer = 600;
+            state.timerRunning = false;
+            updateTimerDisplay();
+            syncToFirebase();
+        }
+
+        function adjustTimer(sec) {
+            state.timer = Math.max(0, state.timer + sec);
+            updateTimerDisplay();
+            syncToFirebase();
+        }
+
+        async function finishAndSaveMatch() {
+            if(!confirm("Yakin ingin menyelesaikan pertandingan ini dan menyimpannya ke hasil?")) return;
+
+            state.status = "SELESAI";
+            state.timerRunning = false;
+            state.completedAt = Date.now();
+            state.updatedAt = Date.now();
+
+            if (normalizeSport(state.sport) === 'BADMINTON') {
+                ensureBadmintonMatches();
+                const teamWins = getBadmintonTeamWins();
+                state.teamA.score = teamWins.a;
+                state.teamB.score = teamWins.b;
+            }
+
+            try {
+                await syncToFirebase();
+                await firebase.database().ref("vipt_scoreboard/history").push({...state});
+                alert("Pertandingan berhasil disimpan lengkap ke Hasil Match Center!");
+            } catch (err) {
+                console.error(err);
+                alert("Gagal menyimpan hasil ke Firebase. Silakan coba lagi.");
+            }
+        }
+
+        function openOutputTab() {
+            const url = new URL(window.location.href);
+            url.searchParams.set('mode', 'output');
+            window.open(url.toString(), '_blank');
+        }
+        function exitTestOutput() { location.reload(); }
+
+        let correctingVP8B4 = false;
+
+        dbRef.on('value', (snapshot) => {
+            const raw = snapshot.val();
+            if(raw) {
+                const matchId = String(raw.matchId || '').trim();
+                const oldA = String(raw.teamA?.name || '').trim();
+                const oldB = String(raw.teamB?.name || '').trim();
+
+                const isVP8B4 =
+                    matchId === 'VP-8B4' ||
+                    (oldA === 'RT 06 / RW 021' && oldB === 'RT 07 / RW 014');
+
+                if (isVP8B4) {
+                    const correctA = 'RT 06 / RW 021';
+                    const correctB = 'RT 07 / RW 021';
+
+                    state = {
+                        ...raw,
+                        matchId: 'VP-8B4',
+                        teamA: { ...(raw.teamA || {}), name: correctA },
+                        teamB: { ...(raw.teamB || {}), name: correctB },
+                        logos: {a:"", b:""}
+                    };
+
+                    const needsFix =
+                        matchId !== 'VP-8B4' ||
+                        oldA !== correctA ||
+                        oldB !== correctB;
+
+                    if (needsFix && !correctingVP8B4) {
+                        correctingVP8B4 = true;
+                        dbRef.update({
+                            matchId: 'VP-8B4',
+                            teamA: state.teamA,
+                            teamB: state.teamB,
+                            logos: {a:"", b:""}
+                        }).finally(() => { correctingVP8B4 = false; });
+                    }
+                } else {
+                    state = raw;
+                }
+                ensureVolleyballSets();
+                ensureBadmintonSets();
+                ensureFutsalGoals();
+                state.sport = normalizeSport(state.sport);
+                state.logos = {a:"", b:""};
+
+                // Sinkronkan juga PANEL OPERATOR, bukan hanya output scoreboard.
+                // Ini membuat LOAD dari tab/perangkat mana pun langsung terlihat sama.
+                const matchSelect = document.getElementById('select-match-list');
+                if (matchSelect) matchSelect.value = state.matchId || '';
+                updateOperatorInputs();
+                updateTimerDisplay();
+                updateVmixOutputFromState();
+                updateSportUI();
+                updateLogoOutput();
+
+                // Jika timer sedang berjalan dari state Firebase dan tab ini adalah
+                // operator, lanjutkan interval lokal agar kontrol tetap konsisten.
+                const isOutputMode = new URLSearchParams(window.location.search).get('mode') === 'output';
+                if (!isOutputMode) {
+                    if (state.timerRunning) startInterval();
+                    else stopInterval();
+                }
+            }
+        });
+
+        if (new URLSearchParams(window.location.search).get('mode') === 'output') {
+            document.getElementById('operator-view').classList.add('hidden');
+            document.getElementById('output-view').classList.remove('hidden');
+            document.getElementById('btn-back-operator').style.display = 'block';
+        }
+
+        populateMatchDropdown();
+        ensureVolleyballSets();
+        ensureBadmintonSets();
+        state.sport = normalizeSport(state.sport);
+        updateOperatorInputs();
+        updateTimerDisplay();
+        updateVmixOutputFromState();
+        updateSportUI();
+        updateLogoOutput();
+    </script>
+</body>
+</html>
